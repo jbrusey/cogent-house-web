@@ -28,7 +28,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         git submodule update --init --recursive
-        pip install -e tinyos3
         pip install -e .
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8

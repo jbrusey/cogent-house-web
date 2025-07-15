@@ -10,7 +10,7 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 
 from . import meta
-from .Bitset import Bitset
+from .bitset import Bitset
 
 
 class BitsetType(types.TypeDecorator):
