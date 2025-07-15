@@ -12,7 +12,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 
-import meta
+from . import meta
 Base = meta.Base
 
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime

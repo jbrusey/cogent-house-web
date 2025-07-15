@@ -5,9 +5,9 @@
 
 """
 
-from . import meta
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
+from . import meta
 
 
 class NodeHistory(meta.Base, meta.InnoDBMix):
@@ -25,7 +25,7 @@ class NodeHistory(meta.Base, meta.InnoDBMix):
 
     __tablename__ = "NodeHistory"
 
-    nodeId = Column(Integer, ForeignKey('Node.id'), primary_key=True)
+    nodeId = Column(Integer, ForeignKey("Node.id"), primary_key=True)
     startDate = Column(DateTime, primary_key=True)
     endDate = Column(DateTime)
     houseAddress = Column(String(255))

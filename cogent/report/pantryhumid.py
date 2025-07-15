@@ -5,38 +5,40 @@ Modifications
 
 """
 
-THRESHOLD=79
-
-from sqlalchemy import and_, or_, func
 from datetime import datetime, timedelta
-from cogent.base.model import (Node,
-                               Room,
-                               Location,
-                               Reading,
-                               LastReport
-                               )
 
-def pantry_humid(session,
-                 end_t=datetime.utcnow(),
-                 start_t=(datetime.utcnow() - timedelta(hours=24))):
+from sqlalchemy import and_
+
+from cogent.base.model import Location, Node, Reading, Room
+
+THRESHOLD = 79
+
+
+def pantry_humid(
+    session, end_t=datetime.utcnow(), start_t=(datetime.utcnow() - timedelta(hours=24))
+):
     html = []
 
-    pantry_humidity = (session.query(Reading.time, Reading.value)
-                       .join(Location, Node, Room)
-                       .filter(and_(Reading.time >= start_t,
-                                    Reading.time <= end_t,
-                                    Reading.typeId == 2,
-                                    Room.name == "pantry"
-                       ))
-                       .order_by(Reading.time.desc())
-                       .first())
+    pantry_humidity = (
+        session.query(Reading.time, Reading.value)
+        .join(Location, Node, Room)
+        .filter(
+            and_(
+                Reading.time >= start_t,
+                Reading.time <= end_t,
+                Reading.typeId == 2,
+                Room.name == "pantry",
+            )
+        )
+        .order_by(Reading.time.desc())
+        .first()
+    )
 
     if pantry_humidity is not None:
         (qt, qv) = pantry_humidity
         if qv > THRESHOLD:
-            html.append('<p><b>Pantry humidity is {} at {}</b></p>'
-                        .format(qv, qt))
+            html.append("<p><b>Pantry humidity is {} at {}</b></p>".format(qv, qt))
     else:
-        html.append('<p><b>Pantry reading not found</b></p>')
+        html.append("<p><b>Pantry reading not found</b></p>")
 
     return html

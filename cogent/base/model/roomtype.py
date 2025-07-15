@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 
 from . import meta
 
+
 class RoomType(meta.Base, meta.InnoDBMix):
     """The Type of Room  e.g. bedroom or kitchen
 
@@ -31,7 +32,7 @@ class RoomType(meta.Base, meta.InnoDBMix):
         return self.name == other.name
 
     def __ne__(self, other):
-        return not(self.name == other.name)
+        return not (self.name == other.name)
 
     def __lt__(self, other):
         return self.name < other.name

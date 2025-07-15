@@ -6,15 +6,15 @@ Table to represent deployments.
 .. codeauthor::  Daniel Goldsmith <djgoldsmith@googlemail.com>
 """
 
+# SQL Alchemy Relevant information
+from sqlalchemy import Column, DateTime, Integer, String
 
-#SQL Alchemy Relevant information
-from sqlalchemy import Column, Integer, String, DateTime
-
-#And Backrefs and Relations.
+# And Backrefs and Relations.
 from sqlalchemy.orm import relationship
 
-#Import Pyramid Meta Data
+# Import Pyramid Meta Data
 from . import meta
+
 
 class Deployment(meta.Base, meta.InnoDBMix):
     """Table to hold information about deployments.
@@ -41,18 +41,15 @@ class Deployment(meta.Base, meta.InnoDBMix):
     startDate = Column(DateTime)
     endDate = Column(DateTime)
 
-    meta = relationship("DeploymentMetadata",
-                        order_by="DeploymentMetadata.id",
-                        backref="deployment")
+    meta = relationship(
+        "DeploymentMetadata", order_by="DeploymentMetadata.id", backref="deployment"
+    )
     houses = relationship("House", order_by="House.id", backref="deployment")
 
-
     def __str__(self):
-        return "Deployment: {0} {1} {2} - {3}".format(self.id,
-                                                      self.name,
-                                                      self.startDate,
-                                                      self.endDate)
-
+        return "Deployment: {0} {1} {2} - {3}".format(
+            self.id, self.name, self.startDate, self.endDate
+        )
 
     def __eq__(self, other):
         """Check for equality
@@ -64,12 +61,10 @@ class Deployment(meta.Base, meta.InnoDBMix):
 
     def __ne__(self, other):
         """Check for Inequality"""
-        return not(self.name == other.name)
-        #return not(self.id == other.id and self.name == other.name)
+        return not (self.name == other.name)
+        # return not(self.id == other.id and self.name == other.name)
 
     def __lt__(self, other):
-        """Order Objects,
-        """
-        #if self.id == other.id:
+        """Order Objects,"""
+        # if self.id == other.id:
         return self.name < other.name
-

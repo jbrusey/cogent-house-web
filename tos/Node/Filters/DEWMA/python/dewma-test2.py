@@ -19,7 +19,7 @@ def test():
 
     with open("testVOC.csv", "rb") as ff:
         rdr = csv.reader(ff)
-	print "time,x,xhat,dx"
+	print("time,x,xhat,dx")
         for r in rdr:
             n = int(r[0])
             dt = datetime.strptime(r[1], "%Y-%m-%d %H:%M:%S")
@@ -34,7 +34,7 @@ def test():
 	    else:
                 z2 = v
                 x = kd.filter(z2, (dt - first_time).seconds)
-                print dt.strftime("%s")+","+str(v)+","+str(x[0])+","+str(x[1])
+                print(dt.strftime("%s")+","+str(v)+","+str(x[0])+","+str(x[1]))
 		  
 
 if __name__ == "__main__":

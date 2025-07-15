@@ -5,58 +5,41 @@ Classes to initialise the SQL and populate with default Sensors
 ..codeauthor:: Dan Goldsmith
 ..date::       Feb 2012
 
-..since 0.4:: 
+..since 0.4::
     Models updated to use Mixin Class, This should ensure all
     new tables are created using INNODB
 """
 
-import csv
-import os
-
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import mapperlib
-
-from .meta import *
-
-#Namespace Manginlg the Proper way, (via all)
-#__all__ = ["deployment.*"]
-
-#Namespace Mangling
-from .deployment import *
-from .deploymentmetadata import *
-from .host import *
-from .house import *
-from .housemetadata import *
-from .lastreport import *
-from .location import *
-from .node import *
-from .nodehistory import *
-from .nodestate import *
-from .nodetype import *
-from .nodeboot import *
-from .occupier import *
-from .rawmessage import *
-from .reading import *
-from .room import *
-from .roomtype import *
-from .sensor import *
-from .sensortype import *
-from .weather import *
-from .event import *
-from .timings import *
-from .user import *
-from .server import *
-from .pushstatus import *
-from . import populateData
-
 import json
 
-#Setup Logging
+# Setup Logging
 import logging
+
+from sqlalchemy.orm import mapperlib
+
+from .deployment import Deployment
+from .house import House
+from .location import Location
+
+# Namespace Manginlg the Proper way, (via all)
+# __all__ = ["deployment.*"]
+# Namespace Mangling
+from .meta import Base, Session
+from .node import Node
+from .nodeboot import NodeBoot
+from .nodestate import NodeState
+from .nodetype import NodeType
+from .reading import Reading
+from .room import Room
+from .roomtype import RoomType
+from .sensor import Sensor
+from .sensortype import SensorType
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.WARNING)
 
 TABLEMAP = {}
+
 
 def init_model(engine):
     """Call me before using any of the tables or classes in the model
@@ -64,7 +47,8 @@ def init_model(engine):
     DO NOT REMOVE ON MERGE
     """
     Session.configure(bind=engine)
-    #import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
+
 
 def initialise_sql(engine, dropTables=False):
     """Initialise the database
@@ -81,13 +65,14 @@ def initialise_sql(engine, dropTables=False):
 
     """
     log.info("Initialising Database")
-    meta.Session.configure(bind = engine)
+    Session.configure(bind=engine)
     Base.metadata.bind = engine
 
     if dropTables:
         Base.metadata.drop_all(engine)
 
     Base.metadata.create_all(engine)
+
 
 def findClass(tableName):
     """Helper method that attempts to find a SQLA class given a tablename
@@ -96,13 +81,13 @@ def findClass(tableName):
 
     tableName = tableName.lower()
     log.debug(TABLEMAP)
-    mappedTable = TABLEMAP.get(tableName,None)
+    mappedTable = TABLEMAP.get(tableName, None)
     if mappedTable:
         return mappedTable
 
     log.debug("Looking for {0}".format(tableName))
     for x in list(mapperlib._mapper_registry.items()):
-        #mapped table
+        # mapped table
         log.debug("--> Checking against {0}".format(x))
         checkTable = x[0].mapped_table
         theClass = x[0].class_
@@ -117,9 +102,10 @@ def findClass(tableName):
     log.debug("--> Final Verison {0}".format(mappedTable))
     return mappedTable
 
+
 def newClsFromJSON(jsonItem):
     """Method to create class from JSON"""
-    if type(jsonItem) == str:
+    if isinstance(jsonItem, str):
         jsonItem = json.loads(jsonItem)
 
     log.debug("Loading class from JSON")
@@ -128,46 +114,48 @@ def newClsFromJSON(jsonItem):
     log.debug("Table from JSON is {0}".format(theType))
     theClass = findClass(theType)
     log.debug("Returned Class {0}".format(theClass))
-    #Iterate through to find the class
-    #Create a new instace of this models
+    # Iterate through to find the class
+    # Create a new instace of this models
     theModel = theClass()
     log.debug("New model is {0}".format(theModel))
-    #And update using the JSON stuff
+    # And update using the JSON stuff
     theModel.fromJSON(jsonItem)
     log.debug("Updated Model {0}".format(theModel))
     return theModel
 
+
 def clsFromJSON(theList):
     """Generator object to convert JSON strings from a rest object
     into database objects"""
-    #Convert from JSON encoded string
-    if type(theList) == str:
+    # Convert from JSON encoded string
+    if isinstance(theList, str):
         theList = json.loads(theList)
-    #Make the list object iterable
-    if not type(theList) == list:
+    # Make the list object iterable
+    if not isinstance(theList, list):
         theList = [theList]
 
-    typeMap = {"deployment":Deployment,
-               "house":House,
-               "reading":Reading,
-               "node":Node,
-               "sensor":Sensor,
-               "nodestate":NodeState,
-               "nodeboot":NodeBoot,
-               "roomtype":RoomType,
-               "sensortype":SensorType,
-               "room":Room,
-               "location":Location,
-               "nodetype":NodeType,
-               }
+    typeMap = {
+        "deployment": Deployment,
+        "house": House,
+        "reading": Reading,
+        "node": Node,
+        "sensor": Sensor,
+        "nodestate": NodeState,
+        "nodeboot": NodeBoot,
+        "roomtype": RoomType,
+        "sensortype": SensorType,
+        "room": Room,
+        "location": Location,
+        "nodetype": NodeType,
+    }
 
     for item in theList:
-        if type(item) == str or type(item) == str:
+        if isinstance(item, str):
             item = json.loads(item)
-        #Convert to the correct type of object
+        # Convert to the correct type of object
         theType = item["__table__"]
         theModel = typeMap[theType.lower()]()
-        #print theModel
-        
+        # print theModel
+
         theModel.fromJSON(item)
         yield theModel

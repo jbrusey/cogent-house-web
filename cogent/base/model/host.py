@@ -16,6 +16,7 @@ import sqlalchemy
 
 from . import meta
 
+
 class Host(meta.Base, meta.InnoDBMix):
     """
     Table to hold information about Hosts
@@ -24,7 +25,6 @@ class Host(meta.Base, meta.InnoDBMix):
     :var string hostname: name
     :var DateTime lastupdate: lastupdate
     """
-
 
     __tablename__ = "Host"
 

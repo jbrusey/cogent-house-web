@@ -19,25 +19,25 @@ class KalmanTest(unittest.TestCase):
     def testKalmanDelta(self):
         self.DEWMA = Ewma(x_init=10.,x_dinit=1/64.)
         sse = 0.
-        for i in xrange(1,2001):
+        for i in range(1,2001):
             z = ((i / 64.) + 10.)
             v = self.DEWMA.filter(z, i*1024)
             err = v[0] - z            
             sse += err * err
             
-        print v[0]
-        print v[1]
-        print sse
+        print(v[0])
+        print(v[1])
+        print(sse)
         
-        self.assertEquals(v[0], 10.+2000./64.)
-        self.assertEquals(v[1], 1./64.)
-        self.assertEquals(sse,0.)
+        self.assertEqual(v[0], 10.+2000./64.)
+        self.assertEqual(v[1], 1./64.)
+        self.assertEqual(sse,0.)
  
     def testKalmanDelta2(self):
         self.DEWMA = Ewma(x_init=10.,x_dinit=1/64., alpha=0.01, beta=0.001)
         sse = 0.
         sse2 = 0.
-        for i in xrange(1,6001):
+        for i in range(1,6001):
             z = ((i / 64.) + 10.) + random.gauss(0,1.)
             v = self.DEWMA.filter(z, i*1024)
             err = v[0] - z
@@ -45,14 +45,14 @@ class KalmanTest(unittest.TestCase):
             sse += err * err
             sse2 += err2*err2
             
-        print v[0]
-        print v[1]
-        print sse
-        print sse2
+        print(v[0])
+        print(v[1])
+        print(sse)
+        print(sse2)
         
-        self.assertEquals(v[0], 10.+6000./64.)
-        self.assertEquals(v[1], 1./64.)
-        self.assertEquals(sse,0.)
+        self.assertEqual(v[0], 10.+6000./64.)
+        self.assertEqual(v[1], 1./64.)
+        self.assertEqual(sse,0.)
  
  
  

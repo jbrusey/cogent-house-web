@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
 
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, DateTime, Float, Boolean
 
-import meta
+from . import meta
 Base = meta.Base
 
 class LastReport(Base,meta.InnoDBMix):

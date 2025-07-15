@@ -7,12 +7,13 @@ class DictDiff(object):
     """
     Check two dictionarys and calculate differences between them
     """
+
     def __init__(self, mine, other):
         self.mine, self.other = mine, other
-        #Set of keys in each dict
+        # Set of keys in each dict
         self.set_mine = set(mine.keys())
         self.set_other = set(other.keys())
-        #Intersection between keys
+        # Intersection between keys
         self.intersect = self.set_mine.intersection(self.set_other)
 
     def added(self):
@@ -35,7 +36,7 @@ class DictDiff(object):
     def changed(self):
         """Return items that have changed between dictionarys"""
         changed = [x for x in self.intersect if self.other[x] != self.mine[x]]
-        #print changed
+        # print changed
         return set(changed)
 
     def unchanged(self):

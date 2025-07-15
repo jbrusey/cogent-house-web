@@ -6,13 +6,14 @@
 """
 
 import logging
-LOG = logging.getLogger(__name__)
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
 
 from . import meta
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, BigInteger, Index, Boolean
+LOG = logging.getLogger(__name__)
 
-#from Bitset import Bitset
+# from Bitset import Bitset
 
 
 class NodeBoot(meta.Base, meta.InnoDBMix):
@@ -27,25 +28,26 @@ class NodeBoot(meta.Base, meta.InnoDBMix):
 
     __tablename__ = "NodeBoot"
 
-    time = Column(DateTime,
-                primary_key=True)
-    nodeId = Column(Integer,
-                    ForeignKey('Node.id'))
+    time = Column(DateTime, primary_key=True)
+    nodeId = Column(Integer, ForeignKey("Node.id"))
     clustered = Column(Boolean)
     version = Column(String(20))
 
-    #Add a named index
-    __table_args__ = (Index('time',
-                            'nodeId'),
-                      )
+    # Add a named index
+    __table_args__ = (Index("time", "nodeId"),)
 
     def __repr__(self):
-        return ("NodeBoot(" +
-                str(self.time) + "," +
-                str(self.nodeId) + "," +
-                str(self.clustered) + "," +
-                str(self.version) + ")")
-
+        return (
+            "NodeBoot("
+            + str(self.time)
+            + ","
+            + str(self.nodeId)
+            + ","
+            + str(self.clustered)
+            + ","
+            + str(self.version)
+            + ")"
+        )
 
     def __cmp__(self, other):
         try:
@@ -55,10 +57,8 @@ class NodeBoot(meta.Base, meta.InnoDBMix):
         except TypeError as e:
             LOG.warning("Unable to Compare {0} {1} \n{2}".format(self, other, e))
 
-
     def pandas(self):
         """Return this object as something suitable for pandas"""
-        
-        #Igonre parent / rssi as we dont really use them
-        return {"time":self.time,
-                "nodeId":self.nodeId}                
+
+        # Igonre parent / rssi as we dont really use them
+        return {"time": self.time, "nodeId": self.nodeId}

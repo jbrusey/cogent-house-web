@@ -4,18 +4,18 @@ Table to represent users of the system.
 .. codeauthor::  Daniel Goldsmith <djgoldsmith@googlemail.com>
 """
 
-#SQL Alchemy Relevant information
+# SQL Alchemy Relevant information
 import sqlalchemy
 
-#And Backrefs and Relations.
+# And Backrefs and Relations.
 import sqlalchemy.orm
 
-#Import Pyramid Meta Data
+# Import Pyramid Meta Data
 from . import meta
 
+
 class User(meta.Base, meta.InnoDBMix):
-    """Table to hold information about users of the database
-    """
+    """Table to hold information about users of the database"""
 
     __tablename__ = "User"
 
@@ -23,5 +23,4 @@ class User(meta.Base, meta.InnoDBMix):
     username = sqlalchemy.Column(sqlalchemy.String(256))
     email = sqlalchemy.Column(sqlalchemy.String(256))
     password = sqlalchemy.Column(sqlalchemy.String(256))
-    level = sqlalchemy.Column(sqlalchemy.String(32)) #Root, User etc
-
+    level = sqlalchemy.Column(sqlalchemy.String(32))  # Root, User etc

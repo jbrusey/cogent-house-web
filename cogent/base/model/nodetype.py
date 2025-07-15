@@ -5,12 +5,13 @@
 
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship
 import sqlalchemy.types as types
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy.orm import relationship
 
 from . import meta
 from .Bitset import Bitset
+
 
 class BitsetType(types.TypeDecorator):
     impl = types.String
@@ -20,6 +21,7 @@ class BitsetType(types.TypeDecorator):
 
     def process_result_value(self, value, dialect):
         return Bitset.fromstring(value)
+
 
 class NodeType(meta.Base, meta.InnoDBMix):
     """Type of Node
@@ -39,9 +41,10 @@ class NodeType(meta.Base, meta.InnoDBMix):
 
 
     """
+
     __tablename__ = "NodeType"
 
-    id = Column(Integer, primary_key = True, autoincrement = False)
+    id = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String(20))
     time = Column(DateTime)
     seq = Column(Integer)
@@ -53,38 +56,45 @@ class NodeType(meta.Base, meta.InnoDBMix):
     nodes = relationship("Node", order_by="Node.id", backref="nodeType")
 
     def __repr__(self):
-        return ("NodeType(" +
-                ",".join([repr(x) for x in [self.id,
-                                            self.name,
-                                            self.time,
-                                            self.seq,
-                                            self.updated_seq,
-                                            self.period,
-                                            self.blink,
-                                            self.configured,
-                                            ]]) + ")")
-
+        return (
+            "NodeType("
+            + ",".join(
+                [
+                    repr(x)
+                    for x in [
+                        self.id,
+                        self.name,
+                        self.time,
+                        self.seq,
+                        self.updated_seq,
+                        self.period,
+                        self.blink,
+                        self.configured,
+                    ]
+                ]
+            )
+            + ")"
+        )
 
     def dict(self):
-        thedict =  {"__table__":"nodetype",
-                    "id":self.id,
-                    "name":self.name,
-                    "time":None,
-                    "seq":self.seq,
-                    "updated_seq":self.updated_seq,
-                    "period":self.period,
-                    "blink":self.blink,
-                    "configured": str(self.configured),
-                    }
+        thedict = {
+            "__table__": "nodetype",
+            "id": self.id,
+            "name": self.name,
+            "time": None,
+            "seq": self.seq,
+            "updated_seq": self.updated_seq,
+            "period": self.period,
+            "blink": self.blink,
+            "configured": str(self.configured),
+        }
         if self.time:
             thedict["time"] = self.time.isoformat()
 
         return thedict
-                
-                
-    def __cmp__(self,other):
+
+    def __cmp__(self, other):
         if self.id == other.id:
-            return cmp(self.name, other.name)
+            return (self.name > other.name) - (self.name < other.name)
         else:
             return self.id - other.id
-        

@@ -10,7 +10,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 
-import meta
+from . import meta
 Base = meta.Base
 
 class UploadURL(Base,meta.InnoDBMix):

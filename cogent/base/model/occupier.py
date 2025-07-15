@@ -7,9 +7,10 @@ Table to hold details of Occupiers
 
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from . import meta
+
 
 class Occupier(meta.Base, meta.InnoDBMix):
     """Class representing someone who lives in a house
@@ -22,11 +23,10 @@ class Occupier(meta.Base, meta.InnoDBMix):
     :var DateTime endDate:
     """
 
-
     __tablename__ = "Occupier"
 
     id = Column(Integer, primary_key=True)
-    houseId = Column(Integer, ForeignKey('House.id'))
+    houseId = Column(Integer, ForeignKey("House.id"))
     name = Column(String(255))
     contactNumber = Column(String(20))
     startDate = Column(DateTime)

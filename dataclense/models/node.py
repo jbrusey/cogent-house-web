@@ -9,7 +9,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 
-import meta
+from . import meta
 Base = meta.Base
 
 from sqlalchemy import Table, Column, Integer, ForeignKey,String,DateTime,Boolean
@@ -52,7 +52,7 @@ class Node(Base,meta.InnoDBMix):
     locations = relationship("Location",secondary="NodeLocation",backref="OldNodes")   
 
     def update(self,**kwargs):
-        for key,value in kwargs.iteritems():
+        for key,value in kwargs.items():
             setattr(self,key,value)
 
     def __str__(self):

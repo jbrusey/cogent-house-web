@@ -16,31 +16,31 @@ import os
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import mapperlib
 
-from meta import *
+from .meta import *
 
 #Namespace Mangling
-from deployment import *
-from deploymentmetadata import *
-from host import *
-from house import *
-from housemetadata import *
-from lastreport import *
-from location import *
-from node import *
-from nodehistory import *
-from nodestate import *
-from nodetype import *
-from occupier import *
-from rawmessage import *
-from reading import *
-from room import *
-from roomtype import *
-from sensor import *
-from sensortype import *
-from weather import *
-from uploadurl import *
-from event import *
-from summary import *
+from .deployment import *
+from .deploymentmetadata import *
+from .host import *
+from .house import *
+from .housemetadata import *
+from .lastreport import *
+from .location import *
+from .node import *
+from .nodehistory import *
+from .nodestate import *
+from .nodetype import *
+from .occupier import *
+from .rawmessage import *
+from .reading import *
+from .room import *
+from .roomtype import *
+from .sensor import *
+from .sensortype import *
+from .weather import *
+from .uploadurl import *
+from .event import *
+from .summary import *
 #import populateData
 
 import json
@@ -111,7 +111,7 @@ def findClass(tableName):
         return mappedTable
 
 
-    for x in mapperlib._mapper_registry.items():
+    for x in list(mapperlib._mapper_registry.items()):
         #mapped table
         log.debug("--> Checking against {0}".format(x))
         checkTable = x[0].mapped_table

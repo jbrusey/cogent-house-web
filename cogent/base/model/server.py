@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 
 from . import meta
 
+
 class Server(meta.Base, meta.InnoDBMix):
     """
     Table to hold information about Servers
@@ -19,17 +20,15 @@ class Server(meta.Base, meta.InnoDBMix):
     :var integer houseid: Id of house this node is deployed in
     """
 
-
     __tablename__ = "Server"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     hostname = sqlalchemy.Column(sqlalchemy.String(255))
 
-    baseid = sqlalchemy.Column(sqlalchemy.Integer, 
-                               sqlalchemy.ForeignKey("Node.id"))
-    #houseid = sqlalchemy.Column(sqlalchemy.Integer,
+    baseid = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("Node.id"))
+    # houseid = sqlalchemy.Column(sqlalchemy.Integer,
     #                            sqlalchemy.ForeignKey("House.id"))
 
-    rpc = sqlalchemy.Column(sqlalchemy.Integer) #Store RPC values as a bitmask
-    #node = relationship("Node", "Server")
+    rpc = sqlalchemy.Column(sqlalchemy.Integer)  # Store RPC values as a bitmask
+    # node = relationship("Node", "Server")
     houses = relationship("House", backref="server")

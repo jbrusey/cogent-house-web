@@ -15,16 +15,16 @@ import csv
 
 #DB Relevant imports
 #from meta import *
-import meta
+from . import meta
 
 #Interesting, this sets up the log to be the same log as the most recent object
 #Therefore we need to setup the log after we import 
-from sensortype import *
-from roomtype import *
-from node import *
-from sensor import *
-from room import *
-from summary import *
+from .sensortype import *
+from .roomtype import *
+from .node import *
+from .sensor import *
+from .room import *
+from .summary import *
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -239,7 +239,7 @@ def _parseCalibration(filename,sensorcode,session=False):
 
     try:
         reader = csv.reader(open(thePath,"r"),delimiter=",")
-    except IOError,e:
+    except IOError as e:
         log.warning("Unable to parse calibration {0}".format(e))
         return False
 

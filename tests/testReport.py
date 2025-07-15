@@ -1,6 +1,6 @@
-
 from sqlalchemy import create_engine
-#from sqlalchemy.orm import sessionmaker
+
+# from sqlalchemy.orm import sessionmaker
 import urllib.request, urllib.error, urllib.parse
 import time
 import datetime
@@ -11,6 +11,7 @@ import re
 
 # try:
 import cogent
+
 # except ImportError:
 #     #Assume we are running from the test directory
 #     print "Unable to Import Cogent Module Appending Path"
@@ -25,10 +26,11 @@ import unittest
 
 from . import base
 
+
 class TestReport(base.BaseTestCase):
     @classmethod
     def setUpClass(cls):
-        #Inherit from Base
+        # Inherit from Base
         super(TestReport, cls).setUpClass()
 
         session = cls.Session()
@@ -42,10 +44,9 @@ class TestReport(base.BaseTestCase):
         session.commit()
         initDb()
 
-
     @classmethod
     def tearDownClass(cls):
-        #Inherit from Base
+        # Inherit from Base
         session = cls.Session()
         session.execute("DELETE FROM Node")
         session.execute("DELETE FROM NodeState")
@@ -55,7 +56,6 @@ class TestReport(base.BaseTestCase):
         session.execute("DELETE FROM Reading")
         session.execute("DELETE FROM LastReport")
         session.commit()
-
 
     def test_lowbat(self):
         try:
@@ -71,9 +71,9 @@ class TestReport(base.BaseTestCase):
         try:
             s = Session()
             x = packetYield(s)
-            #print x
+            # print x
             y = packetYield(s)
-            #self.assertTrue(len(y) == 0)
+            # self.assertTrue(len(y) == 0)
             # print y
         finally:
             s.close()
@@ -85,7 +85,7 @@ class TestReport(base.BaseTestCase):
             # print x
             y = ccYield(s)
             # print y
-            #self.assertTrue(len(y) == 0)
+            # self.assertTrue(len(y) == 0)
         finally:
             s.close()
 
@@ -112,50 +112,27 @@ def initDb():
 
         t = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         for i in range(288):
-            ns = NodeState(time=t,
-                           nodeId=23,
-                           parent=0,
-                           localtime=0,
-                           seq_num=i)
+            ns = NodeState(time=t, nodeId=23, parent=0, localtime=0, seq_num=i)
             s.add(ns)
 
-            s.add(Reading(typeId=6,
-                        time=t,
-                        value=3.0 - i / 288.,
-                        nodeId=22))
+            s.add(Reading(typeId=6, time=t, value=3.0 - i / 288.0, nodeId=22))
 
-            s.add(Reading(typeId=11,
-                          time=t,
-                          value=300.0,
-                          nodeId=4098))
+            s.add(Reading(typeId=11, time=t, value=300.0, nodeId=4098))
             if i < 200:
-                s.add(Reading(typeId=11,
-                              time=t,
-                              value=300.0,
-                    nodeId=4099))
-            
+                s.add(Reading(typeId=11, time=t, value=300.0, nodeId=4099))
+
             if i > 6:
-                s.add(NodeState(time=t,
-                                nodeId=24,
-                                parent=0,
-                                localtime=0,
-                                seq_num=i))
+                s.add(NodeState(time=t, nodeId=24, parent=0, localtime=0, seq_num=i))
             t = t + datetime.timedelta(minutes=5)
-            
+
         s.commit()
         # print "Object Creation Successfull"
     finally:
         s.close()
 
 
-
-
-
-
-    
-        
 if __name__ == "__main__":
-    #initDb()
+    # initDb()
     engine = create_engine("sqlite:///", echo=False)
     Base.metadata.create_all(engine)
     init_model(engine)
@@ -198,14 +175,14 @@ if __name__ == "__main__":
     #                           time=t,
     #                           value=300.0,
     #                 nodeId=4099))
-            
+
     #         if i > 6:
     #             s.add(NodeState(time=t,
     #                             nodeId=24,
     #                             parent=0,
     #                             localtime=0))
     #         t = t + timedelta(minutes=5)
-            
+
     #     s.commit()
     # finally:
     #     s.close()

@@ -4,13 +4,13 @@
 .. codeauthor::  Daniel Goldsmith <djgoldsmith@googlemail.com>
 """
 
-#SQL Alchemy Relevant information
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
+# SQL Alchemy Relevant information
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 
-#And Backrefs and Relations.
-
-#Import Pyramid Meta Data
+# And Backrefs and Relations.
+# Import Pyramid Meta Data
 from . import meta
+
 
 class DeploymentMetadata(meta.Base, meta.InnoDBMix):
     """
@@ -27,7 +27,7 @@ class DeploymentMetadata(meta.Base, meta.InnoDBMix):
     __tablename__ = "DeploymentMetadata"
 
     id = Column(Integer, primary_key=True)
-    deploymentId = Column(Integer, ForeignKey('Deployment.id'))
+    deploymentId = Column(Integer, ForeignKey("Deployment.id"))
     name = Column(String(255))
     description = Column(String(255))
     units = Column(String(255))

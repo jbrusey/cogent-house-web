@@ -1,13 +1,13 @@
-#import unittest
+# import unittest
 
-import cogent.base.BaseIF as BaseIF
+# import cogent.base.BaseIF as BaseIF
 
 
 # class test_baseif(unittest.TestCase):
 #     """Tests for the baseIF class"""
 
 #     #As we dont want to have several baseIF's knocking around
-#     @classmethod 
+#     @classmethod
 #     def setUpClass(cls):
 #         #Create a baseIF
 #         print "Creating BIF"
@@ -25,5 +25,3 @@ import cogent.base.BaseIF as BaseIF
 
 #     def testTransmit(self):
 #         pass
-
-

@@ -8,7 +8,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 
-import meta
+from . import meta
 Base = meta.Base
 
 from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime,Float
@@ -36,5 +36,5 @@ class HouseMetadata(Base,meta.InnoDBMix):
     value = Column(Float)
 
     def update(self,**kwargs):
-        for key,value in kwargs.iteritems():
+        for key,value in kwargs.items():
             setattr(self,key,value)

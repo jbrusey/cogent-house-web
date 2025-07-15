@@ -9,19 +9,20 @@ import unittest
 import datetime
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 import json
 
-#from pyramid.config import Configurator
-#from paste.deploy.loadwsgi import appconfig
-#from pyramid import testing
+# from pyramid.config import Configurator
+# from paste.deploy.loadwsgi import appconfig
+# from pyramid import testing
 
 from sqlalchemy.orm import sessionmaker
 import sqlalchemy
 
-from cogent.base import * #Make sure all is loaded for coverage
+from cogent.base import *  # Make sure all is loaded for coverage
 import cogent.base.model.meta as meta
 import cogent.base.model as models
 import cogent
@@ -29,12 +30,13 @@ import cogent.report
 
 import transaction
 
+
 def initDatabase():
     """Method to initialise the database"""
 
     log.debug("------- INITIALISE TESTING DATABASE ---------")
-    #settings = appconfig('config:' + SETTINGS_PATH)
-    #engine = engine_from_config(settings,prefix="sqlalchemy.")
+    # settings = appconfig('config:' + SETTINGS_PATH)
+    # engine = engine_from_config(settings,prefix="sqlalchemy.")
     engine = sqlalchemy.create_engine("sqlite:///test.db")
 
     log.debug("Database Engine Started: {0}".format(engine))
@@ -42,8 +44,9 @@ def initDatabase():
     meta.Base.metadata.bind = engine
     meta.Base.metadata.create_all(engine)
 
-#Check to see if we have a database all ready initialised (Avoids bug where the
-#test overrides everything)
+
+# Check to see if we have a database all ready initialised (Avoids bug where the
+# test overrides everything)
 if meta.Base.metadata.bind is None:
     log.info("No Database Initiated")
     # print
@@ -53,15 +56,16 @@ if meta.Base.metadata.bind is None:
     models.populateData.init_data()
     # print "====================="
 
+
 class BaseTestCase(unittest.TestCase):
     """Base class for testing"""
 
     @classmethod
     def setUpClass(cls):
         """Class method, called each time this is initialised"""
-        #cls.config = testing.setUp()
+        # cls.config = testing.setUp()
 
-        #Load settings from Configuration file
+        # Load settings from Configuration file
         log.debug("Initialising Test Class Database for {0}".format(cls.__name__))
         cls.engine = sqlalchemy.create_engine("sqlite:///test.db")
         meta.Base.metadata.create_all(cls.engine)
@@ -75,19 +79,20 @@ class BaseTestCase(unittest.TestCase):
         """
         connection = self.engine.connect()
 
-        #Begin the Transaction
+        # Begin the Transaction
         self.transaction = connection.begin()
 
-        #And bind the session
+        # And bind the session
         self.session = self.Session(bind=connection)
 
     def tearDown(self):
         """
         Close the transaction and rollback after each test case is called
         """
-        #testing.tearDown()
+        # testing.tearDown()
         self.transaction.rollback()
         self.session.close()
+
 
 class ModelTestCase(BaseTestCase):
     """Subclass to test models
@@ -138,14 +143,14 @@ class ModelTestCase(BaseTestCase):
     def testSerialise(self):
         theObj = self._serialobj()
 
-        #convert to dictionary
-        #theDict = theObj.toDict()
+        # convert to dictionary
+        # theDict = theObj.toDict()
         theDict = theObj.dict()
-        #print "DICT ",theDict
-        #Convert Back
+        # print "DICT ",theDict
+        # Convert Back
         newObj = models.newClsFromJSON(theDict)
-        #print "NEW: ",newObj
-        self.assertEqual(theObj,newObj)
+        # print "NEW: ",newObj
+        self.assertEqual(theObj, newObj)
 
     def testDict(self):
         """Test Conversion to a dictionary"""
@@ -153,8 +158,6 @@ class ModelTestCase(BaseTestCase):
         theDict = self._dictobj()
         # now = datetime.datetime.utcnow()
 
-
         objDict = theItem.dict()
-        self.assertIsInstance(objDict,dict)
-        self.assertEqual(objDict,theDict)
-
+        self.assertIsInstance(objDict, dict)
+        self.assertEqual(objDict, theDict)

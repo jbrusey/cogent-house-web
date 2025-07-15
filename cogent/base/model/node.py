@@ -6,13 +6,14 @@
 """
 
 import logging
-LOG = logging.getLogger(__name__)
+
+from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.orm import relationship
 
 from . import meta
 
+LOG = logging.getLogger(__name__)
 
-from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship
 
 class Node(meta.Base, meta.InnoDBMix):
     """
@@ -31,31 +32,23 @@ class Node(meta.Base, meta.InnoDBMix):
     __tablename__ = "Node"
 
     id = Column(Integer, primary_key=True, autoincrement=False)
-    locationId = Column(Integer,
-                        ForeignKey('Location.id'),
-                        nullable=True)
-    nodeTypeId = Column(Integer, ForeignKey('NodeType.id'),
-                        nullable=True)
+    locationId = Column(Integer, ForeignKey("Location.id"), nullable=True)
+    nodeTypeId = Column(Integer, ForeignKey("NodeType.id"), nullable=True)
 
-    stateHistory = relationship("NodeState",
-                                order_by="NodeState.id",
-                                backref="node")
-    nodeHistory = relationship("NodeHistory",
-                               backref="node")
-    readings = relationship("Reading",
-                            backref="node")
-    sensors = relationship("Sensor",
-                           backref=("node"))
+    stateHistory = relationship("NodeState", order_by="NodeState.id", backref="node")
+    nodeHistory = relationship("NodeHistory", backref="node")
+    readings = relationship("Reading", backref="node")
+    sensors = relationship("Sensor", backref=("node"))
 
-    #Add a backref to association Table
+    # Add a backref to association Table
 
     # locations = relationship("Location",
     #                          secondary="NodeLocation",
     #                          backref="node")
 
     def update(self, **kwargs):
-        """ Function to update based on a dictionary"""
-        for key,value in kwargs.items():
+        """Function to update based on a dictionary"""
+        for key, value in list(kwargs.items()):
             setattr(self, key, value)
 
     def __eq__(self, other):
@@ -63,11 +56,11 @@ class Node(meta.Base, meta.InnoDBMix):
         if self.id == other.id:
             return self.locationId == other.locationId
         return False
-        #return self.id == other.id & self.locationId == other.locationId
+        # return self.id == other.id & self.locationId == other.locationId
 
     def __ne__(self, other):
         """Ids differ"""
-        return not(self == other)
+        return not (self == other)
 
     def __lt__(self, other):
         return self.id < other.id
@@ -79,4 +72,3 @@ class Node(meta.Base, meta.InnoDBMix):
         if self.id == other.id:
             return self.locationId - other.locationId
         return self.id - other.id
-

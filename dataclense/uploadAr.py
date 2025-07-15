@@ -152,7 +152,7 @@ class ArchRockDB(object):
         """
 
         for t in self.meta.sorted_tables:
-            print t.name
+            print(t.name)
 
         return self.meta.sorted_tables
 
@@ -377,9 +377,9 @@ class ArchRockDB(object):
         nodePairs = {}
     
         sensorData = {}
-        print "Finding Nodes"
+        print("Finding Nodes")
         for node in arNodes:
-            print node
+            print(node)
             #Do we already know about this node
             theNode = nodeDict.get(node.addr,None)
             if not theNode:
@@ -416,7 +416,7 @@ class ArchRockDB(object):
 
         #We should also check if the node has any data attached to it before saving it in the database
         
-        for nodeAddr,nodeId in addrDict.iteritems():
+        for nodeAddr,nodeId in addrDict.items():
             #log.debug("Id: {0} Item: {1}".format(nodeAddr,nodeId))
             #Check if the data Exists
 
@@ -502,12 +502,12 @@ class ArchRockDB(object):
                     #log.debug("--> Copied Sensor {0}".format(thisSensor))
                                 
         
-        status["nodes"] = nodeDict.values()
-        status["sensors"] = sensorDict.items()
+        status["nodes"] = list(nodeDict.values())
+        status["sensors"] = list(sensorDict.items())
         #return status
         
         log.debug("{0} Sensors {0}".format("-"*20))
-        for key,item in sensorDict.iteritems():
+        for key,item in sensorDict.items():
             log.debug("{0} {1}".format(key,item))
                  
         
@@ -516,10 +516,10 @@ class ArchRockDB(object):
 
         #if not nodeIdDict:
         #    log.warning("No Node ID's")
-        dataQuery = dataQuery.filter(Data.node_key.in_(nodeIdDict.keys()))
+        dataQuery = dataQuery.filter(Data.node_key.in_(list(nodeIdDict.keys())))
         #if not sensorDict:
         #    log.warning("No Sensor ID's")
-        dataQuery = dataQuery.filter(Data.datasource_key.in_(sensorDict.keys()))
+        dataQuery = dataQuery.filter(Data.datasource_key.in_(list(sensorDict.keys())))
         
         
         log.debug("Removing previous data")
@@ -589,7 +589,7 @@ class ArchRockDB(object):
                 try:
                     session.flush()
                     transaction.commit()
-                except sqlalchemy.exc.IntegrityError,e:
+                except sqlalchemy.exc.IntegrityError as e:
                     session.rollback()
                     log.warning("Some Error {0}".format(e))
                     for mergeItem in sampleList:
@@ -613,8 +613,8 @@ class ArchRockDB(object):
         #    print item
         
         log.info("Samples Stored, Summarising")
-        status["nodes"] = nodeDict.values()
-        status["sensors"] = sensorDict.items()
+        status["nodes"] = list(nodeDict.values())
+        status["sensors"] = list(sensorDict.items())
         
         return status
 
@@ -657,7 +657,7 @@ class ArchRockDB(object):
             try:
                 session.flush()
                 transaction.commit()
-            except sqlalchemy.exc.IntegrityError,e:
+            except sqlalchemy.exc.IntegrityError as e:
                 session.rollback()
                 #transaction.rollback()
                 transaction.begin()
@@ -757,7 +757,7 @@ class CSVParser(object):
         """Parse the header to get all the relevant nodes"""
 
         log = self.log
-        theHead = self.reader.next()
+        theHead = next(self.reader)
         log.debug(theHead)
         sensorList = []
         nodeDict = {}
@@ -895,7 +895,7 @@ if __name__ == "__main__":
     """Run from command line"""
     from pyramid.paster import bootstrap
     env = bootstrap('../../development.ini')
-    print env['request'].route_url('home')
+    print(env['request'].route_url('home'))
 
     import logging.config
     logging.config.fileConfig("../../development.ini")
@@ -912,7 +912,7 @@ if __name__ == "__main__":
 
     #theDb = ArchRockDB(address="192.168.69.3")
     #theDb = ArchRockDB(database="227Foleshill")
-    print "{0} Tables {0}".format("-"*20)
+    print("{0} Tables {0}".format("-"*20))
     #theDb.listTables()
     #theDb.listNodes()
     #theDb.cleanData()

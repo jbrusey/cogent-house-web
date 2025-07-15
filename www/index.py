@@ -10,11 +10,11 @@ Modification history:
 
 """
 
-from __future__ import with_statement
-import cStringIO
+
+import io
 import time
 from datetime import datetime, timedelta
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import numpy as np
 import gviz_api
 import os
@@ -148,7 +148,7 @@ def _url(path, **kwargs):
     if query is None or len(query) == 0:
         return path
     else:
-        return path + "?" + urllib.urlencode(query)
+        return path + "?" + urllib.parse.urlencode(query)
 
 
 def _main(html):
@@ -1185,7 +1185,7 @@ def unregisterNode(node=None):
         session.commit()
         return _redirect("missing")
 
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         raise e
 
@@ -1220,7 +1220,7 @@ def registerNodeSubmit(node=None, house=None, room=None):
         session.commit()
         return _redirect("missing")
 
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         raise e
     finally:
@@ -1240,7 +1240,7 @@ def unregisterNodeSubmit(node=None):
         session.commit()
         return _redirect("missing")
 
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         raise e
     finally:
@@ -1306,7 +1306,7 @@ def addNewHouseSubmit(regnode=None, address=None, deployment=None):
         session.commit()
         u = _url("registerNode", node=regnode, house=h.id)
         return _redirect(u)
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         return _page("Add new house error", "<p>%s</p>" % str(e))
     finally:
@@ -1382,7 +1382,7 @@ def addNewRoomSubmit(regnode=None, name=None, roomtype=None):
         session.commit()
         u = _url("registerNode", node=regnode, room=h.id)
         return _redirect(u)
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         return _page("Add new room error", "<p>%s</p>" % str(e))
     finally:
@@ -1447,7 +1447,7 @@ def addNewRoomTypeSubmit(ref=None, name=None):
         session.add(h)
         session.commit()
         return _redirect("{0}&roomType={1}".format(ref, h.id))
-    except Exception, e:
+    except Exception as e:
         session.rollback()
         return _page("Add new room type error", "<p>%s</p>" % str(e))
     finally:
@@ -1596,7 +1596,7 @@ def _plot(typ, t, v, startts, endts, debug, fmt, type_label=None):
             type_label = str(typ)
         ax.set_ylabel(type_label)
 
-        image = cStringIO.StringIO()
+        image = io.StringIO()
         fig.savefig(image, **_SAVEFIG_ARGS)
 
         return [_CONTENT_PLOT, image.getvalue()]
@@ -1698,7 +1698,7 @@ def _no_data_plot():
         fontsize=12,
         va="center",
     )
-    image = cStringIO.StringIO()
+    image = io.StringIO()
     fig.savefig(image, **_SAVEFIG_ARGS)
 
     return [_CONTENT_PLOT, image.getvalue()]
@@ -1782,7 +1782,7 @@ def _plot_splines(
 
     ax.set_ylabel(y_label)
 
-    image = cStringIO.StringIO()
+    image = io.StringIO()
     fig.savefig(image, **_SAVEFIG_ARGS)
 
     if debug:

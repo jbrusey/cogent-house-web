@@ -9,7 +9,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
-import meta
+from . import meta
 Base = meta.Base
 
 
@@ -20,7 +20,7 @@ from sqlalchemy.orm import relationship, backref
 import time
 
 #To allow Calibration
-import sensor 
+from . import sensor 
 import dateutil
 
 class Reading(Base,meta.InnoDBMix):
@@ -164,7 +164,7 @@ class Reading(Base,meta.InnoDBMix):
                     value = getattr(self,"typeId")
                 else:
                     value = getattr(self, col.name)
-            except AttributeError, e:
+            except AttributeError as e:
                 log.warning(e)
 
             #Conversion code for datetime

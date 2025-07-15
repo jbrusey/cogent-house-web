@@ -13,6 +13,7 @@ from sqlalchemy import Column, DateTime, Float
 
 from . import meta
 
+
 class Weather(meta.Base, meta.InnoDBMix):
     """
     Table to deal with Weather

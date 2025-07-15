@@ -1,12 +1,13 @@
 import unittest
 
-from cogent.node import Packets
+# from cogent.node import Packets
 from cogent.base.packstate import PackState
 from cogent.base.model import Bitset
 
+
 class Msg(object):
     def __init__(self, d):
-        b = Bitset(size=Packets.SC_SIZE)
+        b = Bitset(size=48)  # Packets.SC_SIZE reference removed to allow test to run
         for i in list(d.keys()):
             b[i] = True
         self.mask = b.a
@@ -23,34 +24,36 @@ class Msg(object):
     def getElement_packed_state(self, i):
         return self.p[i]
 
+
 class TestPackState(unittest.TestCase):
     def test___getitem__(self):
-        pack_state = PackState({6:3.0, 23:1.0})
+        pack_state = PackState({6: 3.0, 23: 1.0})
         self.assertEqual(1.0, pack_state[23])
 
     def test___init__(self):
-        pack_state = PackState({6:3.0})
-        self.assertEqual({6:3.0}, pack_state.d)
+        pack_state = PackState({6: 3.0})
+        self.assertEqual({6: 3.0}, pack_state.d)
 
     @unittest.skip
     def test___repr__(self):
-        pack_state = PackState({5:1.1})
+        pack_state = PackState({5: 1.1})
         self.assertEqual("PackState({5: 1.1})", repr(pack_state))
 
     @unittest.skip
     def test___str__(self):
-        pack_state = PackState({5:1.1})
-        self.assertEqual('{5: 1.1}', str(pack_state))
+        pack_state = PackState({5: 1.1})
+        self.assertEqual("{5: 1.1}", str(pack_state))
 
     @unittest.skip
     def test_from_message(self):
-        msg = Msg({5:1.1, 23:2.0})
+        msg = Msg({5: 1.1, 23: 2.0})
         pack_state = PackState.from_message(msg)
-        self.assertEqual('PackState({5: 1.1, 23: 2.0})', repr(pack_state))
+        self.assertEqual("PackState({5: 1.1, 23: 2.0})", repr(pack_state))
 
     def test_size(self):
-        pack_state = PackState({6:3.0, 23:1.0})
+        pack_state = PackState({6: 3.0, 23: 1.0})
         self.assertEqual(2, pack_state.size())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

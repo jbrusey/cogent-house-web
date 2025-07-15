@@ -60,7 +60,7 @@ class CCData(localBase):
         """Generalized update function"""
         theDict.update(kwargs)
 
-        for key, value in theDict.iteritems():
+        for key, value in theDict.items():
             setattr(self, key, value)
 
     def __repr__(self):
@@ -391,7 +391,7 @@ class CurrentCostParser(CurrentCostBase):
         ## Next we fetch the data and add it to the DBSession
 
         data = ccSession.query(CCData)
-        print data.count()
+        print(data.count())
         if startDate:
             data = data.filter(CCData.DateTime >= startDate)
         if endDate:
@@ -420,7 +420,7 @@ class CurrentCostFileParser(CurrentCostBase):
         #Store the file
         reader = csv.reader(open(theFile,"r"),delimiter="\t")
         #Remve the header
-        reader.next()
+        next(reader)
         self.reader = reader
 
 

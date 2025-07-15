@@ -1,1 +1,1 @@
-__all__ = ["daily_email","base"]
+__all__ = ["daily_email", "base"]

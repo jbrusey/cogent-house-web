@@ -9,10 +9,11 @@ from sqlalchemy import Column, String
 
 from . import meta
 
+
 class LastReport(meta.Base, meta.InnoDBMix):
     """
     Class to deal with LastReports
-	This holds details of the last report E-Mailed to chuser
+        This holds details of the last report E-Mailed to chuser
 
     :var String name: Name
     :var String value: Value

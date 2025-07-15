@@ -1,0 +1,8 @@
+[tool.ruff]
+line-length = 88
+lint.extend-select = ["I"]  # enable isort-style import sorting
+lint.ignore = ["E203", "E501"]  # black-compatible
+
+[tool.ruff.format]
+# Optional: Ruff has a formatter (still in preview as of 2025)
+quote-style = "double"

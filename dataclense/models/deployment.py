@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger(__name__)
 
 #Import Pyramid Meta Data
-import meta
+from . import meta
 Base = meta.Base
 
 class Deployment(Base, meta.InnoDBMix):

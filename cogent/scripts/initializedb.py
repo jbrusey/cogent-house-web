@@ -5,9 +5,19 @@ Modified from original webinterface version of the code to remove pyramid
 dependencies
 """
 
+import getpass
 import os
 import sys
+
+import sqlalchemy
 import transaction
+from alembic import command
+from alembic.config import Config
+
+from cogent.base.model import meta as meta
+from cogent.base.model import populateData as populateData
+
+from ..base.model import user
 
 # from sqlalchemy import engine_from_config
 
@@ -17,69 +27,30 @@ import transaction
 #     )
 
 DBFILE = "mysql://chuser@localhost/ch"
-#DBFILE = "mysql://chuser@localhost/jenkins"
-import sqlalchemy
+# DBFILE = "mysql://chuser@localhost/jenkins"
 
-from cogent.base.model import meta as meta
-#from ..models import meta as meta
+# from ..models import meta as meta
 
 Base = meta.Base
-#DBSession = meta.Session()
+# DBSession = meta.Session()
 
-
-from alembic.config import Config
-from alembic import command
-
-
-
-from cogent.base.model import populateData as populateData
-import cogent.base.model as models
-
-from ..base.model import (
-    deployment,
-    deploymentmetadata,
-    host,
-    house,
-    housemetadata,
-    lastreport,
-    location,
-    node,
-    nodeboot,
-    nodehistory,
-    nodestate,
-    nodetype,
-    occupier,
-    rawmessage,
-    reading,
-    room,
-    roomtype,
-    sensor,
-    sensortype,
-    weather,
-    event,
-    timings,
-    user,
-    )
-
-import getpass
-import transaction
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print(('usage: %s <config_uri>\n'
-          '(example: "%s development.ini")' % (cmd, cmd))) 
+    print("usage: %s <config_uri>\n" '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
+
 
 def populateUser():
     """Helper method to populate the User table with our initial root user"""
     session = meta.Session()
-    
+
     hasUser = session.query(user.User).first()
     if hasUser is None:
         print("Warning:  No users setup on the system")
         print("  Creating Root User")
-        newUser = input("Login Name: ")
-        userEmail = input("User Email: ")
+        newUser = eval(input("Login Name: "))
+        userEmail = eval(input("User Email: "))
         passOne = "FOO"
         passTwo = "BAR"
         while passOne != passTwo:
@@ -87,17 +58,17 @@ def populateUser():
             passTwo = getpass.getpass("Repeat Password: ")
             if passOne != passTwo:
                 print("Passwords do not match")
-        
-        #Setup a new User
-        thisUser = user.User(username=newUser,
-                             email=userEmail,
-                             password=meta.pwdContext.encrypt(passOne),
-                             level="root"
-                             )
+
+        # Setup a new User
+        thisUser = user.User(
+            username=newUser,
+            email=userEmail,
+            password=meta.pwdContext.encrypt(passOne),
+            level="root",
+        )
         session.add(thisUser)
         session.flush()
         transaction.commit()
-
 
 
 def main(argv=sys.argv):
@@ -112,28 +83,23 @@ def main(argv=sys.argv):
     # engine = engine_from_config(settings, 'sqlalchemy.')
     logging.debug("Initialise Engine")
     engine = sqlalchemy.create_engine(DBFILE, echo=False)
-    
+
     meta.Session.configure(bind=engine)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
-    
-
 
     DBSession = meta.Session()
-    #DBSession.configure(bind=engine)
+    # DBSession.configure(bind=engine)
     logging.debug("Populating Data")
     populateData.init_data(DBSession)
-    #populateUser()
+    # populateUser()
     logging.debug("Populated")
     DBSession.flush()
-    #DBSession.commit()
+    # DBSession.commit()
 
-
-    #We also want any alembic scripts to be executed (or not if we build the DB
-    #properly)
-    alembic_cfg = Config("cogent/alembic.ini") #TODO: WARNING RELATIVE PATH
-    command.stamp(alembic_cfg,"head")
+    # We also want any alembic scripts to be executed (or not if we
+    # build the DB properly)
+    alembic_cfg = Config("cogent/alembic.ini")  # TODO: WARNING RELATIVE PATH
+    command.stamp(alembic_cfg, "head")
 
     DBSession.close()
-    
-                  

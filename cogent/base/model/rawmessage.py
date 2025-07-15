@@ -9,9 +9,10 @@ Table to hold details of raw messages
 
 """
 
+from sqlalchemy import Column, DateTime, Integer, String
+
 from . import meta
 
-from sqlalchemy import Column, Integer, String, DateTime
 
 class RawMessage(meta.Base, meta.InnoDBMix):
     """A Raw Message
@@ -22,7 +23,6 @@ class RawMessage(meta.Base, meta.InnoDBMix):
     """
 
     __tablename__ = "RawMessage"
-
 
     id = Column(Integer, primary_key=True, autoincrement=False)
     time = Column(DateTime)

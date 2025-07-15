@@ -3,17 +3,20 @@
 #
 # J. Brusey, May 2011
 
-import sys
 import os
+import sys
+from queue import Empty, Queue
+
+from cogent.node import BootMsg, StateMsg
+
+from .model import Bitset
+
 sys.path.append(os.environ["TOSROOT"] + "/support/sdk/python")
-from cogent.node import StateMsg, ConfigMsg, Packets, BootMsg
-from tinyos.message import MoteIF 
-import time
-from cogent.base.model import *
-from queue import Queue, Empty
+from tinyos.message import MoteIF
 
 
-# Note: MoteIF doesn't currently support coming directly off the serial interface
+# Note: MoteIF doesn't currently support coming directly off the
+# serial interface
 #
 class BaseIF(object):
     def __init__(self, source):
@@ -24,7 +27,7 @@ class BaseIF(object):
         self.queue = Queue()
 
     def get(self, wait=True, timeout=30):
-        #This goes into an infinate loop
+        # This goes into an infinate loop
         if self.source.isDone():
             raise Exception("source is no longer connected")
         return self.queue.get(wait, timeout)
@@ -32,18 +35,19 @@ class BaseIF(object):
     def receive(self, src, msg):
         self.queue.put(msg)
 
-    def sendMsg(self, msg, dest=0xffff):
+    def sendMsg(self, msg, dest=0xFFFF):
         self.mif.sendMsg(self.source, dest, msg.get_amType(), 0, msg)
 
     def finishAll(self):
         self.mif.finishAll()
-    
+
+
 def store_state(msg):
     n = msg.getAddr()
-    print("storing state ",n, msg)
+    print("storing state ", n, msg)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     bif = BaseIF("sf@localhost:9002")
 
@@ -52,7 +56,7 @@ if __name__ == '__main__':
         try:
             msg = bif.get(True, 5)
 
-	    j = 0
+            j = 0
             mask = Bitset(value=msg.get_packed_state_mask())
             print("State mask size:", msg.totalSizeBits_packed_state_mask())
             state = []
@@ -66,8 +70,6 @@ if __name__ == '__main__':
                 j += 1
             print("")
 
-
-            #store_state(msg)
+            # store_state(msg)
         except Empty:
             pass
-    

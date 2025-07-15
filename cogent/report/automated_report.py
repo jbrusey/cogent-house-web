@@ -10,33 +10,29 @@ Module to generate an automated reports for deployments
 
 """
 
+import argparse  # Apparently this is installed in 2.6 (at least on cogentee)
 import datetime
-
-import sqlalchemy
-
 import logging
-logging.basicConfig(level=logging.INFO)
-
-import argparse #Apparently this is installed in 2.6 (at least on cogentee)
+import os
+import smtplib
+import sys
 
 import cogentviewer.models as models
 import cogentviewer.models.meta as meta
-#import cogent.base.model as models
-#import cogent.base.model.meta as meta
+import sqlalchemy
 
+# import cogent.base.model as models
+# import cogent.base.model.meta as meta
 from mako.template import Template
 
-import smtplib
-
-import sys
-import os
-
-
+logging.basicConfig(level=logging.INFO)
 
 Base = meta.Base
 
+
 class OwlsReporter(object):
     """Main reporter class to generate and render automated reports"""
+
     def __init__(self, enginestr, reportdate=datetime.datetime.utcnow()):
         """Initialise the reporter
         :param enginestr:  SQLA String to connect to database
@@ -48,18 +44,19 @@ class OwlsReporter(object):
         Base.metadata.bind = engine
         self.reportdate = reportdate
 
-
-        #Work out the template location
-        if sys.prefix  == "/usr":
-            conf_prefix = "/" #If its a standard "global" instalation
-        else :
+        # Work out the template location
+        if sys.prefix == "/usr":
+            conf_prefix = "/"  # If its a standard "global" instalation
+        else:
             conf_prefix = "{0}/".format(sys.prefix)
 
-        templatepath = os.path.join(conf_prefix,
-                                  "etc",
-                                  "cogent-house",
-                                  "report-templates",
-                                  "report-template.mak")
+        templatepath = os.path.join(
+            conf_prefix,
+            "etc",
+            "cogent-house",
+            "report-templates",
+            "report-template.mak",
+        )
         self.templatepath = templatepath
 
     def fetch_overview(self):
@@ -67,41 +64,44 @@ class OwlsReporter(object):
 
         session = meta.Session()
 
-        #Total deployed servers
+        # Total deployed servers
         qry = session.query(models.House.serverid)
-        qry = qry.filter(models.House.serverid != None)
+        qry = qry.filter(models.House.serverid is not None)
         qry = qry.distinct()
         deployed_serv = qry.count()
         logging.debug("Total Deployed Servers: {0}".format(deployed_serv))
 
-        #Total Houses
+        # Total Houses
         qry = session.query(models.House)
-        qry = qry.filter(models.House.serverid != None) #filter out where server id is not set
+        qry = qry.filter(
+            models.House.serverid is not None
+        )  # filter out where server id is not set
         deployed_houses = qry.count()
         logging.debug("Total Deployed houses: {0}".format(deployed_houses))
 
-        #Deployed Nodes
-        qry = session.query(models.Node).filter(models.Node.locationId != None)
+        # Deployed Nodes
+        qry = session.query(models.Node).filter(models.Node.locationId is not None)
         qry = qry.join(models.Location)
         qry = qry.join(models.House)
-        qry = qry.filter(models.House.serverid != None)
+        qry = qry.filter(models.House.serverid is not None)
         deployed_nodes = qry.count()
         logging.debug("Total Deployed Nodes: {0}".format(deployed_nodes))
 
-
-        outdict = {"deployed_serv": deployed_serv,
-                   "deployed_houses": deployed_houses,
-                   "deployed_nodes": deployed_nodes}
+        outdict = {
+            "deployed_serv": deployed_serv,
+            "deployed_houses": deployed_houses,
+            "deployed_nodes": deployed_nodes,
+        }
 
         return outdict
 
     def fetch_pushstatus(self):
         """How many servers have pushed etc"""
 
-        #Deployed this week
-        #Deplyoed today
-        #Houses with data this week
-        #Houses with data today
+        # Deployed this week
+        # Deplyoed today
+        # Houses with data this week
+        # Houses with data today
 
         session = meta.Session()
 
@@ -111,35 +111,35 @@ class OwlsReporter(object):
         yesterday = today - datetime.timedelta(days=1)
         logging.debug("Today is {0}".format(today))
 
-        #This week
+        # This week
         qry = session.query(models.PushStatus)
         qry = qry.filter(models.PushStatus.time >= lastweek)
-        qry = qry.join(models.Server, models.Server.hostname == models.PushStatus.hostname)
+        qry = qry.join(
+            models.Server, models.Server.hostname == models.PushStatus.hostname
+        )
         qry = qry.join(models.House, models.Server.id == models.House.serverid)
         qry = qry.group_by(models.House.serverid)
 
         push_week = qry.count()
 
-        logging.debug("Servers that have pushed this week: {0}"
-                      .format(push_week))
+        logging.debug("Servers that have pushed this week: {0}".format(push_week))
 
-        
         qry = session.query(models.PushStatus)
         qry = qry.filter(models.PushStatus.time >= yesterday)
-        qry = qry.join(models.Server, models.Server.hostname == models.PushStatus.hostname)
+        qry = qry.join(
+            models.Server, models.Server.hostname == models.PushStatus.hostname
+        )
         qry = qry.join(models.House, models.Server.id == models.House.serverid)
         qry = qry.group_by(models.House.serverid)
-        
 
         push_today = qry.count()
 
-        logging.debug("Servers that have pushed this today: {0}"
-                      .format(push_today))
+        logging.debug("Servers that have pushed this today: {0}".format(push_today))
 
-
-        outdict = {"push_week": push_week,
-                   "push_today": push_today,
-                   }
+        outdict = {
+            "push_week": push_week,
+            "push_today": push_today,
+        }
 
         return outdict
 
@@ -148,30 +148,26 @@ class OwlsReporter(object):
 
         session = meta.Session()
 
-        now = self.reportdate
-
         today = datetime.datetime.now()
         heartbeat = today - datetime.timedelta(hours=8)
 
-        #qry = session.query(models.House)
+        # qry = session.query(models.House)
         houseqry = session.query(models.House)
-        houseqry = houseqry.filter(models.House.serverid != None)
+        houseqry = houseqry.filter(models.House.serverid is not None)
 
-        houses_today = 0 #Houses that have pushed today
-        houses_missing = [] #Houses with problems
+        houses_today = 0  # Houses that have pushed today
+        houses_missing = []  # Houses with problems
         houses_partial = []
-        #For each house
+        # For each house
         for house in houseqry:
-            #Locations associated with this house
+            # Locations associated with this house
             houselocs = [h.id for h in house.locations]
-            #And Nodes
+            # And Nodes
             if houselocs == []:
-                logging.warning("House {0} has no registered nodes"
-                                .format(house))
-                houses_missing.append(["{0} has no registered nodes"
-                                       .format(house.address),
-                                    [],
-                                    0])
+                logging.warning("House {0} has no registered nodes".format(house))
+                houses_missing.append(
+                    ["{0} has no registered nodes".format(house.address), [], 0]
+                )
                 continue
 
             qry = session.query(models.Node)
@@ -179,19 +175,19 @@ class OwlsReporter(object):
             nodeids = [n.id for n in qry]
             logging.debug("House {0} Expects {1} Nodes".format(house, nodeids))
 
-            #Final Query:  Filter expected nodes
+            # Final Query:  Filter expected nodes
             qry = session.query(models.NodeState)
             if len(nodeids) == 0:
-                logging.warning("House {0} has locations but no registered nodes"
-                                .format(house))
-                houses_missing.append(["{0} has no registered nodes"
-                                       .format(house.address),
-                                    [],
-                                    0])
+                logging.warning(
+                    "House {0} has locations but no registered nodes".format(house)
+                )
+                houses_missing.append(
+                    ["{0} has no registered nodes".format(house.address), [], 0]
+                )
                 continue
             qry = qry.filter(models.NodeState.nodeId.in_(nodeids))
-            #Filter for data within the last 24 hours to detect all nodes
-            #have reported within a heartbeats length
+            # Filter for data within the last 24 hours to detect all nodes
+            # have reported within a heartbeats length
             qry = qry.filter(models.NodeState.time >= heartbeat)
             qry = qry.group_by(models.NodeState.nodeId)
 
@@ -201,76 +197,74 @@ class OwlsReporter(object):
             if house_nodes > 0:
                 houses_today += 1
 
-            #And check for expected
+            # And check for expected
             if house_nodes == 0:
-                outlist = ["{0} has {1} nodes reporting expected {2}"
-                           .format(house.address,
-                                   house_nodes,
-                                   len(nodeids))]
+                outlist = [
+                    "{0} has {1} nodes reporting expected {2}".format(
+                        house.address, house_nodes, len(nodeids)
+                    )
+                ]
                 missingNodes = []
-
 
                 for nid in nodeids:
                     if nid not in qrynodes:
-                        #Run a query
-                        #missingNodes.append(nid)
-                        nqry = session.query(models.Node).filter_by(id = nid)
+                        # Run a query
+                        # missingNodes.append(nid)
+                        nqry = session.query(models.Node).filter_by(id=nid)
                         nqry = nqry.first()
                         roomname = nqry.location.room.name
                         logging.debug("Location {0}".format(roomname))
-                        missingNodes.append("{0} ({1})".format(nqry.id,
-                                                               roomname))
-
+                        missingNodes.append("{0} ({1})".format(nqry.id, roomname))
 
                 outlist.append(missingNodes)
-                #Work out and append the difference
+                # Work out and append the difference
                 outlist.append(len(nodeids) - house_nodes)
                 houses_missing.append(outlist)
 
             elif house_nodes != len(nodeids):
-                logging.debug("---> House is missing nodes {0}"
-                              .format(house.address))
+                logging.debug("---> House is missing nodes {0}".format(house.address))
 
-                outlist = ["{0} has {1} nodes reporting expected {2}"
-                           .format(house.address,
-                                   house_nodes,
-                                   len(nodeids))]
+                outlist = [
+                    "{0} has {1} nodes reporting expected {2}".format(
+                        house.address, house_nodes, len(nodeids)
+                    )
+                ]
                 missingNodes = []
-
 
                 for nid in nodeids:
                     if nid not in qrynodes:
-                        #Run a query
-                        nqry = session.query(models.Node).filter_by(id = nid)
+                        # Run a query
+                        nqry = session.query(models.Node).filter_by(id=nid)
                         nqry = nqry.first()
                         roomname = nqry.location.room.name
-                        #logging.debug("Location {0}".format(roomname))
-                        missingNodes.append("{0} ({1})".format(nqry.id,
-                                                               roomname))
+                        # logging.debug("Location {0}".format(roomname))
+                        missingNodes.append("{0} ({1})".format(nqry.id, roomname))
 
                 outlist.append(missingNodes)
-                #Work out and append the difference
+                # Work out and append the difference
                 outlist.append(len(nodeids) - house_nodes)
                 houses_partial.append(outlist)
 
+        sorted_missing = sorted(
+            houses_missing, key=lambda thekey: thekey[2], reverse=True
+        )
+        logging.debug(
+            "MISSING {0} \n SORTED {1}".format(houses_missing, sorted_missing)
+        )
 
-        sorted_missing = sorted(houses_missing,
-                               key = lambda thekey: thekey[2],
-                               reverse=True)
-        logging.debug("MISSING {0} \n SORTED {1}".format(houses_missing,
-                                                         sorted_missing))
+        sorted_partial = sorted(
+            houses_partial, key=lambda thekey: thekey[2], reverse=True
+        )
 
-        sorted_partial = sorted(houses_partial,
-                                key = lambda thekey: thekey[2],
-                                reverse=True)
-
-        logging.debug("PARTIAL {0} \n SORTED {1}".format(houses_partial,
-                                                         sorted_partial))
+        logging.debug(
+            "PARTIAL {0} \n SORTED {1}".format(houses_partial, sorted_partial)
+        )
 
         logging.debug("Houses Reporting today {0}".format(houses_today))
-        return {"houses_today": houses_today,
-                "houses_missing": sorted_missing,
-                "houses_partial": sorted_partial
+        return {
+            "houses_today": houses_today,
+            "houses_missing": sorted_missing,
+            "houses_partial": sorted_partial,
         }
 
     def fetch_nodestatus(self):
@@ -297,8 +291,7 @@ class OwlsReporter(object):
 
         logging.debug("Nodes that have data today: {0}".format(node_week))
 
-        outdict = {"node_week": node_week,
-                   "node_today": node_today}
+        outdict = {"node_week": node_week, "node_today": node_today}
 
         return outdict
 
@@ -317,7 +310,7 @@ class OwlsReporter(object):
 
         for item in qry:
             nqry = session.query(models.Node)
-            nqry = nqry.filter_by(id = item[0])
+            nqry = nqry.filter_by(id=item[0])
             nqry = nqry.first()
 
             address = nqry.location.house.address
@@ -326,7 +319,6 @@ class OwlsReporter(object):
 
         return {"battery_warnings": battery_warnings}
 
-        
     def check_pulse_nodes(self):
         """Check for pulse output nodes that could be having issues.
         IE the value has not increased in the past 24 hours
@@ -337,18 +329,19 @@ class OwlsReporter(object):
         now = self.reportdate
         yesterday = now - datetime.timedelta(days=1)
 
-        #Get sensor type ids for the pulse output nodes
+        # Get sensor type ids for the pulse output nodes
         pulsenodes = ["Heat Energy", "Heat Volume", "Gas Pulse Count"]
         qry = session.query(models.SensorType)
         qry = qry.filter(models.SensorType.name.in_(pulsenodes))
         logging.debug("Pulse Output Nodes {0}".format(qry.all()))
         pulseids = [n.id for n in qry]
 
-        #and the main query
-        qry = session.query(models.Reading.nodeId,
-                            sqlalchemy.func.min(models.Reading.value),
-                            sqlalchemy.func.max(models.Reading.value)
-                            )
+        # and the main query
+        qry = session.query(
+            models.Reading.nodeId,
+            sqlalchemy.func.min(models.Reading.value),
+            sqlalchemy.func.max(models.Reading.value),
+        )
         if len(pulseids) > 0:
             qry = qry.filter(models.Reading.typeId.in_(pulseids))
             qry = qry.filter(models.Reading.time >= yesterday)
@@ -361,9 +354,10 @@ class OwlsReporter(object):
         for item in qry:
             logging.debug(item)
             if item[2] == item[1]:
-                logging.debug("No Change for Node {0} in the past 24 hours"
-                              .format(item[0]))
-                nqry = session.query(models.Node).filter_by(id = item[0])
+                logging.debug(
+                    "No Change for Node {0} in the past 24 hours".format(item[0])
+                )
+                nqry = session.query(models.Node).filter_by(id=item[0])
                 nqry = nqry.first()
                 roomname = nqry.location.room.name
                 pulse_warnings.append("{0} ({1})".format(item[0], roomname))
@@ -376,12 +370,10 @@ class OwlsReporter(object):
 
         projectstring = self.enginestr.split("/")[-1]
         currentdate = self.reportdate
-        #Dictionary to hold our output
-        outdict = {"project": projectstring,
-                   "date": currentdate
-        }
+        # Dictionary to hold our output
+        outdict = {"project": projectstring, "date": currentdate}
 
-        #Overview
+        # Overview
         dat = self.fetch_overview()
         outdict.update(dat)
 
@@ -401,16 +393,14 @@ class OwlsReporter(object):
         logging.debug(dat)
         outdict.update(dat)
 
-
-
-
-        #Fetch and append overview
+        # Fetch and append overview
         thetemplate = Template(filename=self.templatepath)
         out = thetemplate.render(**outdict)
 
         return out
 
-#Render
+
+# Render
 # currentdate = datetime.datetime.now()
 # outvars = {"project": "OWLS",
 #            "date": currentdate}
@@ -420,52 +410,43 @@ class OwlsReporter(object):
 
 
 # print thetemplate.render(**outvars)
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
 
     defaultdb = "mysql://chuser@localhost/owls"
-    #Set up command line parser
+    # Set up command line parser
     parser = argparse.ArgumentParser(description="Automated Report Generation")
 
-    parser.add_argument("-db",
-                        "--database",
-                        help="SQLA db to connect to ({0})".format(defaultdb),
-                        default=defaultdb
+    parser.add_argument(
+        "-db",
+        "--database",
+        help="SQLA db to connect to ({0})".format(defaultdb),
+        default=defaultdb,
     )
 
-    parser.add_argument("-o",
-                        "--output",
-                        help="Output to file <name>",
-                        required=False
+    parser.add_argument("-o", "--output", help="Output to file <name>", required=False)
+
+    parser.add_argument("-t", "--term", action="store_true", help="output to terminal")
+
+    parser.add_argument(
+        "-d",
+        "--date",
+        help="Optional date to run report for <DD>-<MM>-<YYYY>",
+        default=datetime.datetime.utcnow(),
+        required=False,
     )
 
-    parser.add_argument("-t",
-                        "--term",
-                        action="store_true",
-                        help="output to terminal")
-
-    parser.add_argument("-d",
-                        "--date",
-                        help="Optional date to run report for <DD>-<MM>-<YYYY>",
-                        default = datetime.datetime.utcnow(),
-                        required=False
+    parser.add_argument(
+        "-e", "--email", help="Email addresses to send to", required=False
     )
-
-    parser.add_argument("-e",
-                        "--email",
-                        help="Email addresses to send to",
-                        required=False)
 
     args = parser.parse_args()
 
-
     thedate = args.date
-    if type(thedate) == str:
+    if isinstance(thedate, str):
         parts = [int(x) for x in thedate.split("-")]
         thedate = datetime.datetime(parts[2], parts[1], parts[0])
 
-    reporter = OwlsReporter(args.database,
-                            thedate
-    )
+    reporter = OwlsReporter(args.database, thedate)
 
     output = reporter.render_report()
 
@@ -480,18 +461,20 @@ if __name__ == "__main__": # pragma: no cover
     if args.email:
         addresses = args.email.split(",")
         logging.debug("Sending E-Mail")
-        s = smtplib.SMTP('localhost')
+        s = smtplib.SMTP("localhost")
         sender = "nobody@cogentee.coventry.ac.uk"
         receivers = ["chuser@cogentee.coventry.ac.uk"]
 
-        Header = ["From: Automated Reporting <nobody@cogentee.coventry.ac.uk>",
-                  "To: reports <reports@cogentee.coventry.ac.uk>",
-                  "MIME-Version: 1.0",
-                  "Content-type: text/html",
-                  "Subject: Automated Deployment Status Report {0}".format(
-                      datetime.datetime.now()),
-                  "",
-                  ]
+        Header = [
+            "From: Automated Reporting <nobody@cogentee.coventry.ac.uk>",
+            "To: reports <reports@cogentee.coventry.ac.uk>",
+            "MIME-Version: 1.0",
+            "Content-type: text/html",
+            "Subject: Automated Deployment Status Report {0}".format(
+                datetime.datetime.now()
+            ),
+            "",
+        ]
 
         theheader = "\n".join(Header)
         message = "{0} \n\n{1}".format(theheader, output)

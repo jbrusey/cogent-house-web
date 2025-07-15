@@ -167,7 +167,7 @@ class ArchRockDB(object):
         """
 
         for t in self.meta.sorted_tables:
-            print t.name
+            print(t.name)
 
         return self.meta.sorted_tables
 
@@ -297,7 +297,7 @@ class ArchRockDB(object):
 
     def removeDupes(self):
         """Remove Duplicate Items"""
-        print "Removing Dupes"
+        print("Removing Dupes")
 
         from sqlalchemy.orm import aliased
 
@@ -390,8 +390,8 @@ class ArchRockDB(object):
         log.debug("Total Of {0} Items in Database!!".format(theQry.count()))
         
         #Lets try stripping that to only include data types we want
-        nodeKeys = nodeMap.keys()
-        dsKeys = sensorMap.keys()
+        nodeKeys = list(nodeMap.keys())
+        dsKeys = list(sensorMap.keys())
         
         theQry = theQry.filter(Data.node_key.in_(nodeKeys))
         theQry = theQry.filter(Data.datasource_key.in_(dsKeys))

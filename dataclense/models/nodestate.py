@@ -9,7 +9,7 @@ import sqlalchemy
 import logging
 log = logging.getLogger(__name__)
 
-import meta
+from . import meta
 Base = meta.Base
 
 from sqlalchemy import Table, Column, Integer, ForeignKey,String,DateTime,Boolean,BigInteger
@@ -63,6 +63,6 @@ class NodeState(Base,meta.InnoDBMix):
             val += self.nodeId - other.nodeId
             val += self.parent - other.parent
             return val
-        except TypeError,e:
+        except TypeError as e:
             log.warning("Unable to Compate {0} {1}".format(self,other))
         
