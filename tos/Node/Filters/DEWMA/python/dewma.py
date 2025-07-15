@@ -33,9 +33,6 @@ I shall leave the original numpy version for some speed comparisons :)
 @author Dan Goldsmith <goldsmid@coventry.ac.uk> (Numeric Conversion)
 """
 
-from numpy import *
-import time
-
 
 class Ewma:
     """@brief Exponentially weighted moving average"""

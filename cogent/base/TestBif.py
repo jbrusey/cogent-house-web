@@ -1,16 +1,10 @@
-""" 
+"""
 Test code for feeding BaseLogger with some packets.
 
 J. Brusey, May 2011
 """
 
-import os
-import sys
-
-sys.path.append(os.environ["TOSROOT"] + "/support/sdk/python")
-sys.path.append("../..")
 import logging
-
 # from cogent.base.model import
 from queue import Queue
 

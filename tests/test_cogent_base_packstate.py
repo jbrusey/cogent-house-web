@@ -1,8 +1,9 @@
 import unittest
 
+from cogent.base.model import Bitset
+
 # from cogent.node import Packets
 from cogent.base.packstate import PackState
-from cogent.base.model import Bitset
 
 
 class Msg(object):

@@ -1,6 +1,7 @@
 import unittest
-from cogent.sip.sipsim import SipPhenom, PartSplineReconstruct
 from datetime import datetime, timedelta
+
+from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
 from tests.test_sip_phenom import my_total_seconds
 
 

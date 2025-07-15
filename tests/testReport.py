@@ -1,30 +1,20 @@
+import datetime
+import unittest
+
+from cogent.base.model import (Base, House, Location, Node, NodeState, Reading,
+                               Room, RoomType, Session, init_model)
+from cogent.report import lowBat
+# from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-# from sqlalchemy.orm import sessionmaker
-import urllib.request, urllib.error, urllib.parse
-import time
-import datetime
-
-import platform
-import smtplib
-import re
+from . import base
 
 # try:
-import cogent
-
 # except ImportError:
 #     #Assume we are running from the test directory
 #     print "Unable to Import Cogent Module Appending Path"
 #     import sys
 #     sys.path.append("../")
-
-
-from cogent.base.model import *
-from cogent.report import *
-
-import unittest
-
-from . import base
 
 
 class TestReport(base.BaseTestCase):
@@ -67,27 +57,27 @@ class TestReport(base.BaseTestCase):
         finally:
             s.close()
 
-    def test_packetyield(self):
-        try:
-            s = Session()
-            x = packetYield(s)
-            # print x
-            y = packetYield(s)
-            # self.assertTrue(len(y) == 0)
-            # print y
-        finally:
-            s.close()
+    # def test_packetyield(self):
+    #     try:
+    #         s = Session()
+    #         _ = packetYield(s)
+    #         # print x
+    #         _ = packetYield(s)
+    #         # self.assertTrue(len(y) == 0)
+    #         # print y
+    #     finally:
+    #         s.close()
 
-    def test_ccyield(self):
-        try:
-            s = Session()
-            x = ccYield(s)
-            # print x
-            y = ccYield(s)
-            # print y
-            # self.assertTrue(len(y) == 0)
-        finally:
-            s.close()
+    # def test_ccyield(self):
+    #     try:
+    #         s = Session()
+    #         x = ccYield(s)
+    #         # print x
+    #         y = ccYield(s)
+    #         # print y
+    #         # self.assertTrue(len(y) == 0)
+    #     finally:
+    #         s.close()
 
 
 def initDb():

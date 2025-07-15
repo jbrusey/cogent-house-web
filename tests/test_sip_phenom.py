@@ -1,8 +1,10 @@
 import unittest
+from datetime import datetime, timedelta
+
 from packaging.version import Version as V
+
 import cogent.sip.sipsim
 from cogent.sip.sipsim import SipPhenom
-from datetime import datetime, timedelta
 
 
 def my_total_seconds(time_d):

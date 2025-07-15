@@ -1,7 +1,6 @@
 import unittest
 
 # import cogent
-
 import cogent.base.model as models
 import cogent.push.dictdiff as dictdiff
 
@@ -19,7 +18,7 @@ class testDiffDict(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         self.assertEqual(added, emptySet)
@@ -36,7 +35,7 @@ class testDiffDict(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -55,7 +54,7 @@ class testDiffDict(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -74,7 +73,7 @@ class testDiffDict(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -103,7 +102,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         self.assertEqual(added, emptySet)
@@ -127,7 +126,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -158,7 +157,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -183,7 +182,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -216,7 +215,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])
@@ -240,7 +239,7 @@ class testDiffDictClass(unittest.TestCase):
         added = dd.added()
         removed = dd.removed()
         changed = dd.changed()
-        unchanged = dd.unchanged()
+        _ = dd.unchanged()
 
         emptySet = set()
         testSet = set([4])

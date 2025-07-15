@@ -6,19 +6,12 @@ Testing for the Deployment Module
 
 # from datetime import datetime
 import datetime
+import logging
 
 # Python Module Imports
-import sqlalchemy.exc
-
-
-import json
-
 import cogent.base.model as models
-import tests.base as base
-import cogent.base.model.deployment
 
-
-import logging
+import base
 
 log = logging.getLogger(__name__)
 

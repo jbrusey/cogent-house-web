@@ -1,5 +1,5 @@
 """
-.. codeauthor::  Ross Wiklins 
+.. codeauthor::  Ross Wilkins
 .. codeauthor::  James Brusey
 .. codeauthor::  Daniel Goldsmith <djgoldsmith@googlemail.com>
 """

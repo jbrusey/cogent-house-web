@@ -3,15 +3,12 @@ Test for the Room Type Classes
 """
 
 # from datetime import datetime
-import datetime
 
 # Python Module Imports
-import sqlalchemy.exc
 
 import cogent.base.model as models
-import tests.base as base
 
-import json
+from . import base
 
 
 class TestSensorType(base.ModelTestCase):

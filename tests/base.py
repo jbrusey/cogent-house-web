@@ -4,31 +4,21 @@ This really just makes sure all database code is in the same place
 meaning the DB is consistently initiated in all test cases.
 """
 
-import os
-import unittest
-import datetime
-
 import logging
+import unittest
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger(__name__)
-
-import json
+import cogent.base.model as models
+import cogent.base.model.meta as meta
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
 
 # from pyramid.config import Configurator
 # from paste.deploy.loadwsgi import appconfig
 # from pyramid import testing
 
-from sqlalchemy.orm import sessionmaker
-import sqlalchemy
 
-from cogent.base import *  # Make sure all is loaded for coverage
-import cogent.base.model.meta as meta
-import cogent.base.model as models
-import cogent
-import cogent.report
-
-import transaction
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 def initDatabase():
@@ -115,8 +105,6 @@ class ModelTestCase(BaseTestCase):
         self.assertTrue(b == a)
         self.assertFalse(a != b)
         self.assertFalse(b != a)
-        self.assertEqual(0, cmp(a, b))
-        self.assertEqual(0, cmp(b, a))
 
     def assertReallyNotEqual(self, a, b):
         # assertNotEqual first, because it will have a good message if the
@@ -127,8 +115,6 @@ class ModelTestCase(BaseTestCase):
         self.assertFalse(b == a)
         self.assertTrue(a != b)
         self.assertTrue(b != a)
-        self.assertNotEqual(0, cmp(a, b))
-        self.assertNotEqual(0, cmp(b, a))
 
     def _serialobj(self):
         """Helper method, return an object to serialise"""

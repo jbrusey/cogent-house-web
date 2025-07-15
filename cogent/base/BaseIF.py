@@ -3,16 +3,12 @@
 #
 # J. Brusey, May 2011
 
-import os
-import sys
 from queue import Empty, Queue
 
 from cogent.node import BootMsg, StateMsg
+from tinyos.message import MoteIF
 
 from .model import Bitset
-
-sys.path.append(os.environ["TOSROOT"] + "/support/sdk/python")
-from tinyos.message import MoteIF
 
 
 # Note: MoteIF doesn't currently support coming directly off the

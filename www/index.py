@@ -12,12 +12,29 @@ Modification history:
 
 
 import io
-import time
-from datetime import datetime, timedelta
-import urllib.request, urllib.parse, urllib.error
-import numpy as np
-import gviz_api
 import os
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timedelta
+from distutils.version import StrictVersion as V
+
+import cogent.sip.sipsim
+import gviz_api
+# do this before importing pylab or pyplot
+import matplotlib
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+from cogent.base.model import (House, Location, Node, NodeState, Reading, Room,
+                               RoomType, Sensor, SensorType, Session,
+                               init_model)
+from cogent.sip.calc_yield import calc_yield
+from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
+from matplotlib.path import Path
+from sqlalchemy import and_, create_engine, distinct, func
+from sqlalchemy.orm import aliased
+from sqlalchemy.orm.exc import NoResultFound
 
 # set the home to a writable directory
 
@@ -28,38 +45,8 @@ os.environ["HOME"] = "/tmp"
 
 _USE_SVG_PLOTS = False
 
-# do this before importing pylab or pyplot
-import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
-import matplotlib.patches as patches
-
-from cogent.base.model import (
-    Node,
-    Reading,
-    Location,
-    House,
-    Room,
-    RoomType,
-    NodeState,
-    init_model,
-    Session,
-    Sensor,
-    SensorType,
-)
-from distutils.version import StrictVersion as V
-import cogent.sip.sipsim
-from cogent.sip.sipsim import (
-    PartSplineReconstruct,
-    SipPhenom,
-)
-from cogent.sip.calc_yield import calc_yield
-
-from sqlalchemy import create_engine, and_, distinct, func
-from sqlalchemy.orm import aliased
-from sqlalchemy.orm.exc import NoResultFound
 
 
 _DBURL = "mysql://chuser@localhost/ch?connect_timeout=1"
@@ -349,7 +336,7 @@ def tree(req, period="day", debug=""):
     mins = _mins(period)
     try:
         session = Session()
-        from subprocess import Popen, PIPE
+        from subprocess import PIPE, Popen
 
         if debug != "y":
             req.content_type = _CONTENT_SVG
@@ -381,7 +368,7 @@ def tree(req, period="day", debug=""):
                 .group_by(NodeState.nodeId, NodeState.parent)
                 .filter(and_(NodeState.time > t, NodeState.parent != 65535))
             )
-            for (ni, hi, rm, pa, rssi) in qry:
+            for ni, hi, rm, pa, rssi in qry:
 
                 dotfile.write('{0}->{1} [label="{2}"];'.format(ni, pa, float(rssi)))
                 if ni not in seen_nodes:
@@ -456,7 +443,7 @@ def allGraphs(typ="0", period="day"):
         s.append("</p>")
 
         is_empty = True
-        for (i, h, r) in (
+        for i, h, r in (
             session.query(Node.id, House.address, Room.name)
             .join(Location, Node.locationId == Location.id)
             .join(House, Location.houseId == House.id)
@@ -562,7 +549,7 @@ def getData(req, sensorType=None, StartDate=None, EndDate=None):
                 time.mktime(time.strptime(EndDate, time_format))
             )
         except ValueError:
-            return _redirect(_url("exportDataForm", err=endfmt))
+            return _redirect(_url("exportDataForm", err="endfmt"))
 
         ed = ed + timedelta(days=1)
 
@@ -600,7 +587,7 @@ def getData(req, sensorType=None, StartDate=None, EndDate=None):
 
 def _total_seconds(td):
     """calculate the total seconds when running in python 2.6"""
-    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10 ** 6) / 10.0 ** 6
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10.0**6
 
 
 def _predict(sip_tuple, end_time):
@@ -834,7 +821,7 @@ def missing():
                 .order_by(House.address, Room.name)
                 .all()
             )
-            for (maxtime, nodeId, house, room) in qry:
+            for maxtime, nodeId, house, room in qry:
                 u = _url("unregisterNode", node=nodeId)
                 s.append(
                     "<tr><td>%d</td><td>%s</td>"
@@ -1093,11 +1080,11 @@ def dataYield():
                 n = session.query(Node).filter(Node.id == nid).one()
                 try:
                     house = n.location.house.address
-                except:  # TODO fix unspec exception
+                except Exception:  # TODO fix unspec exception
                     house = "-"
                 try:
                     room = n.location.room.name
-                except:  # TODO fix unspec exception
+                except Exception:  # TODO fix unspec exception
                     room = "-"
             except NoResultFound:
                 house = "?"
@@ -1865,7 +1852,7 @@ def graph(
 
 
 def _get_motelist():
-    from subprocess import Popen, PIPE
+    from subprocess import PIPE, Popen
 
     devs = []
     try:

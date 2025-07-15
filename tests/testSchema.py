@@ -1,27 +1,9 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import (
-    Table,
-    Column,
-    Integer,
-    String,
-    MetaData,
-    ForeignKey,
-    DateTime,
-    Float,
-    Boolean,
-)
-from sqlalchemy.orm import relationship, backref
-import sqlalchemy.types as types
-
 import unittest
 from datetime import datetime, timedelta
 
 # Original Version used this namespace,
 # So I will too.
 # from cogent.base.model.Bitset import Bitset
-
-import cogent
-
 # try:
 #     import cogent
 # except ImportError:
@@ -29,15 +11,15 @@ import cogent
 #     print "Unable to Import Cogent Module Appending Path"
 #     import sys
 #     sys.path.append("../")
-
-
-from cogent.base.model import *
+from cogent.base.model import (Base, Bitset, Deployment, DeploymentMetadata,
+                               House, HouseMetadata, Location, Node, NodeState,
+                               NodeType, Occupier, Reading, Room, RoomType,
+                               SensorType, Session, init_model)
 
 # from cogent.base.model.meta import Session, Base
+from . import base
 
 DBURL = "sqlite:///:memory:"
-
-from . import base
 
 
 @unittest.skip
