@@ -6,9 +6,9 @@ Test for the Sensor Type Classes
 
 # Python Module Imports
 
-import base
-
 import cogent.base.model as models
+
+from . import base
 
 
 class TestRoom(base.ModelTestCase):

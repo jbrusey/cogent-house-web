@@ -1,22 +1,11 @@
 import datetime
 import unittest
 
-# from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-
-from cogent.base.model import (
-    Base,
-    House,
-    Location,
-    Node,
-    NodeState,
-    Reading,
-    Room,
-    RoomType,
-    Session,
-    init_model,
-)
+from cogent.base.model import (Base, House, Location, Node, NodeState, Reading,
+                               Room, RoomType, Session, init_model)
 from cogent.report import lowBat
+# from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
 
 from . import base
 
@@ -35,13 +24,13 @@ class TestReport(base.BaseTestCase):
         super(TestReport, cls).setUpClass()
 
         session = cls.Session()
-        session.execute("DELETE FROM Node")
-        session.execute("DELETE FROM NodeState")
-        session.execute("DELETE FROM House")
-        session.execute("DELETE FROM Room")
-        session.execute("DELETE FROM Location")
-        session.execute("DELETE FROM Reading")
-        session.execute("DELETE FROM LastReport")
+        session.execute(text("DELETE FROM Node"))
+        session.execute(text("DELETE FROM NodeState"))
+        session.execute(text("DELETE FROM House"))
+        session.execute(text("DELETE FROM Room"))
+        session.execute(text("DELETE FROM Location"))
+        session.execute(text("DELETE FROM Reading"))
+        session.execute(text("DELETE FROM LastReport"))
         session.commit()
         initDb()
 
@@ -49,13 +38,13 @@ class TestReport(base.BaseTestCase):
     def tearDownClass(cls):
         # Inherit from Base
         session = cls.Session()
-        session.execute("DELETE FROM Node")
-        session.execute("DELETE FROM NodeState")
-        session.execute("DELETE FROM House")
-        session.execute("DELETE FROM Room")
-        session.execute("DELETE FROM Location")
-        session.execute("DELETE FROM Reading")
-        session.execute("DELETE FROM LastReport")
+        session.execute(text("DELETE FROM Node"))
+        session.execute(text("DELETE FROM NodeState"))
+        session.execute(text("DELETE FROM House"))
+        session.execute(text("DELETE FROM Room"))
+        session.execute(text("DELETE FROM Location"))
+        session.execute(text("DELETE FROM Reading"))
+        session.execute(text("DELETE FROM LastReport"))
         session.commit()
 
     def test_lowbat(self):

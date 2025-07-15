@@ -8,10 +8,10 @@ Testing for the Deployment Module
 import datetime
 import logging
 
-import base
-
 # Python Module Imports
 import cogent.base.model as models
+
+from . import base
 
 log = logging.getLogger(__name__)
 

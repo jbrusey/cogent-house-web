@@ -13,9 +13,8 @@ import sqlalchemy
 import transaction
 from alembic import command
 from alembic.config import Config
-
+from cogent.base.model import init_data
 from cogent.base.model import meta as meta
-from cogent.base.model import populateData as populateData
 
 from ..base.model import user
 
@@ -90,7 +89,7 @@ def main(argv=sys.argv):
     DBSession = meta.Session()
     # DBSession.configure(bind=engine)
     logging.debug("Populating Data")
-    populateData.init_data(DBSession)
+    init_data(DBSession)
     # populateUser()
     logging.debug("Populated")
     DBSession.flush()

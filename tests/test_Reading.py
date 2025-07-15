@@ -1,10 +1,10 @@
 # from datetime import datetime
 import datetime
 
-import base
-
 # Python Module Imports
 import cogent.base.model as models
+
+from . import base
 
 NOW = datetime.datetime.utcnow()
 
