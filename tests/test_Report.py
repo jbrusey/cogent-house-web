@@ -1,11 +1,22 @@
 import datetime
 import unittest
 
-from cogent.base.model import (Base, House, Location, Node, NodeState, Reading,
-                               Room, RoomType, Session, init_model)
-from cogent.report import lowBat
 # from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, text
+
+from cogent.base.model import (
+    Base,
+    House,
+    Location,
+    Node,
+    NodeState,
+    Reading,
+    Room,
+    RoomType,
+    Session,
+    init_model,
+)
+from cogent.report import lowBat
 
 from . import base
 
@@ -100,7 +111,7 @@ def initDb():
         s.add(Node(id=4098, nodeTypeId=1, location=ll))
         s.add(Node(id=4099, nodeTypeId=1, location=ll))
 
-        t = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        t = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
         for i in range(288):
             ns = NodeState(time=t, nodeId=23, parent=0, localtime=0, seq_num=i)
             s.add(ns)

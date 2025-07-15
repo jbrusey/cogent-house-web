@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 # Global Timestamp
-NOW = datetime.datetime.utcnow()
+NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestDeployment(base.ModelTestCase):

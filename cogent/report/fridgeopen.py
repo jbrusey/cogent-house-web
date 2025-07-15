@@ -1,6 +1,6 @@
 """Fridge should be less than 10 degrees"""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_
 
@@ -10,7 +10,7 @@ THRESHOLD = 10
 
 
 def fridge_open(
-    session, end_t=datetime.utcnow(), start_t=(datetime.utcnow() - timedelta(hours=4))
+    session, end_t=datetime.now(UTC), start_t=(datetime.now(UTC) - timedelta(hours=4))
 ):
     html = []
 

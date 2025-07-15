@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_, func, or_
 
@@ -29,8 +29,8 @@ def table_with_nodes(session, html, node_set):
 def packetYield(
     session,
     missed_thresh=5,
-    end_t=datetime.utcnow(),
-    start_t=(datetime.utcnow() - timedelta(days=1)),
+    end_t=datetime.now(UTC),
+    start_t=(datetime.now(UTC) - timedelta(days=1)),
 ):
     """report on percentage of packets received over packets transmitted."""
     html = []
