@@ -48,7 +48,6 @@ def initialise_sql(engine, dropTables=False):
     """
     log.info("Initialising Database")
     Session.configure(bind=engine)
-    Base.metadata.bind = engine
 
     if dropTables:
         Base.metadata.drop_all(engine)
@@ -68,17 +67,16 @@ def findClass(tableName):
         return mappedTable
 
     log.debug("Looking for {0}".format(tableName))
-    for x in list(mapperlib._mapper_registry.items()):
-        # mapped table
-        log.debug("--> Checking against {0}".format(x))
-        checkTable = x[0].mapped_table
-        theClass = x[0].class_
-        log.debug("--> Mapped Table {0}".format(checkTable))
+    for mapper in Base.registry.mappers:
+        log.debug("--> Checking against %s", mapper)
+        checkTable = mapper.local_table
+        theClass = mapper.class_
+        log.debug("--> Mapped Table %s", checkTable)
         checkName = checkTable.name.lower()
         TABLEMAP[checkName] = theClass
         if checkName == tableName:
-            log.debug("--> Match {0}".format(checkTable.name))
-            log.debug("--> Class is {0}".format(theClass))
+            log.debug("--> Match %s", checkTable.name)
+            log.debug("--> Class is %s", theClass)
             mappedTable = theClass
 
     log.debug("--> Final Verison {0}".format(mappedTable))

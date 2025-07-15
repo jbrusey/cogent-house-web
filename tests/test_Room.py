@@ -8,7 +8,7 @@ Test for the Sensor Type Classes
 
 import cogent.base.model as models
 
-import base
+from . import base
 
 
 class TestRoom(base.ModelTestCase):

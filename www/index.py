@@ -20,21 +20,33 @@ import urllib.request
 from datetime import datetime, timedelta
 from distutils.version import StrictVersion as V
 
-import cogent.sip.sipsim
 import gviz_api
+
 # do this before importing pylab or pyplot
 import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from cogent.base.model import (House, Location, Node, NodeState, Reading, Room,
-                               RoomType, Sensor, SensorType, Session,
-                               init_model)
-from cogent.sip.calc_yield import calc_yield
-from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
 from matplotlib.path import Path
 from sqlalchemy import and_, create_engine, distinct, func
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
+
+import cogent.sip.sipsim
+from cogent.base.model import (
+    House,
+    Location,
+    Node,
+    NodeState,
+    Reading,
+    Room,
+    RoomType,
+    Sensor,
+    SensorType,
+    Session,
+    init_model,
+)
+from cogent.sip.calc_yield import calc_yield
+from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
 
 # set the home to a writable directory
 

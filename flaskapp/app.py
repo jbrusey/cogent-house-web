@@ -1,7 +1,9 @@
+import os
+
 from flask import Flask, render_template
 from sqlalchemy import create_engine
-from cogent.base.model import init_model, Session, Node
-import os
+
+from cogent.base.model import Node, Session, init_model
 
 app = Flask(__name__)
 

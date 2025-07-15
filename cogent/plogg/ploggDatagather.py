@@ -15,15 +15,13 @@ from datetime import datetime
 from functools import reduce
 from optparse import OptionGroup, OptionParser
 
-import serial
-import serial.tools.list_ports as list_ports
-
-# Do The Database Magic
-import sqlalchemy
-
 import cogent.base.model as models
 import cogent.base.model.meta as meta
-import cogent.base.model.populateData as populateData
+import serial
+import serial.tools.list_ports as list_ports
+# Do The Database Magic
+import sqlalchemy
+from cogent.base.model import init_data
 
 DB_STRING = "mysql://chuser@localhost/localCh"
 
@@ -118,7 +116,7 @@ class PloggCollector(object):
         engine = sqlalchemy.create_engine(DB_STRING)
         # Create Models and Populate any Missing Base Data
         models.initialise_sql(engine)
-        populateData.init_data()
+        init_data()
 
         # Scan for Ploggs
         # ploggList = self.ploggScan()

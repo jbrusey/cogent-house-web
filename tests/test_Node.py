@@ -3,7 +3,7 @@
 
 import cogent.base.model as models
 
-import base
+from . import base
 
 
 class TestNode(base.ModelTestCase):

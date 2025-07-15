@@ -4,7 +4,7 @@ import datetime
 # Python Module Imports
 import cogent.base.model as models
 
-import base
+from . import base
 
 NOW = datetime.datetime.utcnow()
 
@@ -36,6 +36,7 @@ class TestHouse(base.ModelTestCase):
             "address": "10 Test Address",
             "startDate": NOW.isoformat(),
             "endDate": NOW.isoformat(),
+            "serverid": None,
         }
         return theDict
 

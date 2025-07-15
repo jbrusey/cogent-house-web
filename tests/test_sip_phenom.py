@@ -1,9 +1,10 @@
 import unittest
 from datetime import UTC, datetime, timedelta
 
+from packaging.version import Version as V
+
 import cogent.sip.sipsim
 from cogent.sip.sipsim import SipPhenom
-from packaging.version import Version as V
 
 
 class TestSipPhenom(unittest.TestCase):

@@ -4,7 +4,7 @@ import datetime
 # Python Module Imports
 import cogent.base.model as models
 
-import base
+from . import base
 
 NOW = datetime.datetime.utcnow()
 

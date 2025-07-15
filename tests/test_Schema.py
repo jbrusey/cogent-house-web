@@ -11,10 +11,25 @@ from datetime import datetime, timedelta
 #     print "Unable to Import Cogent Module Appending Path"
 #     import sys
 #     sys.path.append("../")
-from cogent.base.model import (Base, Bitset, Deployment, DeploymentMetadata,
-                               House, HouseMetadata, Location, Node, NodeState,
-                               NodeType, Occupier, Reading, Room, RoomType,
-                               SensorType, Session, init_model)
+from cogent.base.model import (
+    Base,
+    Bitset,
+    Deployment,
+    DeploymentMetadata,
+    House,
+    HouseMetadata,
+    Location,
+    Node,
+    NodeState,
+    NodeType,
+    Occupier,
+    Reading,
+    Room,
+    RoomType,
+    SensorType,
+    Session,
+    init_model,
+)
 
 # from cogent.base.model.meta import Session, Base
 from . import base
