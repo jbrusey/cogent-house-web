@@ -85,7 +85,6 @@ def main(argv=sys.argv):
     engine = sqlalchemy.create_engine(DBFILE, echo=False)
 
     meta.Session.configure(bind=engine)
-    Base.metadata.bind = engine
     Base.metadata.create_all(engine)
 
     DBSession = meta.Session()

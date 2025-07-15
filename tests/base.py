@@ -31,20 +31,18 @@ def initDatabase():
 
     log.debug("Database Engine Started: {0}".format(engine))
 
-    meta.Base.metadata.bind = engine
+    meta.Session.configure(bind=engine)
     meta.Base.metadata.create_all(engine)
 
 
-# Check to see if we have a database all ready initialised (Avoids bug where the
-# test overrides everything)
-if meta.Base.metadata.bind is None:
+# Track if we have already initialised the test database to avoid recreating it
+TEST_DB_INITIALISED = False
+
+if not TEST_DB_INITIALISED:
     log.info("No Database Initiated")
-    # print
-    # print "====================="
-    # print "Initialise Database"
     initDatabase()
     models.populateData.init_data()
-    # print "====================="
+    TEST_DB_INITIALISED = True
 
 
 class BaseTestCase(unittest.TestCase):

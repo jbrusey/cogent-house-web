@@ -41,7 +41,6 @@ class OwlsReporter(object):
         self.enginestr = enginestr
         engine = sqlalchemy.create_engine(enginestr, echo=False)
         meta.Session.configure(bind=engine)
-        Base.metadata.bind = engine
         self.reportdate = reportdate
 
         # Work out the template location

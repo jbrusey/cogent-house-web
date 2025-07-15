@@ -48,7 +48,6 @@ def initialise_sql(engine, dropTables=False):
     """
     log.info("Initialising Database")
     Session.configure(bind=engine)
-    Base.metadata.bind = engine
 
     if dropTables:
         Base.metadata.drop_all(engine)
