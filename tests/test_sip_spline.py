@@ -2,7 +2,6 @@ import unittest
 from datetime import datetime, timedelta
 
 from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
-from tests.test_sip_phenom import my_total_seconds
 
 
 class TestSipSpline(unittest.TestCase):
@@ -32,8 +31,7 @@ class TestSipSpline(unittest.TestCase):
         for ptup in result:
             self.assertTrue(ptup.dashed is not None)
             intvl = int(
-                my_total_seconds((ptup.dt - now))
-                / my_total_seconds(timedelta(minutes=1))
+                (ptup.dt - now).total_seconds() / timedelta(minutes=1).total_seconds()
             )
             if intvl >= 7 and intvl <= 20:
                 self.assertEqual(ptup.sp, 3)
@@ -42,7 +40,6 @@ class TestSipSpline(unittest.TestCase):
 
         for i, ptup in enumerate(result):
             intvl = int(
-                my_total_seconds((ptup.dt - now))
-                / my_total_seconds(timedelta(minutes=1))
+                (ptup.dt - now).total_seconds() / timedelta(minutes=1).total_seconds()
             )
             self.assertEqual(i, intvl)

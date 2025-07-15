@@ -6,13 +6,6 @@ from cogent.sip.sipsim import SipPhenom
 from packaging.version import Version as V
 
 
-def my_total_seconds(time_d):
-    """while some systems are running python 2.6, this method is
-    needed to calculate the total number of seconds in a timedelta
-    """
-    return time_d.days * 3600 * 24 + time_d.seconds
-
-
 class TestSipPhenom(unittest.TestCase):
     """unit tests for sipphenom"""
 
@@ -80,8 +73,9 @@ class TestSipPhenom(unittest.TestCase):
             self.assertTrue(last_dt is None or ptup.dt > last_dt)
             self.assertTrue(ptup.dt is not None)
             intvl = int(
-                my_total_seconds(ptup.dt - now) / my_total_seconds(timedelta(minutes=5))
+                (ptup.dt - now).total_seconds() / timedelta(minutes=5).total_seconds()
             )
+
             # print intvl, ptup.dashed
             self.assertTrue(not (intvl > 7 and intvl <= 20) or ptup.dashed)
             self.assertTrue(intvl > 7 and intvl <= 20 or not ptup.dashed)
@@ -117,8 +111,7 @@ class TestSipPhenom(unittest.TestCase):
             self.assertTrue(last_dt is None or ptup.dt > last_dt)
             self.assertTrue(ptup.dt is not None)
             intvl = int(
-                my_total_seconds((ptup.dt - now))
-                / my_total_seconds(timedelta(minutes=5))
+                (ptup.dt - now).total_seconds() / timedelta(minutes=5).total_seconds()
             )
             # print intvl, ptup.dashed
             self.assertTrue(not (intvl > 20 and intvl <= 22) or ptup.dashed)
