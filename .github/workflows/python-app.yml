@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "master" , "mqttpy3" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" , "mqttpy3" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
