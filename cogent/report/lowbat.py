@@ -1,9 +1,8 @@
 import datetime
 
-from sqlalchemy import and_, func
-
 # from datetime import datetime, timedelta
 from cogent.base.model import House, LastReport, Location, Node, Reading, Room
+from sqlalchemy import and_, func
 
 
 def nodesInSet(session, node_set):
@@ -13,7 +12,9 @@ def nodesInSet(session, node_set):
     for r, addr, name in (
         session.query(Node.id, House.address, Room.name)
         .filter(Node.id.in_(node_set))
-        .join(Location, House, Room)
+        .join(Node.location)
+        .join(Location.room)
+        .join(Location.house)
         .order_by(House.address, Room.name)
         .all()
     ):

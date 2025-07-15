@@ -36,6 +36,7 @@ class TestHouse(base.ModelTestCase):
             "address": "10 Test Address",
             "startDate": NOW.isoformat(),
             "endDate": NOW.isoformat(),
+            "serverid": None,
         }
         return theDict
 
