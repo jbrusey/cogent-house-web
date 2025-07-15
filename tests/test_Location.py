@@ -3,9 +3,9 @@
 # Python Module Imports
 
 
-import cogent.base.model as models
-
 import base
+
+import cogent.base.model as models
 
 
 class TestLocation(base.ModelTestCase):

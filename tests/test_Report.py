@@ -1,11 +1,22 @@
 import datetime
 import unittest
 
-from cogent.base.model import (Base, House, Location, Node, NodeState, Reading,
-                               Room, RoomType, Session, init_model)
-from cogent.report import lowBat
 # from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+
+from cogent.base.model import (
+    Base,
+    House,
+    Location,
+    Node,
+    NodeState,
+    Reading,
+    Room,
+    RoomType,
+    Session,
+    init_model,
+)
+from cogent.report import lowBat
 
 from . import base
 

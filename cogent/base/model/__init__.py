@@ -16,8 +16,7 @@ Classes to initialise the SQL and populate with default Sensors
 from .bitset import Bitset
 from .deployment import Deployment
 from .house import House
-from .init import (clsFromJSON, findClass, init_model, initialise_sql,
-                   newClsFromJSON)
+from .init import clsFromJSON, findClass, init_model, initialise_sql, newClsFromJSON
 from .location import Location
 from .meta import Base, Session
 from .node import Node

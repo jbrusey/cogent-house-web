@@ -7,10 +7,11 @@ meaning the DB is consistently initiated in all test cases.
 import logging
 import unittest
 
-import cogent.base.model as models
-import cogent.base.model.meta as meta
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+
+import cogent.base.model as models
+import cogent.base.model.meta as meta
 
 # from pyramid.config import Configurator
 # from paste.deploy.loadwsgi import appconfig

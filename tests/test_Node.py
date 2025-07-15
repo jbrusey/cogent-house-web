@@ -1,9 +1,9 @@
 # Python Module Imports
 
 
-import cogent.base.model as models
-
 import base
+
+import cogent.base.model as models
 
 
 class TestNode(base.ModelTestCase):
