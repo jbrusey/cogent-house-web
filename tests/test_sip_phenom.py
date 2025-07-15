@@ -1,10 +1,9 @@
 import unittest
-from datetime import datetime, timedelta
-
-from packaging.version import Version as V
+from datetime import UTC, datetime, timedelta
 
 import cogent.sip.sipsim
 from cogent.sip.sipsim import SipPhenom
+from packaging.version import Version as V
 
 
 def my_total_seconds(time_d):
@@ -21,7 +20,7 @@ class TestSipPhenom(unittest.TestCase):
         """basic test"""
         tvd = [(0, 1, 0, 1), (3, 2, 1.0 / 4, 2), (7, 3, -1.0 / 13, 3), (20, 2, 0, 4)]
         data = []
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         for t, v, d, s in tvd:
             data.append((now + timedelta(minutes=5 * t), v, d, s))
             # for r in data:
@@ -42,7 +41,7 @@ class TestSipPhenom(unittest.TestCase):
     def test2(self):
         """from a single data element, only one row should be
         generated"""
-        data = [(datetime.utcnow(), 1, 0, 3)]
+        data = [(datetime.now(UTC), 1, 0, 3)]
 
         self.assertEqual(1, len(list(SipPhenom(src=data))))
 
@@ -51,8 +50,8 @@ class TestSipPhenom(unittest.TestCase):
         periods, two rows should be generated"""
 
         db1 = [
-            (datetime.utcnow(), 1, 0, 4),
-            (datetime.utcnow() + timedelta(minutes=5), 2, 0, 5),
+            (datetime.now(UTC), 1, 0, 4),
+            (datetime.now(UTC) + timedelta(minutes=5), 2, 0, 5),
         ]
         self.assertEqual(2, len(list(SipPhenom(src=db1))))
 
@@ -69,7 +68,7 @@ class TestSipPhenom(unittest.TestCase):
             (20, 2, 0, 5),
         ]  # missed 4
         data = []
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         for t, v, d, s in tvd:
             data.append((now + timedelta(minutes=5 * t), v, d, s))
 
@@ -106,7 +105,7 @@ class TestSipPhenom(unittest.TestCase):
             (25, 2, 1, 1),
         ]
         data = []
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         for time, value, delta, seq in tvd:
             data.append((now + timedelta(minutes=5 * time), value, delta, seq))
 

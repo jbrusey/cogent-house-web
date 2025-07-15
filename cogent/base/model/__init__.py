@@ -11,19 +11,18 @@ Classes to initialise the SQL and populate with default Sensors
 """
 
 import json
-
 # Setup Logging
 import logging
 
 from sqlalchemy.orm import mapperlib
 
-from .deployment import Deployment
-from .house import House
-from .location import Location
-
 # Namespace Manginlg the Proper way, (via all)
 # __all__ = ["deployment.*"]
 # Namespace Mangling
+from .bitset import Bitset
+from .deployment import Deployment
+from .house import House
+from .location import Location
 from .meta import Base, Session
 from .node import Node
 from .nodeboot import NodeBoot

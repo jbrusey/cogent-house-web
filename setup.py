@@ -1,8 +1,8 @@
 # from distutils.core import setup
-from setuptools import setup
 import os
 import sys
 
+from setuptools import setup
 
 # Fix for when a virtualenv is used to install
 here = os.path.abspath(os.path.dirname(__file__))
@@ -18,7 +18,7 @@ else:
 
 REQUIRES = [
     "SQLAlchemy",
-    "MySQL-python",
+    "mysqlclient",
     "configobj",
     "python-dateutil>=1.5",
     "numpy",
@@ -30,8 +30,8 @@ REQUIRES = [
 ]
 
 setup(
-    name="ch-base",
-    version="1.1.8",
+    name="ch-web",
+    version="1.2",
     description="CogentHouse base station logger",
     author="James Brusey, Ross Wilkins, Dan Goldsmith",
     author_email="james.brusey@gmail.com",
@@ -39,7 +39,6 @@ setup(
         "cogent",
         "cogent.base",
         "cogent.base.model",
-        "cogent.push",
         "cogent.report",
         "cogent.sip",
         "cogent.node",
@@ -47,25 +46,6 @@ setup(
         "cogent.alembic",
     ],
     include_package_data=True,
-    data_files=[
-        (
-            "{0}/etc/init.d".format(conf_prefix),
-            ["etc/ch-base", "etc/ch-sf", "etc/autossh"],
-        ),
-        (
-            "{0}/etc/apache2/sites-available".format(conf_prefix),
-            ["etc/cogent-house.conf"],
-        ),
-        # Push Configuration Files
-        (
-            "{0}/etc/cogent-house/push-script/".format(conf_prefix),
-            ["conf/push-script/synchronise.template"],
-        ),
-        (
-            "{0}/etc/cogent-house/push-script/".format(conf_prefix),
-            ["cogent/push/ch-ssh"],
-        ),
-    ],
     entry_points="""\
       [console_scripts]
       initialize_cogent_db = cogent.scripts.initializedb:main
