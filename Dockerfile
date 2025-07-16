@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Copy application code
 COPY . /app
+# Install the local cogent package in editable mode so the Flask app
+# can import it.
+RUN pip install --no-cache-dir -e .
 
 
 # Default database connection
