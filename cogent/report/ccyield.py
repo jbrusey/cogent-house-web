@@ -9,8 +9,8 @@ from cogent.base.model import House, LastReport, Location, Node, Reading, Room
 def ccYield(
     session,
     missed_thresh=10,
-    end_t=datetime.datetime.utcnow(),
-    start_t=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+    end_t=datetime.datetime.now(datetime.UTC),
+    start_t=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)),
 ):
     html = []
 

@@ -1,8 +1,9 @@
 import datetime
 
+from sqlalchemy import and_, func
+
 # from datetime import datetime, timedelta
 from cogent.base.model import House, LastReport, Location, Node, Reading, Room
-from sqlalchemy import and_, func
 
 
 def nodesInSet(session, node_set):
@@ -28,8 +29,8 @@ def lowBat(
     session,
     bat_thresh=2.6,
     count_thresh=3,
-    end_t=datetime.datetime.utcnow(),
-    start_t=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+    end_t=datetime.datetime.now(datetime.UTC),
+    start_t=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)),
 ):
     html = []
 

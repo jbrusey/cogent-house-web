@@ -6,7 +6,7 @@ import cogent.base.model as models
 
 from . import base
 
-NOW = datetime.datetime.utcnow()
+NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestReading(base.ModelTestCase):
@@ -63,7 +63,7 @@ class TestReading(base.ModelTestCase):
 
         self.assertEqual(item1, item2)
 
-        item2.time = datetime.datetime.utcnow()
+        item2.time = datetime.datetime.now(datetime.UTC)
         self.assertReallyNotEqual(item1, item2)
 
         item2.time = item1.time
@@ -88,7 +88,7 @@ class TestReading(base.ModelTestCase):
 
         self.assertEqual(item1, item2)
 
-        item2.time = datetime.datetime.utcnow()
+        item2.time = datetime.datetime.now(datetime.UTC)
         self.assertGreater(item2, item1)
 
     #     item1 = models.Reading(id=1,

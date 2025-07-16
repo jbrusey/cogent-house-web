@@ -6,7 +6,7 @@ import cogent.base.model as models
 
 from . import base
 
-NOW = datetime.datetime.utcnow()
+NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestHouse(base.ModelTestCase):
@@ -93,7 +93,7 @@ class TestHouse(base.ModelTestCase):
         self.assertReallyNotEqual(item1, item2)
 
         item2.address = item1.address
-        item2.startDate = datetime.datetime.utcnow()
+        item2.startDate = datetime.datetime.now(datetime.UTC)
 
         self.assertNotEqual(item1, item2)
         self.assertReallyNotEqual(item1, item2)
@@ -129,20 +129,20 @@ class TestHouse(base.ModelTestCase):
         self.assertLess(item1, item2)
 
         item2.address = item1.address
-        item2.startDate = datetime.datetime.utcnow()
+        item2.startDate = datetime.datetime.now(datetime.UTC)
         self.assertLess(item1, item2)
 
-        item1.startDate = datetime.datetime.utcnow()
+        item1.startDate = datetime.datetime.now(datetime.UTC)
         self.assertGreater(item1, item2)
 
         # Order on end-date
         item2.address = item1.address
-        item2.endDate = datetime.datetime.utcnow()
+        item2.endDate = datetime.datetime.now(datetime.UTC)
         self.assertLess(item2, item1)
         self.assertGreater(item1, item2)
 
         # Order on start Date
         item2.endDate = item1.endDate
-        item2.startDate = datetime.datetime.utcnow()
+        item2.startDate = datetime.datetime.now(datetime.UTC)
         self.assertLess(item1, item2)
         self.assertGreater(item2, item1)

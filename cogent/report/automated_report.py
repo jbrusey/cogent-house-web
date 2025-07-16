@@ -33,7 +33,7 @@ Base = meta.Base
 class OwlsReporter(object):
     """Main reporter class to generate and render automated reports"""
 
-    def __init__(self, enginestr, reportdate=datetime.datetime.utcnow()):
+    def __init__(self, enginestr, reportdate=datetime.datetime.now(datetime.UTC)):
         """Initialise the reporter
         :param enginestr:  SQLA String to connect to database
         :param reportdate: Date to run report for
@@ -430,7 +430,7 @@ if __name__ == "__main__":  # pragma: no cover
         "-d",
         "--date",
         help="Optional date to run report for <DD>-<MM>-<YYYY>",
-        default=datetime.datetime.utcnow(),
+        default=datetime.datetime.now(datetime.UTC),
         required=False,
     )
 

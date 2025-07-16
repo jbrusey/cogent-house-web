@@ -11,16 +11,18 @@
 import logging
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import reduce
 from optparse import OptionGroup, OptionParser
 
-import cogent.base.model as models
-import cogent.base.model.meta as meta
 import serial
 import serial.tools.list_ports as list_ports
+
 # Do The Database Magic
 import sqlalchemy
+
+import cogent.base.model as models
+import cogent.base.model.meta as meta
 from cogent.base.model import init_data
 
 DB_STRING = "mysql://chuser@localhost/localCh"
@@ -298,7 +300,7 @@ class PloggCollector(object):
             # Get Consumption
             # RMS Current
             # System Uptime
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(UTC)
             watts = float(int(str(ha[7] + ha[8] + ha[9] + ha[10]), 16)) / 1000
             kwhCon = float(int(str(ha[15] + ha[16] + ha[17] + ha[18]), 16)) / 10000
             rmsc = float(int(str(ha[27] + ha[28] + ha[29] + ha[30]), 16)) / 1000

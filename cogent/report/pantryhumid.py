@@ -5,7 +5,7 @@ Modifications
 
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_
 
@@ -15,7 +15,7 @@ THRESHOLD = 79
 
 
 def pantry_humid(
-    session, end_t=datetime.utcnow(), start_t=(datetime.utcnow() - timedelta(hours=24))
+    session, end_t=datetime.now(UTC), start_t=(datetime.now(UTC) - timedelta(hours=24))
 ):
     html = []
 

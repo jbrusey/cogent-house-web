@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -83,7 +83,7 @@ def predict(sip_tuple, end_time, restrict=timedelta(hours=7)):
 
 
 def estimate_current_value(
-    session, node_id, type_id, delta_id, endts=datetime.utcnow()
+    session, node_id, type_id, delta_id, endts=datetime.now(UTC)
 ):
 
     # get the last hours data

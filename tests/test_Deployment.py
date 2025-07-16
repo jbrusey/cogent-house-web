@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 
 # Global Timestamp
-NOW = datetime.datetime.utcnow()
+NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestDeployment(base.ModelTestCase):
@@ -104,9 +104,6 @@ class TestDeployment(base.ModelTestCase):
             "startDate": None,
             "endDate": None,
         }
-
-        itemdict = item.toDict()
-        self.assertEqual(basedict, itemdict)
 
         itemdict = item.dict()
         self.assertEqual(basedict, itemdict)

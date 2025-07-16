@@ -3,7 +3,7 @@
 Assume X to be 4 hours
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_
 
@@ -11,7 +11,7 @@ from cogent.base.model import NodeState
 
 
 def server_down(
-    session, end_t=datetime.utcnow(), start_t=(datetime.utcnow() - timedelta(hours=4))
+    session, end_t=datetime.now(UTC), start_t=(datetime.now(UTC) - timedelta(hours=4))
 ):
     html = []
     node_state = (

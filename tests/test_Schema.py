@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 # Original Version used this namespace,
 # So I will too.
@@ -73,7 +73,7 @@ class TestNodeType(base.BaseTestCase):
         b[13] = True
 
         r = NodeType(
-            time=datetime.utcnow(),
+            time=datetime.now(UTC),
             id=0,
             name="base",
             seq=1,
@@ -98,7 +98,7 @@ class TestNodeType(base.BaseTestCase):
         b[13] = True
 
         r = NodeType(
-            time=datetime.utcnow(),
+            time=datetime.now(UTC),
             id=0,
             name="base",
             seq=1,
@@ -171,7 +171,7 @@ class TestSchema(base.BaseTestCase):
         dep = Deployment(
             name="TestDep",
             description="Does this work",
-            startDate=datetime.utcnow(),
+            startDate=datetime.now(UTC),
             endDate=None,
         )
         session.add(dep)
@@ -196,7 +196,7 @@ class TestSchema(base.BaseTestCase):
         session.commit()
 
         # Add a house
-        h = House(deploymentId=1, address="1 Sampson", startDate=datetime.utcnow())
+        h = House(deploymentId=1, address="1 Sampson", startDate=datetime.now(UTC))
 
         session.add(h)
         session.commit()
@@ -219,7 +219,7 @@ class TestSchema(base.BaseTestCase):
             houseId=1,
             name="Mr Man",
             contactNumber="01212342345",
-            startDate=datetime.utcnow(),
+            startDate=datetime.now(UTC),
         )
 
         session.add(occ)
@@ -282,7 +282,7 @@ class TestSchema(base.BaseTestCase):
         session.add(st)
         session.commit()
 
-        tt = datetime.utcnow() - timedelta(minutes=(500))
+        tt = datetime.now(UTC) - timedelta(minutes=(500))
 
         for i in range(100):
 

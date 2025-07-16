@@ -17,7 +17,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from distutils.version import StrictVersion as V
 
 import gviz_api
@@ -357,7 +357,7 @@ def tree(req, period="day", debug=""):
             req.content_type = _CONTENT_TEXT
             cmd = "cat"
 
-        t = datetime.utcnow() - timedelta(minutes=mins)
+        t = datetime.now(UTC) - timedelta(minutes=mins)
 
         p = Popen(
             cmd, shell=True, bufsize=4096, stdin=PIPE, stdout=PIPE, close_fds=True
@@ -521,7 +521,7 @@ def exportDataForm(err=None):
         s.append(
             'End Date: <input type="text" name="EndDate" '
             'value="'
-            + (datetime.utcnow()).strftime("%d/%m/%Y")
+            + (datetime.now(UTC)).strftime("%d/%m/%Y")
             + '"  onfocus="displayDatePicker(\'EndDate\');"/>'
         )
         s.append("</td><tr></table>")
@@ -673,7 +673,7 @@ def nodeGraph(req, node=None, typ="0", period="day", ago="0", debug="n"):
         )
 
         debug = debug != "n"
-        startts = datetime.utcnow() - timedelta(minutes=(ago_i + 1) * mins)
+        startts = datetime.now(UTC) - timedelta(minutes=(ago_i + 1) * mins)
 
         endts = startts + timedelta(minutes=mins)
 
@@ -785,7 +785,7 @@ def viewLog(req):
 
 def missing():
     try:
-        t = datetime.utcnow() - timedelta(hours=8)
+        t = datetime.now(UTC) - timedelta(hours=8)
         session = Session()
         s = ["<p>"]
 
@@ -904,7 +904,7 @@ def yield24(sort="house"):
             )
         )
 
-        start_t = datetime.utcnow() - timedelta(days=1)
+        start_t = datetime.now(UTC) - timedelta(days=1)
 
         # next get the count per node
         seqcnt_q = (
@@ -1524,7 +1524,7 @@ def lowbat(bat="2.6"):
     # TODO: provide estimates of battery lifetime and sort.
     try:
         batlvl = _float(bat, default=2.6)
-        t = datetime.utcnow() - timedelta(days=1)
+        t = datetime.now(UTC) - timedelta(days=1)
         session = Session()
         html = []
         empty = True
@@ -1803,7 +1803,7 @@ def graph(
 
         debug = debug is not None
         # week = timedelta(minutes=int(_periods["week"]))
-        startts = datetime.utcnow() - timedelta(minutes=minsago_i)
+        startts = datetime.now(UTC) - timedelta(minutes=minsago_i)
         # deltats = (datetime.utcnow() - minsago_i) - week
 
         endts = startts + timedelta(minutes=duration_i)

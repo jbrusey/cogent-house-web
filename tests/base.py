@@ -131,10 +131,10 @@ class ModelTestCase(BaseTestCase):
         # convert to dictionary
         # theDict = theObj.toDict()
         theDict = theObj.dict()
-        # print "DICT ",theDict
+        # print(f"{theDict=}")
         # Convert Back
         newObj = models.newClsFromJSON(theDict)
-        # print "NEW: ",newObj
+        # print(f"{newObj.dict()=}")
         self.assertEqual(theObj, newObj)
 
     def testDict(self):
