@@ -34,10 +34,6 @@ class Location(meta.Base, meta.InnoDBMix):
     nodes = relationship("Node", backref="location")
     readings = relationship("Reading", backref="location")
 
-    # A Lazy loaded version that allows us to generte a query object based
-    # On the readings.
-    filtReadings = relationship("Reading", lazy="dynamic")
-
     allnodes = relationship("Node", secondary="NodeLocation", backref="all_locs")
 
     def __str__(self):
