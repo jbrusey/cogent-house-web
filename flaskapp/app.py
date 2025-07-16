@@ -1,9 +1,8 @@
 import os
 
+from cogent.base.model import Node, Session, init_model
 from flask import Flask, render_template
 from sqlalchemy import create_engine
-
-from cogent.base.model import Node, Session, init_model
 
 app = Flask(__name__)
 
@@ -28,4 +27,4 @@ def nodes():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
