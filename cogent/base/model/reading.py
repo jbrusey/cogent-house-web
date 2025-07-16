@@ -7,6 +7,7 @@
 import json
 import logging
 import time
+from zoneinfo import ZoneInfo
 
 import dateutil
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer
@@ -173,7 +174,7 @@ class Reading(meta.Base, meta.InnoDBMix):
         Reading table does some trickery with reading.typeId remapping it to
         (type) then we need to take account of that.
 
-        Overloads the default :models.meta.Serializemixin.toDict(): method to
+        Overloads the default :models.meta.Serializemixin.dict(): method to
         take acount of the remapped reading.typeId
 
         .. note::  As this is intended to simplify conversion to and from JSON,
@@ -227,6 +228,10 @@ class Reading(meta.Base, meta.InnoDBMix):
                 # Convert if it is a datetime object
                 if isinstance(col.type, DateTime) and newValue:
                     newValue = dateutil.parser.parse(newValue)
+                    if newValue.tzinfo is None:
+                        newValue = newValue.replace(tzinfo=ZoneInfo("UTC"))
+                    else:
+                        newValue = newValue.astimezone(ZoneInfo("UTC"))
 
                 # And set our variable
 

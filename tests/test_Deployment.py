@@ -105,9 +105,6 @@ class TestDeployment(base.ModelTestCase):
             "endDate": None,
         }
 
-        itemdict = item.toDict()
-        self.assertEqual(basedict, itemdict)
-
         itemdict = item.dict()
         self.assertEqual(basedict, itemdict)
         # item = models.Deployment(id=42,

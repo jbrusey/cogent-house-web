@@ -6,6 +6,7 @@ models, That saves the poor things getting confused with scope.
 import json
 import logging
 import warnings
+from zoneinfo import ZoneInfo
 
 import dateutil.parser
 import sqlalchemy
@@ -107,10 +108,10 @@ class SerialiseMixin(object):
              toDict() will be removed in favor of the dict() method, (prepare for transistion to restAlchmey)
         """
 
-        LOG.warning("toDict Depricated, please use dict() function instead")
+        LOG.warning("toDict Deprecated, please use dict() function instead")
         # Appending a table to the dictionary could help us when unpacking objects
         warnings.warn(
-            "meta.toDict() method has been depricated, please use meta.dict() instead",
+            "meta.toDict() method has been deprecated, please use meta.dict() instead",
             DeprecationWarning,
         )
 
@@ -156,7 +157,12 @@ class SerialiseMixin(object):
             else:
                 # Convert if it is a datetime object
                 if isinstance(col.type, sqlalchemy.DateTime) and value:
-                    value = dateutil.parser.parse(value, ignoretz=True)
+                    value = dateutil.parser.parse(value)
+                    if value.tzinfo is None:
+                        # If the timezone is not set, assume UTC
+                        value = value.replace(tzinfo=ZoneInfo("UTC"))
+                    else:
+                        value = value.astimezone(ZoneInfo("UTC"))
                 # And set our variable
             setattr(self, col.name, value)
 
@@ -170,7 +176,7 @@ class SerialiseMixin(object):
         """
 
         warnings.warn(
-            "meta.fromJSON() method has been depricated, please use meta.from_json() instead",
+            "meta.fromJSON() method has been deprecated, please use meta.from_json() instead",
             DeprecationWarning,
         )
 

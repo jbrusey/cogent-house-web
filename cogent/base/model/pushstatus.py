@@ -1,5 +1,6 @@
 import datetime
 import json
+from zoneinfo import ZoneInfo
 
 import dateutil
 import sqlalchemy
@@ -52,7 +53,13 @@ class PushStatus(meta.Base, meta.InnoDBMix):
             else:
                 # Convert if it is a datetime object
                 if isinstance(col.type, sqlalchemy.DateTime) and value:
-                    value = dateutil.parser.parse(value, ignoretz=True)
+                    value = dateutil.parser.parse(value)
+                    if value.tzinfo is None:
+                        # If the timezone is not set, assume UTC
+                        value = value.replace(tzinfo=ZoneInfo("UTC"))
+                    else:
+                        value = value.astimezone(ZoneInfo("UTC"))
+
                 # And set our variable
             setattr(self, col.name, value)
 
