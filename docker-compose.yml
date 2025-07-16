@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   db:
     image: mysql:5.7
@@ -13,12 +12,10 @@ services:
 
   web:
     build: .
-    depends_on:
+    links:
       - db
     ports:
       - "5000:5000"
     environment:
       CH_DBURL: mysql://chuser:chpass@db/ch?connect_timeout=1
 
-volumes:
-  dbdata:
