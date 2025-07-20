@@ -2,7 +2,7 @@
 {% block content %}
 <ul>
     {% for node in nodes %}
-        <li>Node {{ node.id }}</li>
+        <li><a href="{{ url_for('graph', node_id=node.id, type_id=0) }}">Node {{ node.id }}</a></li>
     {% else %}
         <li>No nodes found.</li>
     {% endfor %}
