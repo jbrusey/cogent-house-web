@@ -411,7 +411,10 @@ class OwlsReporter(object):
 # print thetemplate.render(**outvars)
 if __name__ == "__main__":  # pragma: no cover
 
-    defaultdb = "mysql://chuser@localhost/owls"
+    defaultdb = os.environ.get(
+        "CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1"
+    )
+
     # Set up command line parser
     parser = argparse.ArgumentParser(description="Automated Report Generation")
 

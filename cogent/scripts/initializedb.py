@@ -25,8 +25,7 @@ from ..base.model import user
 #     setup_logging,
 #     )
 
-DBFILE = "mysql://chuser@localhost/ch"
-# DBFILE = "mysql://chuser@localhost/jenkins"
+DBFILE = os.environ.get("CH_DBURL", "mysql://chuser:chpass@db/ch")
 
 # from ..models import meta as meta
 
