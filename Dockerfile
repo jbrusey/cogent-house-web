@@ -25,4 +25,4 @@ RUN pip install --no-cache-dir -e .
 ENV CH_DBURL mysql://chuser:chpass@db/ch?connect_timeout=1
 
 EXPOSE 5000
-CMD ["python", "flaskapp/app.py"]
+CMD ["python", "-m", "flaskapp.app"]
