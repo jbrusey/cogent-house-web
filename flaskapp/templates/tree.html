@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>
+{% for k in periods %}
+    {% if k == period %}
+        {{ k }}
+    {% else %}
+        <a href="{{ url_for('tree.tree_page', period=k) }}" title="change period to {{ k }}">{{ k }}</a>
+    {% endif %}
+{% endfor %}
+</p>
+<p>
+    <img src="{{ url_for('tree.tree', period=period) }}" alt="network tree diagram" width="700"/>
+</p>
+{% endblock %}
