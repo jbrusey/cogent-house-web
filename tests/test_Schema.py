@@ -39,7 +39,6 @@ DBURL = "sqlite:///:memory:"
 
 @unittest.skip
 class TestNodeType(base.BaseTestCase):
-
     # @classmethod
     # def setUpClass(cls):
     #     print "Setting up testing database"
@@ -136,7 +135,6 @@ class TestNodeType(base.BaseTestCase):
 
 @unittest.skip
 class TestSchema(base.BaseTestCase):
-
     # @classmethod
     # def setUpClass(cls):
     #     print "Setting up testing database"
@@ -285,7 +283,6 @@ class TestSchema(base.BaseTestCase):
         tt = datetime.now(UTC) - timedelta(minutes=(500))
 
         for i in range(100):
-
             ll = session.query(Node).filter(Node.id == 63).one().locationId
 
             r = Reading(time=tt, nodeId=63, typeId=0, locationId=ll, value=i / 1000.0)

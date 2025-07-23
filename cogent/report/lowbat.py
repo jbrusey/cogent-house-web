@@ -57,12 +57,10 @@ def lowBat(
         .group_by(Reading.nodeId)
         .all()
     ):
-
         if c >= count_thresh:
             lowbat_set.add(n)
 
     if lowbat_set != last_lowbat_set:
-
         gone_low = lowbat_set - last_lowbat_set
         gone_high = last_lowbat_set - lowbat_set
 

@@ -12,7 +12,6 @@ from . import base
 
 
 class TestRoom(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         theItem = models.Room(id=1, name="Test Room", roomTypeId=1)

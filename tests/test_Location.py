@@ -9,7 +9,6 @@ from . import base
 
 
 class TestLocation(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         theItem = models.Location(id=1, houseId=2, roomId=3)
@@ -42,7 +41,6 @@ class TestLocation(base.ModelTestCase):
         self.assertReallyEqual(item1, item2)
 
     def testNEQ(self):
-
         item1 = models.Location(id=1, houseId=2, roomId=3)
 
         item2 = models.Location(id=1, houseId=2, roomId=3)

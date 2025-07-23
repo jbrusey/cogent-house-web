@@ -10,7 +10,6 @@ NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestHouse(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         # rType = models.RoomType(id=1,
@@ -67,7 +66,6 @@ class TestHouse(base.ModelTestCase):
         self.assertReallyEqual(item1, item2)
 
     def testNEQ(self):
-
         item1 = models.House(
             id=1,
             deploymentId=1,

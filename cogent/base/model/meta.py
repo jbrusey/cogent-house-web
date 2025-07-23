@@ -36,7 +36,6 @@ Base = declarative_base()
 
 
 class SerialiseMixin(object):
-
     def update(self, **kwargs):
         """
         Update an object using keyword arguments

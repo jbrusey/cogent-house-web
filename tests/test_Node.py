@@ -7,7 +7,6 @@ from . import base
 
 
 class TestNode(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provide an object to serialise"""
         theItem = models.Node(id=1, locationId=2, nodeTypeId=3)
@@ -43,7 +42,6 @@ class TestNode(base.ModelTestCase):
         self.assertReallyEqual(item1, item2)
 
     def testNEQ(self):
-
         item1 = models.Node(id=1, locationId=2, nodeTypeId=3)
 
         item2 = models.Node(id=1, locationId=2, nodeTypeId=3)

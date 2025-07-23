@@ -16,7 +16,6 @@ down_revision = "1ce218cedfbd"
 
 
 def upgrade():
-
     nodetype = table(
         "NodeType",
         column("id", Integer),

@@ -135,7 +135,6 @@ def packetYield(
         house_name,
         room_name,
     ) in yield_q.all():
-
         (missed, yld) = calc_missed_and_yield(seqcnt, minseq, maxseq)
 
         if missed > missed_thresh:

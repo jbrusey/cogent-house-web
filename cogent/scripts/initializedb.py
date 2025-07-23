@@ -13,6 +13,7 @@ import sqlalchemy
 import transaction
 from alembic import command
 from alembic.config import Config
+
 from cogent.base.model import init_data
 from cogent.base.model import meta as meta
 
@@ -35,7 +36,7 @@ Base = meta.Base
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print("usage: %s <config_uri>\n" '(example: "%s development.ini")' % (cmd, cmd))
+    print('usage: %s <config_uri>\n(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
 
 

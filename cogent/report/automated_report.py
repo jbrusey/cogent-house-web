@@ -295,7 +295,6 @@ class OwlsReporter(object):
         return outdict
 
     def check_batteries(self):
-
         session = meta.Session()
         now = self.reportdate
         yesterday = now - datetime.timedelta(days=1)
@@ -410,7 +409,6 @@ class OwlsReporter(object):
 
 # print thetemplate.render(**outvars)
 if __name__ == "__main__":  # pragma: no cover
-
     defaultdb = os.environ.get(
         "CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1"
     )
@@ -457,7 +455,6 @@ if __name__ == "__main__":  # pragma: no cover
         fd.write(output)
         fd.close()
     elif args.term:
-
         print(output)
 
     if args.email:

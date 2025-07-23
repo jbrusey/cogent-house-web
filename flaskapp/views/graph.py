@@ -14,7 +14,7 @@ from cogent.base.model import (
     Session,
 )
 
-graph_bp = Blueprint('graph', __name__)
+graph_bp = Blueprint("graph", __name__)
 
 
 def _to_gviz_json(description, data):
@@ -44,18 +44,18 @@ def _to_gviz_json(description, data):
     return json.dumps({"cols": cols, "rows": rows})
 
 
-@graph_bp.route('/')
-@graph_bp.route('/<int:node_id>')
-@graph_bp.route('/<int:node_id>/<int:type_id>')
+@graph_bp.route("/")
+@graph_bp.route("/<int:node_id>")
+@graph_bp.route("/<int:node_id>/<int:type_id>")
 def graph(node_id=None, type_id=None):
     if node_id is None:
-        node_id = request.args.get('node_id')
+        node_id = request.args.get("node_id")
     if node_id is None:
-        node_id = os.environ.get('CH_GRAPH_NODE', 23)
+        node_id = os.environ.get("CH_GRAPH_NODE", 23)
     if type_id is None:
-        type_id = request.args.get('typ')
+        type_id = request.args.get("typ")
     if type_id is None:
-        type_id = os.environ.get('CH_GRAPH_TYPE', 0)
+        type_id = os.environ.get("CH_GRAPH_TYPE", 0)
     try:
         node_id = int(node_id)
         type_id = int(type_id)
@@ -95,9 +95,7 @@ def graph(node_id=None, type_id=None):
         ("Value", "number"),
     ]
     json_data = _to_gviz_json(description, data)
-    label = (
-        f"{sensor.name} ({sensor.units})" if sensor else f"Type {type_id}"
-    )
+    label = f"{sensor.name} ({sensor.units})" if sensor else f"Type {type_id}"
     page_title = f"Node {node_id} {label}"
     heading = f"{house}: {room} ({node_id})"
     options = {
@@ -107,7 +105,7 @@ def graph(node_id=None, type_id=None):
         "vAxis": {"title": label},
     }
     return render_template(
-        'graph.html',
+        "graph.html",
         title=page_title,
         heading=heading,
         json_data=json_data,

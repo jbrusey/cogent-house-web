@@ -55,7 +55,6 @@ class House(meta.Base, meta.InnoDBMix):
     locations = relationship("Location", backref="house")
 
     def __eq__(self, other):
-
         return (
             self.address == other.address
             and self.startDate == other.startDate

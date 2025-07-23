@@ -58,7 +58,6 @@ def mail(
 
 
 def mail_string_list_to_gmail(to, error_list):
-
     auth = pickle.load(open(AUTH, "rb"))
     if len(error_list) > 0:
         # text = '\n\n'.join(error_list)
@@ -89,7 +88,6 @@ def run_reports(
     me="yield@" + platform.node(),
     host=platform.node(),
 ):
-
     try:
         session = Session()
 

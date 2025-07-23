@@ -91,7 +91,6 @@ class TestSensorType(base.ModelTestCase):
         self.assertReallyNotEqual(item1, item2)
 
     def testCmp(self):
-
         item1 = models.SensorType(
             id=1, name="Temperture", code="T", units="DegC", c0=0, c1=1, c2=0, c3=1
         )

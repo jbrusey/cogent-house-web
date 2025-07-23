@@ -10,7 +10,6 @@ Modification history:
 
 """
 
-
 import io
 import os
 import time
@@ -280,9 +279,7 @@ def _graph_page(
         var options = {options!r};
         chart.draw(json_data, options);
       }}
-    </script>""".format(
-            json=json, chart_div=chart_div, options=options
-        ),
+    </script>""".format(json=json, chart_div=chart_div, options=options),
     )
 
 
@@ -381,7 +378,6 @@ def tree(req, period="day", debug=""):
                 .filter(and_(NodeState.time > t, NodeState.parent != 65535))
             )
             for ni, hi, rm, pa, rssi in qry:
-
                 dotfile.write('{0}->{1} [label="{2}"];'.format(ni, pa, float(rssi)))
                 if ni not in seen_nodes:
                     seen_nodes.add(ni)
@@ -508,7 +504,7 @@ def exportDataForm(err=None):
             s.append('<option value="%d">%s</option>' % (st.id, st.name))
         s.append("</select></p>")
 
-        s.append('<table border="0" width="650" ' 'cellpadding="5"><tr><td>')
+        s.append('<table border="0" width="650" cellpadding="5"><tr><td>')
         s.append(
             'Start Date: <input type="text" '
             'name="StartDate" value="" '
@@ -537,7 +533,6 @@ def exportDataForm(err=None):
 
 
 def getData(req, sensorType=None, StartDate=None, EndDate=None):
-
     try:
         session = Session()
         time_format = "%d/%m/%Y"
@@ -871,7 +866,6 @@ def lastreport():
             .group_by(NodeState.nodeId)
             .all()
         ):
-
             s.append("<tr><td>%d</td><td>%s</td></tr>" % (nid, maxtime))
 
         s.append("</table>")
@@ -1008,7 +1002,6 @@ def yield24(sort="house"):
             house_name,
             room_name,
         ) in yield_q.all():
-
             values = [
                 node_id,
                 house_name,
@@ -1265,8 +1258,7 @@ def addNewHouse(regnode=None, err=None, address=None):
         s.append('<input type="hidden" name="regnode" value="%s" />' % (regnode))
 
         s.append(
-            '<p>Address: <input type="text" name="address" '
-            'value="%s"/></p>' % address
+            '<p>Address: <input type="text" name="address" value="%s"/></p>' % address
         )
 
         # s.append('<p>Deployment: <select name="deployment">')
@@ -1335,7 +1327,6 @@ def addNewRoom(regnode=None, err=None, name=None, roomType=None):
         s.append('<p>Name: <input type="text" name="name" value="%s" /></p>' % (name))
         s.append('<p>Type: <select name="roomtype">')
         for d in session.query(RoomType):
-
             if roomType is not None and str(d.id) == roomType:
                 selected = ' selected="selected"'
             else:
@@ -1410,7 +1401,7 @@ def addNewRoomType(ref=None, err=None, name=None):
         s.append('<input type="hidden" name="ref" value="%s" />' % (ref))
 
         s.append(
-            '<p>Room type: <input type="text" name="name" ' 'value="%s" /></p>' % (name)
+            '<p>Room type: <input type="text" name="name" value="%s" /></p>' % (name)
         )
 
         s.append('<p><input type="submit" value="Add">')
@@ -1793,7 +1784,6 @@ def _plot_splines(
 def graph(
     req, node="64", minsago="1440", duration="1440", debug=None, fmt="bo", typ="0"
 ):
-
     try:
         session = Session()
         # plotLines=False
@@ -1810,7 +1800,6 @@ def graph(
 
         type_id = int(typ)
         if type_id not in type_delta:
-
             qry = (
                 session.query(Reading.time, Reading.value)
                 .filter(

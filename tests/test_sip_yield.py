@@ -5,7 +5,6 @@ from cogent.sip.calc_yield import calc_yield
 
 class TestSipYield(unittest.TestCase):
     def test1(self):
-
         self.assertEqual(100.0, calc_yield(7, 9, 15))
 
         self.assertEqual(100.0, calc_yield(286, 71, 100))

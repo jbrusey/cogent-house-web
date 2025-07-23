@@ -85,7 +85,6 @@ def predict(sip_tuple, end_time, restrict=timedelta(hours=7)):
 def estimate_current_value(
     session, node_id, type_id, delta_id, endts=datetime.now(UTC)
 ):
-
     # get the last hours data
     last_readings = list(
         get_value_and_delta(

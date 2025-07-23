@@ -18,8 +18,7 @@ from .deployment import Deployment
 from .deploymentmetadata import DeploymentMetadata
 from .house import House
 from .housemetadata import HouseMetadata
-from .init import (clsFromJSON, findClass, init_model, initialise_sql,
-                   newClsFromJSON)
+from .init import clsFromJSON, findClass, init_model, initialise_sql, newClsFromJSON
 from .lastreport import LastReport
 from .location import Location
 from .meta import Base, Session

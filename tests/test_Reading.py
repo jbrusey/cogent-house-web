@@ -10,7 +10,6 @@ NOW = datetime.datetime.now(datetime.UTC)
 
 
 class TestReading(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         theItem = models.Reading(time=NOW, nodeId=1, typeId=2, locationId=3, value=45.0)

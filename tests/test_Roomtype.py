@@ -6,14 +6,12 @@ Test for the Sensor Type Classes
 
 # Python Module Imports
 
-
 import cogent.base.model as models
 
 from . import base
 
 
 class TestRoomType(base.ModelTestCase):
-
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         theItem = models.RoomType(id=1, name="Test Room")

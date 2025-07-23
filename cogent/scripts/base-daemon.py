@@ -23,7 +23,6 @@ LOGFILE = "baselog.log"
 
 # Subclass daemon.runner so that we can send a SIGINT to the baselogger
 class DgRunner(runner.DaemonRunner):
-
     def _terminate_daemon_process(self):
         """Terminate the daemon process specified in the current PID file.
         In my version we fist send a sigint (KeybaordInterrupt) to the process.

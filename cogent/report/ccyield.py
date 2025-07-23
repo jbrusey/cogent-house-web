@@ -51,7 +51,6 @@ def ccYield(
     expected_yield = (end_t - start_t).seconds / 300
 
     for n, cnt, maxtime, hn, rn in q:
-
         missed = expected_yield - cnt
         y = (cnt * 100.0) / expected_yield
 

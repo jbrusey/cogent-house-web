@@ -254,7 +254,6 @@ def calibrateReadings(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
-
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         LOG.debug("Orig Reading {0} Sensor is {1}".format(reading, theSensor))
         if not theSensor:
@@ -292,7 +291,6 @@ def calibJSON(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
-
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         # LOG.debug("Original Reading {0} Sensor is {1}".format(reading,theSensor))
         if not theSensor:
@@ -331,7 +329,6 @@ def calibPandas(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
-
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         # LOG.debug("Original Reading {0} Sensor is {1}".format(reading,theSensor))
         if not theSensor:
