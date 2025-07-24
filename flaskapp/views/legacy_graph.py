@@ -177,7 +177,7 @@ def _no_data_plot():
     fig.set_size_inches(7, 4)
     ax = fig.add_subplot(111)
     ax.text(0.5, 0.5, "No data", transform=ax.transAxes, ha="center", va="center")
-    image = io.StringIO()
+    image = io.BytesIO()
     fig.savefig(image, **_SAVEFIG_ARGS)
     return [_CONTENT_PLOT, image.getvalue()]
 
@@ -199,7 +199,7 @@ def _plot(typ, t, v, startts, endts, debug, fmt, type_label=None):
         if type_label is None:
             type_label = str(typ)
         ax.set_ylabel(type_label)
-        image = io.StringIO()
+        image = io.BytesIO()
         fig.savefig(image, **_SAVEFIG_ARGS)
         return [_CONTENT_PLOT, image.getvalue()]
     else:
@@ -264,7 +264,7 @@ def _plot_splines(
     fig.autofmt_xdate()
     ax.set_xlabel("Date")
     ax.set_ylabel(y_label)
-    image = io.StringIO()
+    image = io.BytesIO()
     fig.savefig(image, **_SAVEFIG_ARGS)
     if debug:
         return [_CONTENT_TEXT, f"px={px}\npy={py}"]
