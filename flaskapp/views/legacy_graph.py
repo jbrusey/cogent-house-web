@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 import matplotlib
 import matplotlib.patches as patches
@@ -334,7 +334,10 @@ def node_graph():
             .filter(Node.id == int(node))
             .one()
         )
-        startts = datetime.now(UTC) - timedelta(minutes=(ago + 1) * mins)
+        # SQLAlchemy stores timestamps as naive UTC datetimes, so use naive
+        # values here to avoid mixing timezone-aware and naive values when
+        # computing deltas.
+        startts = datetime.utcnow() - timedelta(minutes=(ago + 1) * mins)
         endts = startts + timedelta(minutes=mins)
         type_id = int(typ)
         node_id = int(node)
@@ -426,7 +429,8 @@ def graph_image():
         minsago_i = _int(minsago, 60)
         duration_i = _int(duration, 60)
         debug_f = debug is not None
-        startts = datetime.now(UTC) - timedelta(minutes=minsago_i)
+        # Use naive UTC timestamps for DB comparison and plotting
+        startts = datetime.utcnow() - timedelta(minutes=minsago_i)
         endts = startts + timedelta(minutes=duration_i)
         type_id = int(typ)
         if type_id not in type_delta:
