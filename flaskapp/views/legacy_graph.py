@@ -412,6 +412,9 @@ def node_graph():
             node_id=node,
             ago=ago,
         )
+    except NoResultFound:
+        # in the case that one() does not find a valid house / room for that node
+        abort(404)
     finally:
         session.close()
 
