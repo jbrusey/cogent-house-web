@@ -59,7 +59,7 @@ class Reading(meta.Base, meta.InnoDBMix):
 
     value = Column(Float)
     # Add a compoite Index
-    __table_args__ = (Index("r_1", "nodeId", "type", "locationId"),)
+    __table_args__ = (Index("r_1", "nodeId", "type", "locationId"),)  # type: ignore[assignment]
 
     def __eq__(self, other):
         # Ignore the location Id as it may be mapped.  (Node + Time + Type)
@@ -254,6 +254,7 @@ def calibrateReadings(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
+
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         LOG.debug("Orig Reading {0} Sensor is {1}".format(reading, theSensor))
         if not theSensor:
@@ -291,6 +292,7 @@ def calibJSON(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
+
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         # LOG.debug("Original Reading {0} Sensor is {1}".format(reading,theSensor))
         if not theSensor:
@@ -329,6 +331,7 @@ def calibPandas(theQuery):
     sensorParams = {}
 
     for reading in theQuery:
+
         theSensor = sensorParams.get((reading.nodeId, reading.typeId), None)
         # LOG.debug("Original Reading {0} Sensor is {1}".format(reading,theSensor))
         if not theSensor:

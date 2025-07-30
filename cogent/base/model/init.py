@@ -18,7 +18,7 @@ from .sensortype import SensorType
 log = logging.getLogger(__name__)
 log.setLevel(logging.WARNING)
 
-TABLEMAP = {}
+TABLEMAP: dict[str, type] = {}
 
 
 def init_model(engine):

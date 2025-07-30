@@ -11,6 +11,7 @@ from matplotlib.path import Path
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
+import sqlalchemy
 
 from cogent.base.model import (
     House,
@@ -36,25 +37,25 @@ _CONTENT_PNG = "image/png"
 _SAVEFIG_ARGS = {"format": "png"}
 _CONTENT_PLOT = _CONTENT_PNG
 
-thresholds = {0: 0.5, 2: 2, 8: 100, 6: 0.1, 40: 10}
+thresholds: dict[int, float] = {0: 0.5, 2: 2.0, 8: 100.0, 6: 0.1, 40: 10.0}
 
-sensor_types = {0: 0, 2: 2, 8: 8, 6: 6}
+sensor_types: dict[int, int] = {0: 0, 2: 2, 8: 8, 6: 6}
 
 # mapping from reading type to delta type for spline reconstruction
 # (subset only)
-type_delta = {0: 1, 2: 3, 8: 20, 6: 7, 40: 44}
+type_delta: dict[int, int] = {0: 1, 2: 3, 8: 20, 6: 7, 40: 44}
 
-_periods = {
+_periods: dict[str, int] = {
     "hour": 60,
     "12-hours": 60 * 12,
     "day": 1440,
     "3-days": 1440 * 3,
     "week": 1440 * 7,
-    "month": 1440 * 7 * 52 / 12,
-    "3-months": 3 * 1440 * 7 * 52 / 12,
-    "6-months": 6 * 1440 * 7 * 52 / 12,
-    "year": 12 * 1440 * 7 * 52 / 12,
-    "2-years": 24 * 1440 * 7 * 52 / 12,
+    "month": 1440 * 7 * 52 // 12,
+    "3-months": 3 * 1440 * 7 * 52 // 12,
+    "6-months": 6 * 1440 * 7 * 52 // 12,
+    "year": 12 * 1440 * 7 * 52 // 12,
+    "2-years": 24 * 1440 * 7 * 52 // 12,
 }
 
 
@@ -69,7 +70,7 @@ def _int(s: str, default: int = 0) -> int:
         return default
 
 
-def _get_y_label(reading_type: int, session: Session) -> str:
+def _get_y_label(reading_type: int, session: sqlalchemy.orm.Session) -> str:
     try:
         name, units = (
             session.query(SensorType.name, SensorType.units)
@@ -82,7 +83,7 @@ def _get_y_label(reading_type: int, session: Session) -> str:
 
 
 def _calibrate(
-    session: Session, values: list[float], node: int, typ: int
+    session: sqlalchemy.orm.Session, values: list[float], node: int, typ: int
 ) -> list[float]:
     try:
         mult, offs = (

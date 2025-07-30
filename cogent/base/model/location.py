@@ -25,7 +25,7 @@ class Location(meta.Base, meta.InnoDBMix):
     __table_args__ = (
         sqlalchemy.UniqueConstraint("houseId", "roomId"),
         {"mysql_engine": "InnoDB", "mysql_charset": "utf8"},
-    )
+    )  # type: ignore[assignment]
 
     id = Column(Integer, primary_key=True)
     houseId = Column(Integer, ForeignKey("House.id"))

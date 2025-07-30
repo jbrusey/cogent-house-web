@@ -51,7 +51,7 @@ class NodeType(meta.Base, meta.InnoDBMix):
     updated_seq = Column(Integer)
     period = Column(Integer)
     blink = Column(Boolean)
-    configured = Column(BitsetType(10))
+    configured = Column(BitsetType(10))  # type: Column[Bitset]
 
     nodes = relationship("Node", order_by="Node.id", backref="nodeType")
 

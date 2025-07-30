@@ -11,3 +11,6 @@ transaction
 alembic
 ruff
 gviz_api
+pytest
+mypy
+types-python-dateutil
