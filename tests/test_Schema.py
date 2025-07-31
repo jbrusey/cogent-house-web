@@ -1,16 +1,8 @@
-import unittest
+import pytest
 from datetime import UTC, datetime, timedelta
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# Original Version used this namespace,
-# So I will too.
-# from cogent.base.model.Bitset import Bitset
-# try:
-#     import cogent
-# except ImportError:
-#     #Assume we are running from the test directory
-#     print "Unable to Import Cogent Module Appending Path"
-#     import sys
-#     sys.path.append("../")
 from cogent.base.model import (
     Base,
     Bitset,
@@ -27,290 +19,160 @@ from cogent.base.model import (
     Room,
     RoomType,
     SensorType,
-    Session,
-    init_model,
 )
 
-# from cogent.base.model.meta import Session, Base
-from . import base
 
-DBURL = "sqlite:///:memory:"
+@pytest.fixture
+def db_session(tmp_path):
+    """Create a temporary in-memory database session for testing."""
+    engine = create_engine(f"sqlite:///{(tmp_path / 'test.db')}")
+    Base.metadata.create_all(engine)
 
-
-@unittest.skip
-class TestNodeType(base.BaseTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     print "Setting up testing database"
-    #     from sqlalchemy import create_engine
-
-    #     engine = create_engine(DBURL, echo=False)
-    #     engine.execute("pragma foreign_keys=on")
-
-    #     init_model(engine)
-    #     metadata = Base.metadata
-    #     metadata.create_all(engine)
-    #     cls.engine = engine
-    #     cls.metadata = metadata
-
-    # def setUp(self):
-    #     session = Session()
-    #     engine = session.get_bind(mapper=None)
-    #     session.close()
-    #     Base.metadata.create_all(engine)
-
-    # def tearDown(self):
-    #     session = Session()
-    #     engine = session.get_bind(mapper=None)
-    #     session.close()
-    #     Base.metadata.drop_all(engine)
-
-    def test1(self):
-        session = Session()
-        b = Bitset(size=20)
-        b[3] = True
-        b[13] = True
-
-        r = NodeType(
-            time=datetime.now(UTC),
-            id=0,
-            name="base",
-            seq=1,
-            updated_seq=1,
-            period=1024 * 300,
-            configured=b,
-        )
-        try:
-            session.add(r)
-            session.commit()
-            self.assertTrue(r.configured[3] and r.configured[13])
-        except Exception as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
-
-    def test2(self):
-        session = Session()
-        b = Bitset(size=20)
-        b[3] = True
-        b[13] = True
-
-        r = NodeType(
-            time=datetime.now(UTC),
-            id=0,
-            name="base",
-            seq=1,
-            updated_seq=1,
-            period=1024 * 300,
-            configured=b,
-        )
-        try:
-            session.add(r)
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            raise e
-        finally:
-            session.close()
-
-        session = Session()
-        try:
-            r = session.query(NodeType).get(0)
-
-            self.assertTrue(r.name == "base")
-
-            self.assertTrue(r.configured[3] and r.configured[13])
-        finally:
-            session.close()
-
-    def test3(self):
-        session = Session()
-        try:
-            r = session.query(NodeType).get(0)
-            self.assertTrue(r is None)
-        finally:
-            session.close()
-
-
-@unittest.skip
-class TestSchema(base.BaseTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     print "Setting up testing database"
-    #     from sqlalchemy import create_engine
-
-    #     engine = create_engine(DBURL, echo=False)
-    #     engine.execute("pragma foreign_keys=on")
-    #     init_model(engine)
-    #     metadata = Base.metadata
-    #     metadata.create_all(engine)
-    #     cls.engine = engine
-    #     cls.metadata = metadata
-
-    # def setUp(self):
-    #     session = Session()
-    #     engine = session.get_bind(mapper=None)
-    #     session.close()
-    #     Base.metadata.create_all(engine)
-    #     #self.metadata.create_all(engine)
-
-    # def tearDown(self):
-    #     session = Session()
-    #     engine = session.get_bind(mapper=None)
-    #     session.close()
-    #     Base.metadata.drop_all(engine)
-
-    def test1(self):
-        session = Session()
-
-        # Add a deployment
-
-        dep = Deployment(
-            name="TestDep",
-            description="Does this work",
-            startDate=datetime.now(UTC),
-            endDate=None,
-        )
-        session.add(dep)
-        session.commit()
-        depid = dep.id
-
-        # Add a room type
-
-        rt = RoomType(name="Bedroom")
-        session.add(rt)
-        session.commit()
-
-        # Add Deployment Meta data
-        dm = DeploymentMetadata(
-            deploymentId=depid,
-            name="Manual Reading",
-            description="Read something",
-            units="kwh",
-            value="99999",
-        )
-        session.add(dm)
-        session.commit()
-
-        # Add a house
-        h = House(deploymentId=1, address="1 Sampson", startDate=datetime.now(UTC))
-
-        session.add(h)
-        session.commit()
-
-        # Add house metadata
-
-        hm = HouseMetadata(
-            houseId=1,
-            name="Manual Reading",
-            description="Read something",
-            units="kwh",
-            value="99999",
-        )
-        session.add(hm)
-        session.commit()
-
-        # Add Occupier
-
-        occ = Occupier(
-            houseId=1,
-            name="Mr Man",
-            contactNumber="01212342345",
-            startDate=datetime.now(UTC),
-        )
-
-        session.add(occ)
-        session.commit()
-
-        # Add rooms
-        rt_bedroom = RoomType(name="Bedroom")
-        session.add(rt_bedroom)
-        session.commit()
-
-        r = Room(roomTypeId=rt_bedroom.id, name="BedroomA")
-
-        session.add(r)
-        session.commit()
-
-        # Add a node
-        configured = Bitset(size=14)
-        configured[0] = True
-        configured[2] = True
-        configured[4] = True
-        configured[5] = True
-        configured[6] = True
-        configured[13] = True
-        configured1 = Bitset(size=14)
-        configured1[13] = True
-        # session.add_all(
-        #     [
-        #         # NodeType(time=datetime.utcnow(),
-        #         #          id=0,
-        #         #          name="base",
-        #         #          seq=1,
-        #         #          updated_seq=0,
-        #         #          period=15*1024,
-        #         #          configured=configured),
-        #         # NodeType(time=datetime.utcnow(),
-        #         #          id=1,
-        #         #          name="cc",
-        #         #          seq=1,
-        #         #          updated_seq=0,
-        #         #          period=15*1024,
-        #         #          configured=configured1),
-        #         ])
-
-        # session.commit()
-
-        # Add sensors
-
-        # Add sensor types
-
-        # Add readings
-
-        ll = Location(houseId=h.id, roomId=r.id)
-        session.add(ll)
-
-        n = Node(id=63, locationId=ll.id, nodeTypeId=0)
-        session.add(n)
-
-        st = SensorType(id=0, name="Temperature", code="Tmp", units="deg.C")
-
-        session.add(st)
-        session.commit()
-
-        tt = datetime.now(UTC) - timedelta(minutes=(500))
-
-        for i in range(100):
-            ll = session.query(Node).filter(Node.id == 63).one().locationId
-
-            r = Reading(time=tt, nodeId=63, typeId=0, locationId=ll, value=i / 1000.0)
-            session.add(r)
-            ns = NodeState(
-                time=tt, nodeId=63, parent=64, localtime=((1 << 32) - 50 + i)
-            )  # test large integers
-            session.add(ns)
-            tt = tt + timedelta(minutes=5)
-        session.commit()
-
+    connection = engine.connect()
+    transaction = connection.begin()
+    SessionLocal = sessionmaker(bind=connection)
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
         session.close()
-        session = Session()
-
-        loctimes = [x[0] for x in session.query(NodeState.localtime).all()]
-        # print max(loctimes) - min(loctimes)
-        self.assertTrue(max(loctimes) - min(loctimes) == 99)
+        transaction.rollback()
+        connection.close()
 
 
-if __name__ == "__main__":
-    from sqlalchemy import create_engine
+def test_node_type_bitset(db_session):
+    b = Bitset(value=[0] * ((20 + 7) // 8))
+    b.a[3 // 8] |= 1 << (3 % 8)
+    b.a[13 // 8] |= 1 << (13 % 8)
 
-    # from sqlalchemy.orm import sessionmaker
+    nt = NodeType(
+        time=datetime.now(UTC),
+        id=0,
+        name="base",
+        seq=1,
+        updated_seq=1,
+        period=1024 * 300,
+        configured=b,
+    )
 
-    engine = create_engine(DBURL, echo=False)
-    engine.execute("pragma foreign_keys=on")
-    init_model(engine)
-    metadata = Base.metadata
-    metadata.create_all(engine)
+    db_session.add(nt)
+    db_session.commit()
 
-    unittest.main()
+    configured = nt.configured
+    assert (configured.a[3 // 8] & (1 << (3 % 8))) and (
+        configured.a[13 // 8] & (1 << (13 % 8))
+    )
+
+
+def test_node_type_query(db_session):
+    b = Bitset(value=[0] * ((20 + 7) // 8))
+    b.a[3 // 8] |= 1 << (3 % 8)
+    b.a[13 // 8] |= 1 << (13 % 8)
+
+    nt = NodeType(
+        time=datetime.now(UTC),
+        id=0,
+        name="base",
+        seq=1,
+        updated_seq=1,
+        period=1024 * 300,
+        configured=b,
+    )
+
+    db_session.add(nt)
+    db_session.commit()
+
+    result = db_session.get(NodeType, 0)
+    assert result.name == "base"
+    config = result.configured
+    assert (config.a[3 // 8] & (1 << (3 % 8))) and (
+        config.a[13 // 8] & (1 << (13 % 8))
+    )
+
+
+def test_node_type_empty(db_session):
+    assert db_session.get(NodeType, 0) is None
+
+
+def test_schema_localtime_wrap(db_session):
+    dep = Deployment(
+        name="TestDep",
+        description="Does this work",
+        startDate=datetime.now(UTC),
+        endDate=None,
+    )
+    db_session.add(dep)
+    db_session.commit()
+    depid = dep.id
+
+    rt = RoomType(name="Bedroom")
+    db_session.add(rt)
+    db_session.commit()
+
+    dm = DeploymentMetadata(
+        deploymentId=depid,
+        name="Manual Reading",
+        description="Read something",
+        units="kwh",
+        value="99999",
+    )
+    db_session.add(dm)
+    db_session.commit()
+
+    h = House(deploymentId=1, address="1 Sampson", startDate=datetime.now(UTC))
+    db_session.add(h)
+    db_session.commit()
+
+    hm = HouseMetadata(
+        houseId=1,
+        name="Manual Reading",
+        description="Read something",
+        units="kwh",
+        value="99999",
+    )
+    db_session.add(hm)
+    db_session.commit()
+
+    occ = Occupier(
+        houseId=1,
+        name="Mr Man",
+        contactNumber="01212342345",
+        startDate=datetime.now(UTC),
+    )
+    db_session.add(occ)
+    db_session.commit()
+
+    rt_bedroom = RoomType(name="Bedroom")
+    db_session.add(rt_bedroom)
+    db_session.commit()
+
+    room = Room(roomTypeId=rt_bedroom.id, name="BedroomA")
+    db_session.add(room)
+    db_session.commit()
+
+    loc = Location(houseId=h.id, roomId=room.id)
+    db_session.add(loc)
+
+    node = Node(id=63, locationId=loc.id, nodeTypeId=0)
+    db_session.add(node)
+
+    st = SensorType(id=0, name="Temperature", code="Tmp", units="deg.C")
+    db_session.add(st)
+    db_session.commit()
+
+    tt = datetime.now(UTC) - timedelta(minutes=500)
+
+    for i in range(100):
+        loc_id = db_session.query(Node).filter(Node.id == 63).one().locationId
+        db_session.add(
+            Reading(time=tt, nodeId=63, typeId=0, locationId=loc_id, value=i / 1000.0)
+        )
+        db_session.add(
+            NodeState(time=tt, nodeId=63, parent=64, localtime=((1 << 32) - 50 + i))
+        )
+        tt += timedelta(minutes=5)
+
+    db_session.commit()
+
+    loctimes = [x[0] for x in db_session.query(NodeState.localtime).all()]
+    assert max(loctimes) - min(loctimes) == 99
