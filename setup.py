@@ -41,7 +41,6 @@ setup(
         "cogent.base.model",
         "cogent.report",
         "cogent.sip",
-        "cogent.node",
         "cogent.scripts",
         "cogent.alembic",
     ],
