@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<p>
+{% if not missing %}
+<p>No nodes missing</p>
+{% else %}
+<h3>Registered nodes not reporting in last eight hours</h3>
+<table border="1">
+    <tr><th>Node</th><th>House</th><th>Room</th><th>Last Heard</th><th></th></tr>
+    {% for node in missing %}
+    <tr>
+        <td>{{ node.node }}</td>
+        <td>{{ node.house }}</td>
+        <td>{{ node.room }}</td>
+        <td>{{ node.last }}</td>
+        <td><a href="{{ node.unregister_url }}">(unregister)</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if not extra %}
+<p>No extra nodes detected.</p>
+{% else %}
+<h3>Extra nodes that weren't expected</h3>
+{% for node in extra %}
+<p>{{ node.node }} <a href="{{ node.register_url }}">(register)</a></p>
+{% endfor %}
+{% endif %}
+{% endblock %}

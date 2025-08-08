@@ -27,3 +27,6 @@ pylintrc
 pylint.out
 .coverage
 .eggs
+
+# Allow HTML templates in flaskapp
+!flaskapp/templates/*.html
