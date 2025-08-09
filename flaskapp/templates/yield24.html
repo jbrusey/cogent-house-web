@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<table border="1">
+  <tr>
+    <th><a href="{{ url_for('main.yield24', sort='id') }}">Node</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='house') }}">House</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='room') }}">Room</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='msgcnt') }}">Message count</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='minseq') }}">Min seq</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='maxseq') }}">Max seq</a></th>
+    <th><a href="{{ url_for('main.yield24', sort='last') }}">Last heard</a></th>
+    <th>Yield</th>
+  </tr>
+  {% for row in records %}
+  <tr>
+    <td><a href="{{ row.node_url }}">{{ row.node }}</a></td>
+    <td>{{ row.house }}</td>
+    <td>{{ row.room }}</td>
+    <td>{{ row.msgcnt }}</td>
+    <td>{{ row.minseq }}</td>
+    <td>{{ row.maxseq }}</td>
+    <td>{{ row.last }}</td>
+    <td>{{ "%.2f"|format(row.yield) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p>The yield estimate may be an overestimate if the most recent packets have been lost or if more than 256 packets have been lost.</p>
+{% endblock %}

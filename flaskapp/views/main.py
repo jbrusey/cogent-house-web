@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
-from flask import Blueprint, render_template
-from sqlalchemy import distinct, func
+from flask import Blueprint, render_template, request
+from sqlalchemy import and_, distinct, func
 
 from cogent.base.model import (
     House,
@@ -11,6 +11,7 @@ from cogent.base.model import (
     Room,
     Session,
 )
+from cogent.sip.calc_yield import calc_yield
 
 main_bp = Blueprint("main", __name__)
 
@@ -97,4 +98,137 @@ def missing():
 
     return render_template(
         "missing.html", title="Missing nodes", missing=missing_nodes, extra=extra_nodes
+    )
+
+
+@main_bp.route("/yield24")
+def yield24():
+    """Display packet yield for each node over the last 24 hours."""
+    sort = request.args.get("sort", "house")
+    start_t = datetime.now(UTC) - timedelta(days=1)
+    session = Session()
+    try:
+        seqcnt_q = (
+            session.query(
+                NodeState.nodeId.label("nodeId"),
+                func.count(NodeState.seq_num).label("cnt"),
+            )
+            .filter(NodeState.time >= start_t)
+            .group_by(NodeState.nodeId)
+            .subquery()
+        )
+
+        selmint_q = (
+            session.query(
+                NodeState.nodeId.label("nodeId"),
+                func.min(NodeState.time).label("mint"),
+            )
+            .filter(NodeState.time >= start_t)
+            .group_by(NodeState.nodeId)
+            .subquery()
+        )
+
+        minseq_q = (
+            session.query(
+                NodeState.nodeId.label("nodeId"),
+                NodeState.seq_num.label("seq_num"),
+            )
+            .join(
+                selmint_q,
+                and_(
+                    NodeState.time == selmint_q.c.mint,
+                    NodeState.nodeId == selmint_q.c.nodeId,
+                ),
+            )
+            .subquery()
+        )
+
+        selmaxt_q = (
+            session.query(
+                NodeState.nodeId.label("nodeId"),
+                func.max(NodeState.time).label("maxt"),
+            )
+            .filter(NodeState.time >= start_t)
+            .group_by(NodeState.nodeId)
+            .subquery()
+        )
+
+        maxseq_q = (
+            session.query(
+                NodeState.nodeId.label("nodeId"),
+                NodeState.seq_num.label("seq_num"),
+                NodeState.time.label("time"),
+            )
+            .join(
+                selmaxt_q,
+                and_(
+                    NodeState.time == selmaxt_q.c.maxt,
+                    NodeState.nodeId == selmaxt_q.c.nodeId,
+                ),
+            )
+            .subquery()
+        )
+
+        qry = (
+            session.query(
+                maxseq_q.c.nodeId,
+                maxseq_q.c.seq_num.label("maxseq"),
+                minseq_q.c.seq_num.label("minseq"),
+                seqcnt_q.c.cnt,
+                maxseq_q.c.time,
+                House.address,
+                Room.name,
+            )
+            .select_from(maxseq_q)
+            .join(minseq_q, minseq_q.c.nodeId == maxseq_q.c.nodeId)
+            .join(seqcnt_q, seqcnt_q.c.nodeId == maxseq_q.c.nodeId)
+            .join(Node, Node.id == maxseq_q.c.nodeId)
+            .join(Location, Node.locationId == Location.id)
+            .join(House, Location.houseId == House.id)
+            .join(Room, Location.roomId == Room.id)
+        )
+
+        if sort == "id":
+            qry = qry.order_by(Node.id)
+        elif sort == "room":
+            qry = qry.order_by(Room.name)
+        elif sort == "msgcnt":
+            qry = qry.order_by(seqcnt_q.c.cnt)
+        elif sort == "minseq":
+            qry = qry.order_by(minseq_q.c.seq_num)
+        elif sort == "maxseq":
+            qry = qry.order_by(maxseq_q.c.seq_num)
+        elif sort == "last":
+            qry = qry.order_by(maxseq_q.c.time)
+        else:
+            qry = qry.order_by(House.address, Room.name)
+
+        records = []
+        for (
+            node_id,
+            maxseq,
+            minseq,
+            seqcnt,
+            last_heard,
+            house_name,
+            room_name,
+        ) in qry.all():
+            records.append(
+                {
+                    "node": node_id,
+                    "house": house_name,
+                    "room": room_name,
+                    "msgcnt": seqcnt,
+                    "minseq": minseq,
+                    "maxseq": maxseq,
+                    "last": last_heard,
+                    "yield": calc_yield(seqcnt, minseq, maxseq),
+                    "node_url": f"/nodeGraph?node={node_id}&typ=6&period=day",
+                }
+            )
+    finally:
+        session.close()
+
+    return render_template(
+        "yield24.html", title="Yield for last day", records=records, sort=sort
     )
