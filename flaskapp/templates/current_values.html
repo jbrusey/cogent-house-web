@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<table border="1">
+  <tr>
+    <th>Node</th>
+    <th>House</th>
+    <th>Room</th>
+    <th>Value{% if sensor and sensor.units %} ({{ sensor.units }}){% endif %}</th>
+    <th>Time</th>
+  </tr>
+  {% for r in readings %}
+  <tr>
+    <td><a href="{{ url_for('legacy_graph.node_graph', node=r.node, typ=typ, period='day') }}">{{ r.node }}</a></td>
+    <td>{{ r.house }}</td>
+    <td>{{ r.room }}</td>
+    <td>{{ r.value }}</td>
+    <td>{{ r.time }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5">No readings found.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

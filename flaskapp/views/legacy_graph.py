@@ -315,6 +315,68 @@ def all_graphs():
         session.close()
 
 
+@legacy_graph_bp.route("/currentValues")
+def current_values():
+    typ = int(request.args.get("typ", "0"))
+    session = Session()
+    try:
+        sensor = (
+            session.query(SensorType)
+            .filter(SensorType.id == typ)
+            .one_or_none()
+        )
+        max_q = (
+            session.query(
+                func.max(Reading.time).label("maxt"),
+                Reading.nodeId.label("nodeId"),
+            )
+            .filter(Reading.typeId == typ)
+            .group_by(Reading.nodeId)
+            .subquery()
+        )
+        r_alias = aliased(Reading)
+        qry = (
+            session.query(
+                r_alias.nodeId,
+                r_alias.value,
+                r_alias.time,
+                House.address,
+                Room.name,
+            )
+            .join(
+                max_q,
+                and_(r_alias.nodeId == max_q.c.nodeId, r_alias.time == max_q.c.maxt),
+            )
+            .filter(r_alias.typeId == typ)
+            .join(Node, r_alias.nodeId == Node.id)
+            .join(Location, Node.locationId == Location.id)
+            .join(House, Location.houseId == House.id)
+            .join(Room, Location.roomId == Room.id)
+            .order_by(House.address, Room.name)
+        )
+        readings = []
+        for node_id, value, time, house, room in qry.all():
+            readings.append(
+                {
+                    "node": node_id,
+                    "value": value,
+                    "time": time,
+                    "house": house,
+                    "room": room,
+                }
+            )
+        title = f"Current {sensor.name}" if sensor else "Current values"
+        return render_template(
+            "current_values.html",
+            title=title,
+            readings=readings,
+            sensor=sensor,
+            typ=typ,
+        )
+    finally:
+        session.close()
+
+
 @legacy_graph_bp.route("/nodeGraph")
 def node_graph():
     node = request.args.get("node")
