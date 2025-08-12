@@ -21,6 +21,10 @@ def _to_gviz_json(description, data):
     cols = []
     for desc in description:
         col = {"label": desc[0], "type": desc[1]}
+        # Include any additional column properties such as roles.
+        for extra in desc[2:]:
+            if isinstance(extra, dict):
+                col.update(extra)
         cols.append(col)
 
     def _conv(value, typ):

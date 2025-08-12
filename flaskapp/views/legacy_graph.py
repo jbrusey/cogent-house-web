@@ -439,13 +439,20 @@ def node_graph():
                 (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None) for pt in data
             ]
         if len(data) > 1000:
-            subs = len(data) / 1000
+            subs = max(len(data) // 1000, 1)
             data = [x for i, x in enumerate(data) if i % subs == 0]
         if debug:
             return Response(f"data={data!r}", mimetype=_CONTENT_TEXT)
         options = {
             "vAxis": {"title": y_label},
-            "hAxis": {"title": "Time"},
+            "hAxis": {
+                "title": "Time",
+                "viewWindow": {
+                    "min": int(startts.timestamp() * 1000),
+                    "max": int(endts.timestamp() * 1000),
+                },
+                "viewWindowMode": "explicit",
+            },
             "curveType": "function",
             "legend": {"position": "none"},
         }

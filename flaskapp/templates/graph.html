@@ -9,6 +9,10 @@
         var json_data = new google.visualization.DataTable({{ json_data|safe }}, 0.6);
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         var options = {{ options|tojson }};
+        if (options.hAxis && options.hAxis.viewWindow) {
+          options.hAxis.viewWindow.min = new Date(options.hAxis.viewWindow.min);
+          options.hAxis.viewWindow.max = new Date(options.hAxis.viewWindow.max);
+        }
         chart.draw(json_data, options);
       }
     </script>
