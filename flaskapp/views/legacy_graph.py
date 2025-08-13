@@ -320,11 +320,8 @@ def current_values():
     typ = int(request.args.get("typ", "0"))
     session = Session()
     try:
-        sensor = (
-            session.query(SensorType)
-            .filter(SensorType.id == typ)
-            .one_or_none()
-        )
+        sensor_types = session.query(SensorType).order_by(SensorType.name).all()
+        sensor = next((st for st in sensor_types if st.id == typ), None)
         max_q = (
             session.query(
                 func.max(Reading.time).label("maxt"),
@@ -371,6 +368,7 @@ def current_values():
             title=title,
             readings=readings,
             sensor=sensor,
+            sensor_types=sensor_types,
             typ=typ,
         )
     finally:

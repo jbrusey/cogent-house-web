@@ -60,3 +60,9 @@ def test_current_values(monkeypatch, tmp_path):
     assert b"Current Temperature" in resp.data
     assert b"25.0" in resp.data
     assert b"42.0" not in resp.data
+    assert b'value="1"' in resp.data
+
+    resp = client.get("/currentValues?typ=1")
+    assert resp.status_code == 200
+    assert b"42.0" in resp.data
+    assert b"25.0" not in resp.data
