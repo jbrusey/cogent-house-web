@@ -48,7 +48,7 @@ def ccYield(
     ok_nodes = set()
     low_nodes_report = []
     # assumes 5 minute period
-    expected_yield = (end_t - start_t).seconds / 300
+    expected_yield = (end_t - start_t).seconds // 300
 
     for n, cnt, maxtime, hn, rn in q:
         missed = expected_yield - cnt

@@ -73,9 +73,9 @@ class TestSipPhenom(unittest.TestCase):
             # print last_dt, ptup.dt
             self.assertTrue(last_dt is None or ptup.dt > last_dt)
             self.assertTrue(ptup.dt is not None)
-            intvl = int(
-                (ptup.dt - now).total_seconds() / timedelta(minutes=5).total_seconds()
-            )
+            intvl = (ptup.dt - now).total_seconds() // timedelta(
+                minutes=5
+            ).total_seconds()
 
             # print intvl, ptup.dashed
             self.assertTrue(not (intvl > 7 and intvl <= 20) or ptup.dashed)
@@ -111,9 +111,10 @@ class TestSipPhenom(unittest.TestCase):
             # print last_dt, ptup.dt
             self.assertTrue(last_dt is None or ptup.dt > last_dt)
             self.assertTrue(ptup.dt is not None)
-            intvl = int(
-                (ptup.dt - now).total_seconds() / timedelta(minutes=5).total_seconds()
-            )
+            intvl = (ptup.dt - now).total_seconds() // timedelta(
+                minutes=5
+            ).total_seconds()
+
             # print intvl, ptup.dashed
             self.assertTrue(not (intvl > 20 and intvl <= 22) or ptup.dashed)
             self.assertTrue(intvl > 20 and intvl <= 22 or not ptup.dashed)
