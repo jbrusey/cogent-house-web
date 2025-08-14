@@ -90,12 +90,12 @@ class LogFromFlat(object):
         session = meta.Session()
         try:
             models.populateData.init_data(session)
-            if session.query(SensorType).get(0) is None:
+            if session.get(SensorType, 0) is None:
                 raise Exception(
                     "SensorType must be populated by alembic "
                     + "before starting LogFromFlat"
                 )
-        except:
+        except Exception:
             session.rollback()
             raise
         finally:
