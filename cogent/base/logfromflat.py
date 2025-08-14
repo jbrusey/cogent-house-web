@@ -15,7 +15,7 @@
 import logging
 import math
 import json
-from optparse import OptionParser
+import argparse
 
 from datetime import timedelta, datetime
 from pathlib import Path
@@ -240,17 +240,17 @@ class LogFromFlat(object):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    parser = OptionParser()
-    parser.add_option(
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
         "-d",
         "--dir",
         help="directory containing json files containing sensor readings",
-        default=None,
+        required=True,
     )
 
-    parser.add_option("--database", help="database to log to", default=None)
+    parser.add_argument("--database", help="database to log to", required=True)
 
-    parser.add_option(
+    parser.add_argument(
         "-l",
         "--log-level",
         help="Set log level to LEVEL: debug,info,warning,error",
@@ -258,14 +258,14 @@ if __name__ == "__main__":  # pragma: no cover
         metavar="LEVEL",
     )
 
-    parser.add_option(
+    parser.add_argument(
         "-f",
         "--log-file",
         help="Log file to use (Default /var/log/ch/LogFromFlat.log",
         default="/var/log/ch/LogFromFlat.log",
     )
 
-    parser.add_option(
+    parser.add_argument(
         "-t",
         "--log-terminal",
         help="Echo Logging output to terminal",
@@ -273,9 +273,7 @@ if __name__ == "__main__":  # pragma: no cover
         default=False,
     )
 
-    (options, args) = parser.parse_args()
-    if len(args) != 0:
-        parser.error("incorrect number of arguments")
+    args = parser.parse_args()
 
     lvlmap = {
         "debug": logging.DEBUG,
@@ -285,33 +283,27 @@ if __name__ == "__main__":  # pragma: no cover
         "critical": logging.CRITICAL,
     }
 
-    if options.log_level not in lvlmap:
-        parser.error("invalid LEVEL: " + options.log_level)
+    if args.log_level not in lvlmap:
+        parser.error("invalid LEVEL: " + args.log_level)
 
-    logfile = options.log_file
+    logfile = args.log_file
 
     logging.basicConfig(
         filename=logfile,
         filemode="a",
         format="%(asctime)s %(levelname)s %(message)s",
-        level=lvlmap[options.log_level],
+        level=lvlmap[args.log_level],
     )
 
     # And if we want to echo the output on the terminal
-    logterm = options.log_terminal
+    logterm = args.log_terminal
     if logterm:
         console = logging.StreamHandler()
-        console.setLevel(lvlmap[options.log_level])
+        console.setLevel(lvlmap[args.log_level])
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
         console.setFormatter(formatter)
         logging.getLogger("").addHandler(console)
 
-    if options.database is None:
-        parser.error("--database must be specified")
-
-    if options.dir is None:
-        parser.error("--dir must be specified")
-
-    logging.info("Starting LogFromFlat with log-level %s" % (options.log_level))
-    lm = LogFromFlat(dbfile=DBFILE + options.database)
-    lm.process_dir(Path(options.dir))
+    logging.info("Starting LogFromFlat with log-level %s" % (args.log_level))
+    lm = LogFromFlat(dbfile=DBFILE + args.database)
+    lm.process_dir(Path(args.dir))
