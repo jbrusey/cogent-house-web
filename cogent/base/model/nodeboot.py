@@ -35,7 +35,7 @@ class NodeBoot(meta.Base, meta.InnoDBMix):
     version = Column(String(20))
 
     # Add a named index
-    __table_args__ = (Index("PRIMARY", "time", "nodeId"),)
+    __table_args__ = (Index("PRIMARY", "time", "nodeId"),)  # type: ignore[assignment]
 
     def __repr__(self):
         return (

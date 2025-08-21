@@ -49,7 +49,7 @@ class NodeState(meta.Base, meta.InnoDBMix):
     rssi = Column(Integer)
 
     # Add a named index
-    __table_args__ = (Index("ns_1", "time", "nodeId", "localtime"),)
+    __table_args__ = (Index("ns_1", "time", "nodeId", "localtime"),)  # type: ignore[assignment]
 
     def __repr__(self):
         return (
