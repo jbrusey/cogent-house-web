@@ -22,20 +22,16 @@ from pathlib import Path
 
 import cogent.base.model as models
 import cogent.base.model.meta as meta
-from cogent.base.model import Node, NodeState, Reading, SensorType
-
 # import time
-
-
+import sqlalchemy
+from cogent.base.model import Node, NodeState, Reading, SensorType
+from sqlalchemy import and_, create_engine
 
 LOGGER = logging.getLogger("ch.base")
 
 DB_URL = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
 
 PROCESSED_FILES = "processed_files.txt"
-
-import sqlalchemy
-from sqlalchemy import and_, create_engine
 
 
 def duplicate_packet(session, receipt_time, node_id, localtime):

@@ -1,25 +1,11 @@
-import pytest
 from datetime import UTC, datetime, timedelta
+
+import pytest
+from cogent.base.model import (Base, Bitset, Deployment, DeploymentMetadata,
+                               House, Location, Node, NodeState, NodeType,
+                               Occupier, Reading, Room, RoomType, SensorType)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from cogent.base.model import (
-    Base,
-    Bitset,
-    Deployment,
-    DeploymentMetadata,
-    House,
-    HouseMetadata,
-    Location,
-    Node,
-    NodeState,
-    NodeType,
-    Occupier,
-    Reading,
-    Room,
-    RoomType,
-    SensorType,
-)
 
 
 @pytest.fixture
@@ -85,9 +71,7 @@ def test_node_type_query(db_session):
     result = db_session.get(NodeType, 0)
     assert result.name == "base"
     config = result.configured
-    assert (config.a[3 // 8] & (1 << (3 % 8))) and (
-        config.a[13 // 8] & (1 << (13 % 8))
-    )
+    assert (config.a[3 // 8] & (1 << (3 % 8))) and (config.a[13 // 8] & (1 << (13 % 8)))
 
 
 def test_node_type_empty(db_session):
@@ -121,16 +105,6 @@ def test_schema_localtime_wrap(db_session):
 
     h = House(deploymentId=1, address="1 Sampson", startDate=datetime.now(UTC))
     db_session.add(h)
-    db_session.commit()
-
-    hm = HouseMetadata(
-        houseId=1,
-        name="Manual Reading",
-        description="Read something",
-        units="kwh",
-        value="99999",
-    )
-    db_session.add(hm)
     db_session.commit()
 
     occ = Occupier(
@@ -168,7 +142,9 @@ def test_schema_localtime_wrap(db_session):
             Reading(time=tt, nodeId=63, typeId=0, locationId=loc_id, value=i / 1000.0)
         )
         db_session.add(
-            NodeState(time=tt, nodeId=63, parent=64, localtime=((1 << 32) - 50 + i))
+            NodeState(
+                time=tt, nodeId=63, parent=64, localtime=((1 << 32) - 50 + i), seq_num=1
+            )
         )
         tt += timedelta(minutes=5)
 

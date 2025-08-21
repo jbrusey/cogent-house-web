@@ -4,26 +4,16 @@ author: J. Brusey, November 2019
 
 """
 
-from cogent.base.logfromflat import LogFromFlat
-from unittest.mock import patch, mock_open
-from sqlalchemy import and_
-from cogent.base.model import (
-    meta,
-    Bitset,
-    Location,
-    Node,
-    NodeState,
-    NodeType,
-    Reading,
-    Room,
-    RoomType,
-    House,
-    Deployment,
-)
-
+import time
 from datetime import datetime
 from pathlib import Path
-import time
+from unittest.mock import mock_open, patch
+
+from cogent.base.logfromflat import LogFromFlat
+from cogent.base.model import (Bitset, Deployment, House, Location, Node,
+                               NodeState, NodeType, Reading, Room, RoomType,
+                               meta)
+from sqlalchemy import and_
 
 DBURL = "sqlite:///:memory:"
 
@@ -81,19 +71,20 @@ def dummy_deployment(session):
     session.commit()
     assert ll.id is not None
 
-    # nt = session.query(NodeType).filter(id==0).one()
-    nt = NodeType(
-        time=datetime.utcnow(),
-        id=14,
-        name="base",
-        seq=2,
-        updated_seq=0,
-        period=15 * 1024,
-        configured=Bitset(size=14),
-    )
+    nt = session.get(NodeType, 14)
+    if not nt:
+        nt = NodeType(
+            time=datetime.utcnow(),
+            id=14,
+            name="base",
+            seq=2,
+            updated_seq=0,
+            period=15 * 1024,
+            configured=Bitset(size=14),
+        )
 
-    session.add(nt)
-    session.commit()
+        session.add(nt)
+        session.commit()
     assert nt.id is not None
 
     n = Node(id=28710, location=ll, nodeType=nt)
