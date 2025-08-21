@@ -12,30 +12,30 @@
 
 """
 
+import argparse
+import json
 import logging
 import math
-import json
-import argparse
-
-from datetime import timedelta, datetime
+import os
+from datetime import datetime, timedelta
 from pathlib import Path
-
-# import time
-
-from cogent.base.model import Reading, NodeState, SensorType, Node
 
 import cogent.base.model as models
 import cogent.base.model.meta as meta
+from cogent.base.model import Node, NodeState, Reading, SensorType
+
+# import time
+
+
 
 LOGGER = logging.getLogger("ch.base")
 
-DBFILE = "mysql://chuser@localhost/"
-# DBFILE = "sqlite:///test.db"
+DB_URL = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
 
 PROCESSED_FILES = "processed_files.txt"
 
-from sqlalchemy import create_engine, and_
 import sqlalchemy
+from sqlalchemy import and_, create_engine
 
 
 def duplicate_packet(session, receipt_time, node_id, localtime):
@@ -48,6 +48,7 @@ def duplicate_packet(session, receipt_time, node_id, localtime):
     """
     assert isinstance(receipt_time, datetime)
     earliest = receipt_time - timedelta(minutes=1)
+
     return (
         session.query(NodeState)
         .filter(
@@ -77,7 +78,7 @@ class LogFromFlat(object):
     the database.
     """
 
-    def __init__(self, dbfile=DBFILE):
+    def __init__(self, dbfile=None):
         """create a new LogFromFlat that reads from jsonfile and writes to dbfile"""
         self.engine = create_engine(dbfile, echo=False)
         models.initialise_sql(self.engine)
@@ -112,7 +113,7 @@ class LogFromFlat(object):
             seq = msg["seq"]
             rssi_val = msg["rssi"]
 
-            node = session.query(Node).get(node_id)
+            node = session.get(Node, node_id)
             loc_id = None
             if node is None:
                 add_node(session, node_id)
@@ -248,7 +249,7 @@ if __name__ == "__main__":  # pragma: no cover
         required=True,
     )
 
-    parser.add_argument("--database", help="database to log to", required=True)
+    parser.add_argument("--database", help="database URL to log to", default=DB_URL)
 
     parser.add_argument(
         "-l",
@@ -305,5 +306,5 @@ if __name__ == "__main__":  # pragma: no cover
         logging.getLogger("").addHandler(console)
 
     logging.info("Starting LogFromFlat with log-level %s" % (args.log_level))
-    lm = LogFromFlat(dbfile=DBFILE + args.database)
+    lm = LogFromFlat(dbfile=args.database)
     lm.process_dir(Path(args.dir))
