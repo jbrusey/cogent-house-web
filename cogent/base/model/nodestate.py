@@ -18,33 +18,42 @@ LOG = logging.getLogger(__name__)
 
 class NodeState(meta.Base, meta.InnoDBMix):
     """
-    It appears that this table holds the state of any nodes.
+    This table holds the state of any nodes.
 
-    :var Integer id: Id of NodeState
     :var DateTime time: Timestamp of state
     :var Integer nodeId: :class:`cogentviewer.models.node.Node`
     :var Integer parent: Parent node in the routing tree?
     :var BigInteger localtime: Local time of the node (in unix time??)
+    :var Integer seq_num: packet sequence number
+    :var Integer rssi: received signal strength indicator
     """
 
     __tablename__ = "NodeState"
 
-    id = Column(Integer, primary_key=True)
-    time = Column(DateTime)
-    nodeId = Column(Integer, ForeignKey("Node.id"))
+    time = Column(
+        DateTime, primary_key=True, nullable=False, autoincrement=False, index=True
+    )
+    nodeId = Column(
+        Integer,
+        ForeignKey("Node.id"),
+        primary_key=True,
+        nullable=False,
+        autoincrement=False,
+        index=True,
+    )
     parent = Column(Integer)
     localtime = Column(BigInteger)
-    seq_num = Column(Integer)
+    seq_num = Column(
+        Integer, primary_key=True, nullable=False, autoincrement=False, index=True
+    )
     rssi = Column(Integer)
 
     # Add a named index
-    __table_args__ = (Index("ns_1", "time", "nodeId", "localtime"),)  # type: ignore[assignment]
+    __table_args__ = (Index("ns_1", "time", "nodeId", "localtime"),)
 
     def __repr__(self):
         return (
             "NodeState("
-            + str(self.id)
-            + ","
             + str(self.time)
             + ","
             + str(self.nodeId)
@@ -55,23 +64,32 @@ class NodeState(meta.Base, meta.InnoDBMix):
             + ")"
         )
 
-    def __cmp__(self, other):
-        try:
-            val = (self.time - other.time).seconds
-            val += self.nodeId - other.nodeId
-            val += self.parent - other.parent
-            return val
-        except TypeError as e:
-            LOG.warning("Unable to Compare {0} {1} \n{2}".format(self, other, e))
+    def __eq__(self, other):
+        return (self.time, self.nodeId, self.parent) == (
+            other.time,
+            other.nodeId,
+            other.parent,
+        )
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
+        return (self.time, self.nodeId, self.parent) < (
+            other.time,
+            other.nodeId,
+            other.parent,
+        )
 
     def pandas(self):
         """Return this object as something suitable for pandas"""
 
         # Igonre parent / rssi as we dont really use them
         return {
-            "id": self.id,
             "localtime": self.localtime,
             "nodeId": self.nodeId,
             "seq_num": self.seq_num,
+            "rssi": self.rssi,
+            "parent": self.parent,
             "time": self.time,
         }

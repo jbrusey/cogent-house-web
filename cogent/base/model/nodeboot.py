@@ -7,7 +7,8 @@
 
 import logging
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Index, Integer,
+                        String)
 
 from . import meta
 
@@ -29,12 +30,12 @@ class NodeBoot(meta.Base, meta.InnoDBMix):
     __tablename__ = "NodeBoot"
 
     time = Column(DateTime, primary_key=True)
-    nodeId = Column(Integer, ForeignKey("Node.id"))
+    nodeId = Column(Integer, ForeignKey("Node.id"), primary_key=True)
     clustered = Column(Boolean)
     version = Column(String(20))
 
     # Add a named index
-    __table_args__ = (Index("time", "nodeId"),)  # type: ignore[assignment]
+    __table_args__ = (Index("PRIMARY", "time", "nodeId"),)
 
     def __repr__(self):
         return (

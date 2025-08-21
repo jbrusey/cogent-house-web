@@ -116,10 +116,6 @@ class SerialiseMixin(object):
 
         return self.dict()
 
-    #    def fromDict(self,theDict):
-    #        """Update the object given a dictionary of <key>,<value> pairs
-    #        """
-
     def from_dict(self, jsonList):
         """Update the object using a dictionary
 

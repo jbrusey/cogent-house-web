@@ -8,7 +8,6 @@ Table to represent deployments.
 
 # SQL Alchemy Relevant information
 from sqlalchemy import Column, DateTime, Integer, String
-
 # And Backrefs and Relations.
 from sqlalchemy.orm import relationship
 
@@ -24,10 +23,6 @@ class Deployment(meta.Base, meta.InnoDBMix):
     :var string description: deployment description
     :var DateTime startDate: deployment start date
     :var DateTime endDate: deployment end date
-
-    :var list meta: *Backref:* all
-        :class:`cogentviewer.models.housemetadata.HouseMetadata` linked to this
-        deployment
 
     :var list houses: *Backref:* all
         :class:`cogentviewer.models.house.House` objects in this deployment

@@ -10,15 +10,14 @@ Classes to initialise the SQL and populate with default Sensors
     new tables are created using INNODB
 """
 
-# Namespace Manginlg the Proper way, (via all)
-# __all__ = ["deployment.*"]
-# Namespace Mangling
 from .bitset import Bitset
 from .deployment import Deployment
 from .deploymentmetadata import DeploymentMetadata
+from .event import Event
+from .host import Host
 from .house import House
-from .housemetadata import HouseMetadata
-from .init import clsFromJSON, findClass, init_model, initialise_sql, newClsFromJSON
+from .init import (clsFromJSON, findClass, init_model, initialise_sql,
+                   newClsFromJSON)
 from .lastreport import LastReport
 from .location import Location
 from .meta import Base, Session
@@ -29,20 +28,26 @@ from .nodestate import NodeState
 from .nodetype import NodeType
 from .occupier import Occupier
 from .populateData import init_data
+from .pushstatus import PushStatus
+from .rawmessage import RawMessage
 from .reading import Reading
 from .room import Room
 from .roomtype import RoomType
 from .sensor import Sensor
 from .sensortype import SensorType
 from .server import Server
+from .timings import Timings
+from .user import User
+from .weather import Weather
 
 __all__ = [
     Base,
     Bitset,
     Deployment,
     DeploymentMetadata,
+    Event,
+    Host,
     House,
-    HouseMetadata,
     LastReport,
     Location,
     Node,
@@ -51,6 +56,8 @@ __all__ = [
     NodeState,
     NodeType,
     Occupier,
+    PushStatus,
+    RawMessage,
     Reading,
     Room,
     RoomType,

@@ -35,7 +35,7 @@ class Node(meta.Base, meta.InnoDBMix):
     locationId = Column(Integer, ForeignKey("Location.id"), nullable=True)
     nodeTypeId = Column(Integer, ForeignKey("NodeType.id"), nullable=True)
 
-    stateHistory = relationship("NodeState", order_by="NodeState.id", backref="node")
+    stateHistory = relationship("NodeState", order_by="NodeState.time", backref="node")
     nodeHistory = relationship("NodeHistory", backref="node")
     readings = relationship("Reading", backref="node")
     sensors = relationship("Sensor", backref=("node"))
@@ -53,22 +53,14 @@ class Node(meta.Base, meta.InnoDBMix):
 
     def __eq__(self, other):
         """Nodes should be equal in Id (and type but it may not exist) Only"""
-        if self.id == other.id:
-            return self.locationId == other.locationId
-        return False
-        # return self.id == other.id & self.locationId == other.locationId
+        return (self.id, self.locationId) == (other.id, other.locationId)
 
     def __ne__(self, other):
         """Ids differ"""
         return not (self == other)
 
     def __lt__(self, other):
-        return self.id < other.id
+        return (self.id, self.locationId) < (other.id, other.locationId)
 
     def __str__(self):
         return "Node {0} Loc {1}".format(self.id, self.locationId)
-
-    def __cmp__(self, other):
-        if self.id == other.id:
-            return self.locationId - other.locationId
-        return self.id - other.id
