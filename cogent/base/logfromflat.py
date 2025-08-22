@@ -211,16 +211,17 @@ class LogFromFlat(object):
         pf = datadir / PROCESSED_FILES
         if pf.exists():
             with open(str(pf), "r") as processed_files:
+                processed_set = {row.rstrip() for row in processed_files}
 
-                for row in processed_files:
-                    processed_set.add(row.rstrip())
+        logfile_names = {
+            f.name for f in datadir.glob("*.log") if not f.is_dir()
+        }
+        for name in logfile_names - processed_set:
+            logfile = datadir / name
+            self.log.info("Processing {}".format(logfile))
+            self.process_file(logfile)
 
-        for logfile in datadir.glob("*.log"):
-            if logfile.name not in processed_set and not logfile.is_dir():
-                self.log.info("Processing {}".format(logfile))
-                self.process_file(logfile)
-
-            processed_set.add(logfile.name)
+        processed_set.update(logfile_names)
 
         def write_pf(pf, processed_set):
             with open(str(pf), "w") as processed_files:
