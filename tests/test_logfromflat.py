@@ -10,9 +10,20 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 from cogent.base.logfromflat import LogFromFlat
-from cogent.base.model import (Bitset, Deployment, House, Location, Node,
-                               NodeState, NodeType, Reading, Room, RoomType,
-                               meta)
+from cogent.base.model import (
+    Bitset,
+    Deployment,
+    House,
+    Location,
+    Node,
+    NodeState,
+    NodeType,
+    Reading,
+    Room,
+    RoomType,
+    SensorType,
+    meta,
+)
 from sqlalchemy import and_
 
 DBURL = "sqlite:///:memory:"
@@ -194,6 +205,25 @@ def test_store_state():
             .one()
         )
         assert reading.value == 1
+
+        # an inactive SensorType should be activated when used
+        st = SensorType(id=123, name="Test", active=False)
+        session.add(st)
+        session.commit()
+
+        res = lff.store_state(
+            {
+                "123": 5,
+                "server_time": time.time(),
+                "sender": 236,
+                "parent": 28710,
+                "rssi": -90,
+                "seq": 23,
+                "localtime": 1002,
+            }
+        )
+        assert res
+        assert session.get(SensorType, 123).active
 
     except Exception:
         session.rollback()

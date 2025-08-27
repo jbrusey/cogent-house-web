@@ -10,6 +10,7 @@ from cogent.base.model import (
     Node,
     Reading,
     Room,
+    SensorType,
     init_data,
     init_model,
 )
@@ -29,6 +30,11 @@ def test_current_values(monkeypatch, tmp_path):
         loc = Location(id=1, houseId=house.id, roomId=room.id)
         node = Node(id=1, locationId=loc.id)
         session.add_all([house, room, loc, node])
+        session.commit()
+        # mark temperature and delta temperature sensor types as active
+        for st_id in (0, 1):
+            st = session.get(SensorType, st_id)
+            st.active = True
         session.commit()
         now = datetime.utcnow()
         readings = [

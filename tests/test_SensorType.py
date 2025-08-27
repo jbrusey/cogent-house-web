@@ -15,7 +15,15 @@ class TestSensorType(base.ModelTestCase):
     def _serialobj(self):
         """Helper Method to provde an object to serialise"""
         theItem = models.SensorType(
-            id=1, name="Temperature", code="T", units="DegC", c0=0, c1=1, c2=0, c3=1
+            id=1,
+            name="Temperature",
+            code="T",
+            units="DegC",
+            c0=0,
+            c1=1,
+            c2=0,
+            c3=1,
+            active=False,
         )
 
         return theItem
@@ -34,6 +42,7 @@ class TestSensorType(base.ModelTestCase):
             "c1": 1,
             "c2": 0,
             "c3": 1,
+            "active": False,
         }
         return theDict
 

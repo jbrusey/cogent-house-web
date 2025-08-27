@@ -320,7 +320,12 @@ def current_values():
     typ = int(request.args.get("typ", "0"))
     session = Session()
     try:
-        sensor_types = session.query(SensorType).order_by(SensorType.name).all()
+        sensor_types = (
+            session.query(SensorType)
+            .filter(SensorType.active.is_(True))
+            .order_by(SensorType.name)
+            .all()
+        )
         sensor = next((st for st in sensor_types if st.id == typ), None)
         max_q = (
             session.query(

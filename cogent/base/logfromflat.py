@@ -150,6 +150,14 @@ class LogFromFlat(object):
                 if math.isinf(value) or math.isnan(value):
                     value = None
 
+                st = session.get(SensorType, type_id)
+                if st is None:
+                    st = SensorType(id=type_id, name="UNKNOWN", active=True)
+                    session.add(st)
+                    self.log.info("Adding new sensortype")
+                elif not st.active:
+                    st.active = True
+
                 r = Reading(
                     time=current_time,
                     nodeId=node_id,
@@ -157,26 +165,8 @@ class LogFromFlat(object):
                     locationId=loc_id,
                     value=value,
                 )
-                try:
-                    session.add(r)
-                    session.flush()
-
-                except sqlalchemy.exc.IntegrityError as e:
-                    self.log.error(
-                        "Unable to store reading, checking if node type exists"
-                    )
-                    self.log.error(e)
-                    session.rollback()
-                    s = session.query(SensorType).filter_by(id=type_id).first()
-                    if s is None:
-                        s = SensorType(id=type_id, name="UNKNOWN")
-                        session.add(s)
-                        self.log.info("Adding new sensortype")
-                        session.flush()
-                        session.add(r)
-                        session.flush()
-                    else:
-                        self.log.error("Sensor type exists")
+                session.add(r)
+                session.flush()
 
             self.log.debug("reading: {}".format(node_state))
             session.commit()

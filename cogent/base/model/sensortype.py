@@ -6,7 +6,7 @@ Classes and Modules that represent sensor related objects
 .. codeauthor::  Daniel Goldsmith <djgoldsmith@googlemail.com>
 """
 
-from sqlalchemy import Column, Float, Integer, String
+from sqlalchemy import Boolean, Column, Float, Integer, String
 from sqlalchemy.orm import relationship
 
 from . import meta
@@ -42,6 +42,7 @@ class SensorType(meta.Base, meta.InnoDBMix):
     c1 = Column(Float)
     c2 = Column(Float)
     c3 = Column(Float)
+    active = Column(Boolean, nullable=False, server_default="0")
 
     readings = relationship("Reading", backref="sensorType")
     sensors = relationship("Sensor", backref="sensorType")
