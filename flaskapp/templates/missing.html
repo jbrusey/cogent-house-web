@@ -1,11 +1,22 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  .missing-table th,
+  .missing-table td {
+    padding: 0.75rem 1rem;
+  }
+
+  .missing-table tbody tr:nth-child(even) td {
+    background-color: #f2f2f2;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<p>
 {% if not missing %}
 <p>No nodes missing</p>
 {% else %}
 <h3>Registered nodes not reporting in last eight hours</h3>
-<table border="1">
+<table class="missing-table table table-bordered">
     <tr><th>Node</th><th>House</th><th>Room</th><th>Last Heard</th><th></th></tr>
     {% for node in missing %}
     <tr>

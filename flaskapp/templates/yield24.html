@@ -1,6 +1,18 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  .yield24-table th,
+  .yield24-table td {
+    padding: 0.75rem 1rem;
+  }
+
+  .yield24-table tbody tr:nth-child(even) td {
+    background-color: #f2f2f2;
+  }
+</style>
+{% endblock %}
 {% block content %}
-<table border="1">
+<table class="yield24-table table table-bordered">
   <tr>
     <th><a href="{{ url_for('main.yield24', sort='id') }}">Node</a></th>
     <th><a href="{{ url_for('main.yield24', sort='house') }}">House</a></th>
