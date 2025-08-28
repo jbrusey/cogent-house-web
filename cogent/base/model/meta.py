@@ -10,25 +10,36 @@ from zoneinfo import ZoneInfo
 
 import dateutil.parser
 import sqlalchemy
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.orm import Session as _Session
+from sqlalchemy.orm import declarative_base
 
-# Functions provided by from meta import *
-__all__ = ["Base", "Session"]
+# Functions provided by ``from meta import *``
+__all__ = ["Base", "Session", "engine"]
 
 LOG = logging.getLogger(__name__)
 
 
-# PYRAMID IMPORTS (COMMENT THESE FOR NON PYRAMID OPERATION)
-# try:
-#     from zope.sqlalchemy import ZopeTransactionExtension
-#     Session = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
-# except ImportError:
-#     #STANDARD IMPORTS
-#     # SQLAlchemy session manager. Updated by model.init_model()
-#     Session = scoped_session(sessionmaker())
+# Database engine configured at runtime by ``init_model``
+engine = None
 
-# SQLAlchemy session manager. Updated by model.init_model()
-Session = scoped_session(sessionmaker())
+
+def Session(bind=None):
+    """Return a new :class:`sqlalchemy.orm.Session`.
+
+    Parameters
+    ----------
+    bind:
+        Optional engine or connection to bind the session to.  If omitted, the
+        engine configured via :func:`cogent.base.model.init_model` is used.  This
+        helper allows both the modern ``Session(engine)`` style as well as the
+        legacy ``Session()`` usage which relies on global configuration.
+    """
+
+    if bind is None:
+        bind = engine
+    if bind is None:
+        raise RuntimeError("Database engine is not configured")
+    return _Session(bind)
 
 
 # The declarative Base

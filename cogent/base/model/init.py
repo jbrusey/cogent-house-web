@@ -1,6 +1,7 @@
 import json
 import logging
 
+import cogent.base.model.meta as meta
 from .deployment import Deployment
 from .house import House
 from .location import Location
@@ -26,8 +27,7 @@ def init_model(engine):
 
     DO NOT REMOVE ON MERGE
     """
-    Session.configure(bind=engine)
-    # import pdb; pdb.set_trace()
+    meta.engine = engine
 
 
 def initialise_sql(engine, dropTables=False):
@@ -45,7 +45,7 @@ def initialise_sql(engine, dropTables=False):
 
     """
     log.info("Initialising Database")
-    Session.configure(bind=engine)
+    init_model(engine)
 
     if dropTables:
         Base.metadata.drop_all(engine)

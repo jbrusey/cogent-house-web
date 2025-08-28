@@ -8,11 +8,10 @@ import logging
 import unittest
 
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
 
 import cogent.base.model as models
 import cogent.base.model.meta as meta
-from cogent.base.model import init_data
+from cogent.base.model import Session, init_data
 
 # from pyramid.config import Configurator
 # from paste.deploy.loadwsgi import appconfig
@@ -33,7 +32,7 @@ def initDatabase():
 
     log.debug("Database Engine Started: {0}".format(engine))
 
-    meta.Session.configure(bind=engine)
+    meta.engine = engine
     meta.Base.metadata.create_all(engine)
 
 
@@ -58,9 +57,9 @@ class BaseTestCase(unittest.TestCase):
         # Load settings from Configuration file
         log.debug("Initialising Test Class Database for {0}".format(cls.__name__))
         cls.engine = sqlalchemy.create_engine("sqlite:///test.db")
+        meta.engine = cls.engine
         meta.Base.metadata.create_all(cls.engine)
-        cls.Session = sessionmaker()
-        cls.Session.configure(bind=cls.engine)
+        cls.Session = staticmethod(Session)
 
     def setUp(self):
         """Called each time a test case is called,

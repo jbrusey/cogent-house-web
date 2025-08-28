@@ -113,8 +113,7 @@ def test_store_state():
 
     lff = LogFromFlat(dbfile=DBURL)
 
-    session = meta.Session()
-    try:
+    with meta.Session() as session:
         # set up database with some basic data.
         dummy_deployment(session)
 
@@ -224,12 +223,6 @@ def test_store_state():
         )
         assert res
         assert session.get(SensorType, 123).active
-
-    except Exception:
-        session.rollback()
-        raise
-    finally:
-        session.close()
 
 
 @patch("cogent.base.logfromflat.LogFromFlat.process_file")

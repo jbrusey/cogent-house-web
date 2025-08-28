@@ -27,6 +27,7 @@ class SensorType(meta.Base, meta.InnoDBMix):
     :var Float c1:
     :var Float c2:
     :var Float c3:
+    :var Boolean active:
 
     :var readings: *backref* to :class:`cogentviewer.models.reading.Reading`
     :var sensors: *backref* to :class:`cogentviewer.models.sensor.Sensor`

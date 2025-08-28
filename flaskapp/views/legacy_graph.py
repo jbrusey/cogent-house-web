@@ -24,6 +24,7 @@ from cogent.base.model import (
     SensorType,
     Session,
 )
+import cogent.base.model.meta as meta
 from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
 
 from .graph import _to_gviz_json
@@ -318,8 +319,7 @@ def all_graphs():
 @legacy_graph_bp.route("/currentValues")
 def current_values():
     typ = int(request.args.get("typ", "0"))
-    session = Session()
-    try:
+    with Session(meta.engine) as session:
         sensor_types = (
             session.query(SensorType)
             .filter(SensorType.active.is_(True))
@@ -376,8 +376,6 @@ def current_values():
             sensor_types=sensor_types,
             typ=typ,
         )
-    finally:
-        session.close()
 
 
 @legacy_graph_bp.route("/nodeGraph")

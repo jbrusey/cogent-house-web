@@ -33,14 +33,15 @@ LOG.setLevel(logging.INFO)
 # Globals to hold potential locations of Calibration files
 
 
-def populateSensorTypes(session=False):
+def populateSensorTypes(session=None):
     """Populate the database with default sensing types,
     if they do not already exist.
     """
     LOG.debug("Populating SensorTypes")
 
-    if not session:
-        session = meta.Session()
+    if session is None:
+        with meta.Session() as session:
+            return populateSensorTypes(session=session)
 
     sensorList = [
         SensorType(
@@ -600,7 +601,7 @@ def populateSensorTypes(session=False):
     # session.close()
 
 
-def populateNodeTypes(session=False):
+def populateNodeTypes(session=None):
     """Populate the database with default node types,
     if they do not already exist.
 
@@ -609,8 +610,9 @@ def populateNodeTypes(session=False):
 
     LOG.debug("Populating SensorTypes")
 
-    if not session:
-        session = meta.Session()
+    if session is None:
+        with meta.Session() as session:
+            return populateNodeTypes(session=session)
 
     # nodelist = []
 
@@ -761,7 +763,7 @@ def populateNodeTypes(session=False):
     session.commit()
 
 
-def _parseCalibration(filename, sensorcode, session=False):
+def _parseCalibration(filename, sensorcode, session=None):
     """Helper method to Parse a sensor calibration file
 
     :param filename: Name of file we get coefficients from
@@ -882,19 +884,12 @@ def _parseCalibration(filename, sensorcode, session=False):
 
     session.flush()
     session.commit()
-    session.close()
     return True
 
 
-def populateCalibration(session=False):
-    """
-    Populate the Sensor Table with the correct calibration Coefficients for each
-    Sensor
-
-    :param session: Session to use if not the default session
-    """
+def populateCalibration(session=None):
+    """Populate the Sensor table with calibration coefficients."""
     LOG.debug("Populating Calibration Data")
-    # List of (file, sensor code) pairs
     calibFiles = [
         ("aq_coeffs", "AQ"),
         ("co2_coeffs", "CO2"),
@@ -903,21 +898,28 @@ def populateCalibration(session=False):
         ("voc_coeffs", "VOC"),
     ]
 
-    for item in calibFiles:
-        _ = _parseCalibration(item[0], item[1], session)
+    if session is None:
+        with meta.Session() as session:
+            _populateCalibration(session, calibFiles)
+            return
+
+    _populateCalibration(session, calibFiles)
+
+
+def _populateCalibration(session, calibFiles):
+    for filename, sensorcode in calibFiles:
+        _parseCalibration(filename, sensorcode, session)
 
     return
 
 
-def populateRoomTypes(session):
-    """Add Some Default Room Types
-
-    :param session: Session to be used if not the global database session
-    """
+def populateRoomTypes(session=None):
+    """Add some default room types."""
     LOG.debug("Populating Room Types")
 
-    if not session:
-        session = meta.Session()
+    if session is None:
+        with meta.Session() as session:
+            return populateRoomTypes(session=session)
 
     roomTypes = [
         ["Bedroom", ["Master Bedroom", "Second Bedroom", "Third Bedroom"]],
@@ -941,17 +943,19 @@ def populateRoomTypes(session):
 
     session.flush()
     session.commit()
-    session.close()
 
 
-def init_data(session=False, docalib=True):
-    """Populate the database with some initial data
+def init_data(session=None, docalib=True):
+    """Populate the database with some initial data."""
 
-    :param session: Session to use if not the default
-    """
-
-    if not session:
-        session = meta.Session()
+    if session is None:
+        with meta.Session() as session:
+            populateSensorTypes(session=session)
+            populateNodeTypes(session=session)
+            populateRoomTypes(session=session)
+            if docalib:
+                populateCalibration(session=session)
+            return
 
     populateSensorTypes(session=session)
     populateNodeTypes(session=session)

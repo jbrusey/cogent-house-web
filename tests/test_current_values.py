@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 
 from flaskapp import create_app
 from cogent.base.model import (
+    Base,
     Session,
     House,
     Location,
@@ -21,14 +22,14 @@ def test_current_values(monkeypatch, tmp_path):
     db_url = f"sqlite:///{db_path}"
     engine = create_engine(db_url)
     init_model(engine)
+    Base.metadata.create_all(engine)
     init_data()
 
-    session = Session()
-    try:
-        house = House(id=1, address="House 1")
-        room = Room(id=1, name="Room 1")
-        loc = Location(id=1, houseId=house.id, roomId=room.id)
-        node = Node(id=1, locationId=loc.id)
+    with Session(engine) as session:
+        house = House(id=100, address="House 1")
+        room = Room(id=100, name="Room 1")
+        loc = Location(id=100, houseId=house.id, roomId=room.id)
+        node = Node(id=100, locationId=loc.id)
         session.add_all([house, room, loc, node])
         session.commit()
         # mark temperature and delta temperature sensor types as active
@@ -55,8 +56,6 @@ def test_current_values(monkeypatch, tmp_path):
         ]
         session.add_all(readings)
         session.commit()
-    finally:
-        session.close()
 
     monkeypatch.setenv("CH_DBURL", db_url)
     app = create_app()

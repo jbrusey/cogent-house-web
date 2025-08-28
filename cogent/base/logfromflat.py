@@ -84,100 +84,91 @@ class LogFromFlat(object):
 
     def create_tables(self):
         """create any missing tables using sqlalchemy"""
-        session = meta.Session()
         try:
-            models.populateData.init_data(session)
-            if session.get(SensorType, 0) is None:
-                raise Exception(
-                    "SensorType must be populated by alembic "
-                    + "before starting LogFromFlat"
-                )
+            with meta.Session() as session:
+                models.populateData.init_data(session)
+                if session.get(SensorType, 0) is None:
+                    raise Exception(
+                        "SensorType must be populated by alembic "
+                        + "before starting LogFromFlat"
+                    )
         except Exception:
-            session.rollback()
             raise
-        finally:
-            session.close()
 
     def store_state(self, msg):
         """receive and process a message object from the base station"""
         current_time = datetime.utcfromtimestamp(msg["server_time"])
         try:
-            session = meta.Session()
+            with meta.Session() as session:
+                node_id = msg["sender"]
+                parent_id = msg["parent"]
+                seq = msg["seq"]
+                rssi_val = msg["rssi"]
 
-            node_id = msg["sender"]
-            parent_id = msg["parent"]
-            seq = msg["seq"]
-            rssi_val = msg["rssi"]
+                node = session.get(Node, node_id)
+                loc_id = None
+                if node is None:
+                    add_node(session, node_id)
+                else:
+                    loc_id = node.locationId
 
-            node = session.get(Node, node_id)
-            loc_id = None
-            if node is None:
-                add_node(session, node_id)
-            else:
-                loc_id = node.locationId
+                if duplicate_packet(
+                    session=session,
+                    receipt_time=datetime.utcfromtimestamp(msg["server_time"]),
+                    node_id=node_id,
+                    localtime=msg["localtime"],
+                ):
+                    LOGGER.info(
+                        "duplicate packet %d->%d, %d %s"
+                        % (node_id, parent_id, msg["localtime"], str(msg))
+                    )
+                    return False
 
-            if duplicate_packet(
-                session=session,
-                receipt_time=datetime.utcfromtimestamp(msg["server_time"]),
-                node_id=node_id,
-                localtime=msg["localtime"],
-            ):
-                LOGGER.info(
-                    "duplicate packet %d->%d, %d %s"
-                    % (node_id, parent_id, msg["localtime"], str(msg))
-                )
-
-                return False
-
-            # write a node state row
-            node_state = NodeState(
-                time=datetime.utcfromtimestamp(msg["server_time"]),
-                nodeId=node_id,
-                parent=parent_id,
-                localtime=msg["localtime"],
-                seq_num=seq,
-                rssi=rssi_val,
-            )
-            session.add(node_state)
-
-            for i, value in list(msg.items()):
-                # skip any non-numeric type_ids
-                try:
-                    type_id = int(i)
-                except ValueError:
-                    continue
-
-                if math.isinf(value) or math.isnan(value):
-                    value = None
-
-                st = session.get(SensorType, type_id)
-                if st is None:
-                    st = SensorType(id=type_id, name="UNKNOWN", active=True)
-                    session.add(st)
-                    self.log.info("Adding new sensortype")
-                elif not st.active:
-                    st.active = True
-
-                r = Reading(
-                    time=current_time,
+                # write a node state row
+                node_state = NodeState(
+                    time=datetime.utcfromtimestamp(msg["server_time"]),
                     nodeId=node_id,
-                    typeId=type_id,
-                    locationId=loc_id,
-                    value=value,
+                    parent=parent_id,
+                    localtime=msg["localtime"],
+                    seq_num=seq,
+                    rssi=rssi_val,
                 )
-                session.add(r)
-                session.flush()
+                session.add(node_state)
 
-            self.log.debug("reading: {}".format(node_state))
-            session.commit()
+                for i, value in list(msg.items()):
+                    # skip any non-numeric type_ids
+                    try:
+                        type_id = int(i)
+                    except ValueError:
+                        continue
+
+                    if math.isinf(value) or math.isnan(value):
+                        value = None
+
+                    st = session.get(SensorType, type_id)
+                    if st is None:
+                        st = SensorType(id=type_id, name="UNKNOWN", active=True)
+                        session.add(st)
+                        self.log.info("Adding new sensortype")
+                    elif not st.active:
+                        st.active = True
+
+                    r = Reading(
+                        time=current_time,
+                        nodeId=node_id,
+                        typeId=type_id,
+                        locationId=loc_id,
+                        value=value,
+                    )
+                    session.add(r)
+                    session.flush()
+
+                self.log.debug("reading: {}".format(node_state))
+                session.commit()
 
         except Exception as exc:
-            session.rollback()
             self.log.exception("error during storing (reading): " + str(exc))
-            # don't continue if you get an error
             raise
-        finally:
-            session.close()
 
         return True
 
