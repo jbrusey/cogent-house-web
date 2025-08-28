@@ -65,9 +65,7 @@ def graph(node_id=None, type_id=None):
         type_id = int(type_id)
     except (TypeError, ValueError):
         abort(404)
-
-    session = Session()
-    try:
+    with Session() as session:
         records = (
             session.query(Reading.time, Reading.value)
             .filter(Reading.nodeId == node_id, Reading.typeId == type_id)
@@ -88,8 +86,6 @@ def graph(node_id=None, type_id=None):
             .filter(Node.id == node_id)
             .one_or_none()
         )
-    finally:
-        session.close()
 
     house, room = house_room if house_room else ("Unknown", "Unknown")
 

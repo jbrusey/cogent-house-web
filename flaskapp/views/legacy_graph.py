@@ -111,8 +111,7 @@ def _predict(sip_tuple, end_time):
 
 
 def _get_value_and_delta(node_id, reading_type, delta_type, sd, ed):
-    session = Session()
-    try:
+    with Session() as session:
         try:
             (sd1,) = (
                 session.query(func.max(Reading.time))
@@ -165,9 +164,8 @@ def _get_value_and_delta(node_id, reading_type, delta_type, sd, ed):
                 )
             )
             .order_by(Reading.time)
+            .all()
         )
-    finally:
-        session.close()
 
 
 def _adjust_deltas(x):
@@ -278,8 +276,7 @@ def _plot_splines(
 def all_graphs():
     typ = request.args.get("typ", "0")
     period = request.args.get("period", "day")
-    session = Session()
-    try:
+    with Session() as session:
         mins = _mins(period, 1440)
         period_list = sorted(_periods, key=lambda k: _periods[k])
         graphs = []
@@ -312,8 +309,6 @@ def all_graphs():
             periods=period_list,
             mins=mins,
         )
-    finally:
-        session.close()
 
 
 @legacy_graph_bp.route("/currentValues")
@@ -387,107 +382,105 @@ def node_graph():
     period = request.args.get("period", "day")
     ago = _int(request.args.get("ago", "0"))
     debug = request.args.get("debug", "n") != "n"
-    session = Session()
-    try:
-        mins = _mins(period, 1440)
-        house, room = (
-            session.query(House.address, Room.name)
-            .join(Location, House.id == Location.houseId)
-            .join(Room, Room.id == Location.roomId)
-            .join(Node, Node.locationId == Location.id)
-            .filter(Node.id == int(node))
-            .one()
-        )
-        # SQLAlchemy stores timestamps as naive UTC datetimes, so use naive
-        # values here to avoid mixing timezone-aware and naive values when
-        # computing deltas.
-        startts = datetime.utcnow() - timedelta(minutes=(ago + 1) * mins)
-        endts = startts + timedelta(minutes=mins)
-        type_id = int(typ)
-        node_id = int(node)
-        y_label = _get_y_label(type_id, session)
-        if type_id not in type_delta:
-            data = (
-                session.query(Reading.time, Reading.value)
-                .filter(
-                    and_(
-                        Reading.nodeId == node_id,
-                        Reading.typeId == type_id,
-                        Reading.time >= startts,
-                        Reading.time <= endts,
+    with Session() as session:
+        try:
+            mins = _mins(period, 1440)
+            house, room = (
+                session.query(House.address, Room.name)
+                .join(Location, House.id == Location.houseId)
+                .join(Room, Room.id == Location.roomId)
+                .join(Node, Node.locationId == Location.id)
+                .filter(Node.id == int(node))
+                .one()
+            )
+            # SQLAlchemy stores timestamps as naive UTC datetimes, so use naive
+            # values here to avoid mixing timezone-aware and naive values when
+            # computing deltas.
+            startts = datetime.utcnow() - timedelta(minutes=(ago + 1) * mins)
+            endts = startts + timedelta(minutes=mins)
+            type_id = int(typ)
+            node_id = int(node)
+            y_label = _get_y_label(type_id, session)
+            if type_id not in type_delta:
+                data = (
+                    session.query(Reading.time, Reading.value)
+                    .filter(
+                        and_(
+                            Reading.nodeId == node_id,
+                            Reading.typeId == type_id,
+                            Reading.time >= startts,
+                            Reading.time <= endts,
+                        )
+                    )
+                    .order_by(Reading.time)
+                    .all()
+                )
+                data = [(t, v, True, v) for (t, v) in data]
+            else:
+                sip_data = list(
+                    _get_value_and_delta(
+                        node_id, type_id, type_delta[type_id], startts, endts
                     )
                 )
-                .order_by(Reading.time)
-                .all()
-            )
-            data = [(t, v, True, v) for (t, v) in data]
-        else:
-            sip_data = list(
-                _get_value_and_delta(
-                    node_id, type_id, type_delta[type_id], startts, endts
+                if len(sip_data) > 0 and ago == 0:
+                    sip_data.append(_predict(sip_data[-1], endts))
+                data = list(
+                    PartSplineReconstruct(
+                        threshold=thresholds[type_id],
+                        src=SipPhenom(src=_adjust_deltas(sip_data)),
+                    )
                 )
-            )
-            if len(sip_data) > 0 and ago == 0:
-                sip_data.append(_predict(sip_data[-1], endts))
-            data = list(
-                PartSplineReconstruct(
-                    threshold=thresholds[type_id],
-                    src=SipPhenom(src=_adjust_deltas(sip_data)),
-                )
-            )
-            data = [pt for pt in data if pt.dt >= startts and pt.dt < endts]
-            data = [
-                (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None) for pt in data
-            ]
-        if len(data) > 1000:
-            subs = max(len(data) // 1000, 1)
-            data = [x for i, x in enumerate(data) if i % subs == 0]
-        if debug:
-            return Response(f"data={data!r}", mimetype=_CONTENT_TEXT)
-        options = {
-            "vAxis": {"title": y_label},
-            "hAxis": {
-                "title": "Time",
-                "viewWindow": {
-                    "min": int(startts.timestamp() * 1000),
-                    "max": int(endts.timestamp() * 1000),
+                data = [pt for pt in data if pt.dt >= startts and pt.dt < endts]
+                data = [
+                    (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None) for pt in data
+                ]
+            if len(data) > 1000:
+                subs = max(len(data) // 1000, 1)
+                data = [x for i, x in enumerate(data) if i % subs == 0]
+            if debug:
+                return Response(f"data={data!r}", mimetype=_CONTENT_TEXT)
+            options = {
+                "vAxis": {"title": y_label},
+                "hAxis": {
+                    "title": "Time",
+                    "viewWindow": {
+                        "min": int(startts.timestamp() * 1000),
+                        "max": int(endts.timestamp() * 1000),
+                    },
+                    "viewWindowMode": "explicit",
                 },
-                "viewWindowMode": "explicit",
-            },
-            "curveType": "function",
-            "legend": {"position": "none"},
-        }
-        ev_count = sum(1 for (_, _, _, ev) in data if ev is not None)
-        if ev_count < 100:
-            options["series"] = {
-                0: {"pointSize": 0},
-                1: {"pointSize": 5, "color": "blue"},
+                "curveType": "function",
+                "legend": {"position": "none"},
             }
-        description = [
-            ("Time", "datetime"),
-            ("Interpolated", "number"),
-            ("", "boolean", "", {"role": "certainty"}),
-            ("Event", "number"),
-        ]
-        json_data = _to_gviz_json(description, data)
-        period_list = sorted(_periods, key=lambda k: _periods[k])
-        return render_template(
-            "node_graph.html",
-            title="Time series graph",
-            heading=f"{house}: {room} ({node})",
-            json_data=json_data,
-            options=options,
-            periods=period_list,
-            period=period,
-            typ=typ,
-            node_id=node,
-            ago=ago,
-        )
-    except NoResultFound:
-        # in the case that one() does not find a valid house / room for that node
-        abort(404)
-    finally:
-        session.close()
+            ev_count = sum(1 for (_, _, _, ev) in data if ev is not None)
+            if ev_count < 100:
+                options["series"] = {
+                    0: {"pointSize": 0},
+                    1: {"pointSize": 5, "color": "blue"},
+                }
+            description = [
+                ("Time", "datetime"),
+                ("Interpolated", "number"),
+                ("", "boolean", "", {"role": "certainty"}),
+                ("Event", "number"),
+            ]
+            json_data = _to_gviz_json(description, data)
+            period_list = sorted(_periods, key=lambda k: _periods[k])
+            return render_template(
+                "node_graph.html",
+                title="Time series graph",
+                heading=f"{house}: {room} ({node})",
+                json_data=json_data,
+                options=options,
+                periods=period_list,
+                period=period,
+                typ=typ,
+                node_id=node,
+                ago=ago,
+            )
+        except NoResultFound:
+            # in the case that one() does not find a valid house / room for that node
+            abort(404)
 
 
 @legacy_graph_bp.route("/plot")
@@ -498,8 +491,7 @@ def graph_image():
     debug = request.args.get("debug")
     fmt = request.args.get("fmt", "bo")
     typ = request.args.get("typ", "0")
-    session = Session()
-    try:
+    with Session() as session:
         minsago_i = _int(minsago, 60)
         duration_i = _int(duration, 60)
         debug_f = debug is not None
@@ -548,5 +540,3 @@ def graph_image():
                 fmt,
             )
         return Response(res[1], mimetype=res[0])
-    finally:
-        session.close()

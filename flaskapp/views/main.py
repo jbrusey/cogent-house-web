@@ -23,11 +23,8 @@ def index():
 
 @main_bp.route("/nodes")
 def nodes():
-    session = Session()
-    try:
+    with Session() as session:
         records = session.query(Node.id).all()
-    finally:
-        session.close()
     return render_template("nodes.html", title="Nodes", nodes=records)
 
 
@@ -35,8 +32,7 @@ def nodes():
 def missing():
     """Report nodes missing in the last eight hours and extra nodes."""
     t = datetime.now(UTC) - timedelta(hours=8)
-    session = Session()
-    try:
+    with Session() as session:
         report_set = {
             int(x)
             for (x,) in session.query(distinct(NodeState.nodeId))
@@ -93,9 +89,6 @@ def missing():
                     }
                 )
 
-    finally:
-        session.close()
-
     return render_template(
         "missing.html", title="Missing nodes", missing=missing_nodes, extra=extra_nodes
     )
@@ -106,8 +99,7 @@ def yield24():
     """Display packet yield for each node over the last 24 hours."""
     sort = request.args.get("sort", "house")
     start_t = datetime.now(UTC) - timedelta(days=1)
-    session = Session()
-    try:
+    with Session() as session:
         seqcnt_q = (
             session.query(
                 NodeState.nodeId.label("nodeId"),
@@ -226,8 +218,6 @@ def yield24():
                     "node_url": f"/nodeGraph?node={node_id}&typ=6&period=day",
                 }
             )
-    finally:
-        session.close()
 
     return render_template(
         "yield24.html", title="Yield for last day", records=records, sort=sort

@@ -20,8 +20,6 @@ def tree():
     period = request.args.get("period", "day")
     debug = request.args.get("debug", "")
     mins = _mins(period)
-    session = Session()
-
     if debug != "y":
         cmd = "dot -Tsvg"
         mimetype = _CONTENT_SVG
@@ -31,35 +29,35 @@ def tree():
 
     t = datetime.now(UTC) - timedelta(minutes=mins)
 
-    p = Popen(cmd, shell=True, bufsize=4096, stdin=PIPE, stdout=PIPE, close_fds=True)
-    try:
-        with p.stdin as dotfile:
-            dotfile.write(b'digraph { rankdir="LR";')
-            seen_nodes = set()
-            qry = (
-                session.query(
-                    NodeState.nodeId,
-                    Location.houseId,
-                    Room.name,
-                    NodeState.parent,
-                    func.avg(NodeState.rssi),
+    with Session() as session:
+        p = Popen(cmd, shell=True, bufsize=4096, stdin=PIPE, stdout=PIPE, close_fds=True)
+        try:
+            with p.stdin as dotfile:
+                dotfile.write(b'digraph { rankdir="LR";')
+                seen_nodes = set()
+                qry = (
+                    session.query(
+                        NodeState.nodeId,
+                        Location.houseId,
+                        Room.name,
+                        NodeState.parent,
+                        func.avg(NodeState.rssi),
+                    )
+                    .join(Node, NodeState.nodeId == Node.id)
+                    .join(Location, Node.locationId == Location.id)
+                    .join(Room, Location.roomId == Room.id)
+                    .group_by(NodeState.nodeId, NodeState.parent)
+                    .filter(and_(NodeState.time > t, NodeState.parent != 65535))
                 )
-                .join(Node, NodeState.nodeId == Node.id)
-                .join(Location, Node.locationId == Location.id)
-                .join(Room, Location.roomId == Room.id)
-                .group_by(NodeState.nodeId, NodeState.parent)
-                .filter(and_(NodeState.time > t, NodeState.parent != 65535))
-            )
-            for ni, hi, rm, pa, rssi in qry:
-                dotfile.write(f'{ni}->{pa} [label="{float(rssi)}"];'.encode())
-                if ni not in seen_nodes:
-                    seen_nodes.add(ni)
-                    dotfile.write(f'{ni} [label="{ni}:{hi}:{rm}"];'.encode())
-            dotfile.write(b"}")
-        output = p.stdout.read()
-    finally:
-        session.close()
-        p.stdout.close()
+                for ni, hi, rm, pa, rssi in qry:
+                    dotfile.write(f'{ni}->{pa} [label="{float(rssi)}"];'.encode())
+                    if ni not in seen_nodes:
+                        seen_nodes.add(ni)
+                        dotfile.write(f'{ni} [label="{ni}:{hi}:{rm}"];'.encode())
+                dotfile.write(b"}")
+            output = p.stdout.read()
+        finally:
+            p.stdout.close()
 
     return Response(output, mimetype=mimetype)
 
