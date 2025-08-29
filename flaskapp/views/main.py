@@ -2,12 +2,14 @@ from datetime import UTC, datetime, timedelta
 
 from flask import Blueprint, render_template, request
 from sqlalchemy import and_, distinct, func
+from sqlalchemy.orm import aliased
 
 from cogent.base.model import (
     House,
     Location,
     Node,
     NodeState,
+    Reading,
     Room,
     Session,
 )
@@ -221,4 +223,59 @@ def yield24():
 
     return render_template(
         "yield24.html", title="Yield for last day", records=records, sort=sort
+    )
+
+
+@main_bp.route("/lowbat")
+def lowbat():
+    """List nodes with low battery voltage."""
+    batlvl = request.args.get("bat", "2.6")
+    try:
+        batlvl_f = float(batlvl)
+    except (TypeError, ValueError):
+        batlvl_f = 2.6
+    t = datetime.now(UTC) - timedelta(days=1)
+    with Session() as session:
+        max_q = (
+            session.query(
+                func.max(Reading.time).label("maxt"),
+                Reading.nodeId.label("nodeId"),
+            )
+            .filter(
+                Reading.typeId == 6,
+                Reading.value <= batlvl_f,
+                Reading.time > t,
+            )
+            .group_by(Reading.nodeId)
+            .subquery()
+        )
+        r_alias = aliased(Reading)
+        qry = (
+            session.query(
+                r_alias.nodeId,
+                r_alias.value,
+                House.address,
+                Room.name,
+            )
+            .join(
+                max_q,
+                and_(
+                    r_alias.nodeId == max_q.c.nodeId,
+                    r_alias.time == max_q.c.maxt,
+                ),
+            )
+            .filter(r_alias.typeId == 6)
+            .join(Node, r_alias.nodeId == Node.id)
+            .join(Location, Node.locationId == Location.id)
+            .join(House, Location.houseId == House.id)
+            .join(Room, Location.roomId == Room.id)
+            .order_by(House.address, Room.name)
+        )
+        rows = [
+            {"node": n, "value": v, "house": h, "room": r}
+            for n, v, h, r in qry.all()
+        ]
+
+    return render_template(
+        "lowbat.html", title="Low batteries", rows=rows, bat=batlvl_f
     )

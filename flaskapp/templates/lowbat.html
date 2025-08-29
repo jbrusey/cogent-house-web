@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block head %}
+<style>
+  .lowbat-table th,
+  .lowbat-table td {
+    padding: 0.75rem 1rem;
+  }
+  .lowbat-table tbody tr:nth-child(even) td {
+    background-color: #f2f2f2;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<form method="get" class="mb-3">
+  <label for="bat" class="form-label">Battery threshold (V)</label>
+  <input type="number" step="any" name="bat" id="bat" value="{{ bat }}" class="form-control" style="width: auto;" onchange="this.form.submit()">
+</form>
+<table class="lowbat-table table table-bordered">
+  <thead>
+    <tr>
+      <th>Node</th>
+      <th>House</th>
+      <th>Room</th>
+      <th>Voltage (V)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td><a href="{{ url_for('legacy_graph.node_graph', node=r.node, typ=6, period='day') }}">{{ r.node }}</a></td>
+      <td>{{ r.house }}</td>
+      <td>{{ r.room }}</td>
+      <td>{{ r.value }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No low batteries found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
