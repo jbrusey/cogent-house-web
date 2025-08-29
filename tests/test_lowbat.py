@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import create_engine
 
@@ -24,7 +24,7 @@ def test_lowbat(monkeypatch, tmp_path):
     Base.metadata.create_all(engine)
     init_data()
 
-    now = datetime.now(UTC)
+    now = datetime.now(UTC) - timedelta(days=2)
     with Session(engine) as session:
         house = House(id=100, address="House 1")
         room = Room(id=100, name="Room 1")

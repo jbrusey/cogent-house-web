@@ -234,18 +234,13 @@ def lowbat():
         batlvl_f = float(batlvl)
     except (TypeError, ValueError):
         batlvl_f = 2.6
-    t = datetime.now(UTC) - timedelta(days=1)
     with Session() as session:
         max_q = (
             session.query(
                 func.max(Reading.time).label("maxt"),
                 Reading.nodeId.label("nodeId"),
             )
-            .filter(
-                Reading.typeId == 6,
-                Reading.value <= batlvl_f,
-                Reading.time > t,
-            )
+            .filter(Reading.typeId == 6)
             .group_by(Reading.nodeId)
             .subquery()
         )
@@ -264,7 +259,7 @@ def lowbat():
                     r_alias.time == max_q.c.maxt,
                 ),
             )
-            .filter(r_alias.typeId == 6)
+            .filter(r_alias.typeId == 6, r_alias.value <= batlvl_f)
             .join(Node, r_alias.nodeId == Node.id)
             .join(Location, Node.locationId == Location.id)
             .join(House, Location.houseId == House.id)
