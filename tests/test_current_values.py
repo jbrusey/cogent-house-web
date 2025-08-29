@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import create_engine
 
@@ -37,7 +37,7 @@ def test_current_values(monkeypatch, tmp_path):
             st = session.get(SensorType, st_id)
             st.active = True
         session.commit()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         readings = [
             Reading(
                 time=now,

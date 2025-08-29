@@ -5,7 +5,7 @@ author: J. Brusey, November 2019
 """
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
@@ -55,7 +55,7 @@ def dummy_deployment(session):
     """set up the basics for a the database"""
 
     dep = Deployment(
-        name="TestDep", description="", startDate=datetime.utcnow(), endDate=None
+        name="TestDep", description="", startDate=datetime.now(timezone.utc), endDate=None
     )
     session.add(dep)
     session.commit()
@@ -67,7 +67,7 @@ def dummy_deployment(session):
     session.commit()
 
     # Add a house
-    h = House(deploymentId=1, address="unknown", startDate=datetime.utcnow())
+    h = House(deploymentId=1, address="unknown", startDate=datetime.now(timezone.utc))
 
     session.add(h)
     session.commit()
@@ -85,7 +85,7 @@ def dummy_deployment(session):
     nt = session.get(NodeType, 14)
     if not nt:
         nt = NodeType(
-            time=datetime.utcnow(),
+            time=datetime.now(timezone.utc),
             id=14,
             name="base",
             seq=2,
@@ -180,7 +180,7 @@ def test_store_state():
 
         assert reading.value == -1.933643397933338e-05
 
-        nodestate = session.query(NodeState).filter(Node.id == 28710).one()
+        nodestate = session.query(NodeState).filter(NodeState.nodeId == 28710).one()
 
         assert nodestate.localtime == 643594668
 

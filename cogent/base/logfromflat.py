@@ -17,7 +17,7 @@ import json
 import logging
 import math
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import cogent.base.model as models
@@ -97,7 +97,7 @@ class LogFromFlat(object):
 
     def store_state(self, msg):
         """receive and process a message object from the base station"""
-        current_time = datetime.utcfromtimestamp(msg["server_time"])
+        current_time = datetime.fromtimestamp(msg["server_time"], tz=timezone.utc)
         try:
             with meta.Session() as session:
                 node_id = msg["sender"]
@@ -114,7 +114,7 @@ class LogFromFlat(object):
 
                 if duplicate_packet(
                     session=session,
-                    receipt_time=datetime.utcfromtimestamp(msg["server_time"]),
+                    receipt_time=datetime.fromtimestamp(msg["server_time"], tz=timezone.utc),
                     node_id=node_id,
                     localtime=msg["localtime"],
                 ):
@@ -126,7 +126,7 @@ class LogFromFlat(object):
 
                 # write a node state row
                 node_state = NodeState(
-                    time=datetime.utcfromtimestamp(msg["server_time"]),
+                    time=datetime.fromtimestamp(msg["server_time"], tz=timezone.utc),
                     nodeId=node_id,
                     parent=parent_id,
                     localtime=msg["localtime"],
