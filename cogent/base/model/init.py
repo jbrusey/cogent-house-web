@@ -2,10 +2,11 @@ import json
 import logging
 
 import cogent.base.model.meta as meta
+
 from .deployment import Deployment
 from .house import House
 from .location import Location
-from .meta import Base, Session
+from .meta import Base
 from .node import Node
 from .nodeboot import NodeBoot
 from .nodestate import NodeState

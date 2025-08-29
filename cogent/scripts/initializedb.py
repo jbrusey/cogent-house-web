@@ -10,7 +10,7 @@ import os
 import sys
 
 import sqlalchemy
-import transaction
+import transaction  # type: ignore[import-untyped]
 from alembic import command
 from alembic.config import Config
 

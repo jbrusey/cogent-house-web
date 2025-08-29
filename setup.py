@@ -2,7 +2,7 @@
 import os
 import sys
 
-from setuptools import setup
+from setuptools import setup  # type: ignore[import-untyped]
 
 # Fix for when a virtualenv is used to install
 here = os.path.abspath(os.path.dirname(__file__))

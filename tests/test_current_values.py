@@ -2,19 +2,19 @@ from datetime import datetime, timezone
 
 from sqlalchemy import create_engine
 
-from flaskapp import create_app
 from cogent.base.model import (
     Base,
-    Session,
     House,
     Location,
     Node,
     Reading,
     Room,
     SensorType,
+    Session,
     init_data,
     init_model,
 )
+from flaskapp import create_app
 
 
 def test_current_values(monkeypatch, tmp_path):

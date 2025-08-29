@@ -8,6 +8,7 @@ Table to represent deployments.
 
 # SQL Alchemy Relevant information
 from sqlalchemy import Column, DateTime, Integer, String
+
 # And Backrefs and Relations.
 from sqlalchemy.orm import relationship
 
