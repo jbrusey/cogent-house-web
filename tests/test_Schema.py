@@ -1,11 +1,25 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from cogent.base.model import (Base, Bitset, Deployment, DeploymentMetadata,
-                               House, Location, Node, NodeState, NodeType,
-                               Occupier, Reading, Room, RoomType, SensorType)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from cogent.base.model import (
+    Base,
+    Bitset,
+    Deployment,
+    DeploymentMetadata,
+    House,
+    Location,
+    Node,
+    NodeState,
+    NodeType,
+    Occupier,
+    Reading,
+    Room,
+    RoomType,
+    SensorType,
+)
 
 
 @pytest.fixture

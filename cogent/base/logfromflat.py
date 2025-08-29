@@ -17,15 +17,15 @@ import json
 import logging
 import math
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# import time
+from sqlalchemy import and_, create_engine
 
 import cogent.base.model as models
 import cogent.base.model.meta as meta
-# import time
-import sqlalchemy
 from cogent.base.model import Node, NodeState, Reading, SensorType
-from sqlalchemy import and_, create_engine
 
 LOGGER = logging.getLogger("ch.base")
 

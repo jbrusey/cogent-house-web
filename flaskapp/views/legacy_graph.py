@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 import io
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+import sqlalchemy
 from flask import Blueprint, Response, abort, render_template, request
 from matplotlib.path import Path
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
-import sqlalchemy
 
+import cogent.base.model.meta as meta
 from cogent.base.model import (
     House,
     Location,
@@ -24,7 +25,6 @@ from cogent.base.model import (
     SensorType,
     Session,
 )
-import cogent.base.model.meta as meta
 from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
 
 from .graph import _to_gviz_json

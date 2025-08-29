@@ -7,8 +7,7 @@
 
 import logging
 
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Index, Integer,
-                        String)
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
 
 from . import meta
 

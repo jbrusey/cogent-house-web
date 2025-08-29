@@ -16,8 +16,7 @@ from .deploymentmetadata import DeploymentMetadata
 from .event import Event
 from .host import Host
 from .house import House
-from .init import (clsFromJSON, findClass, init_model, initialise_sql,
-                   newClsFromJSON)
+from .init import clsFromJSON, findClass, init_model, initialise_sql, newClsFromJSON
 from .lastreport import LastReport
 from .location import Location
 from .meta import Base, Session
@@ -65,6 +64,9 @@ __all__ = [
     SensorType,
     Server,
     Session,
+    Timings,
+    User,
+    Weather,
     clsFromJSON,
     findClass,
     init_data,

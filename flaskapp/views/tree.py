@@ -6,11 +6,10 @@ from sqlalchemy import and_, func
 
 from cogent.base.model import Location, Node, NodeState, Room, Session
 
+from .legacy_graph import _mins, _periods
+
 _CONTENT_SVG = "image/svg+xml"
 _CONTENT_TEXT = "text/plain"
-
-from .legacy_graph import _periods, _mins
-
 
 tree_bp = Blueprint("tree", __name__)
 

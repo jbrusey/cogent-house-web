@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
+from sqlalchemy import and_
+
 from cogent.base.logfromflat import LogFromFlat
 from cogent.base.model import (
     Bitset,
@@ -24,7 +26,6 @@ from cogent.base.model import (
     SensorType,
     meta,
 )
-from sqlalchemy import and_
 
 DBURL = "sqlite:///:memory:"
 
