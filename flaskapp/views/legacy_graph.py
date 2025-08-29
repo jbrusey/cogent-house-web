@@ -274,11 +274,17 @@ def _plot_splines(
 
 @legacy_graph_bp.route("/allGraphs")
 def all_graphs():
-    typ = request.args.get("typ", "0")
+    typ = int(request.args.get("typ", "0"))
     period = request.args.get("period", "day")
     with Session() as session:
         mins = _mins(period, 1440)
         period_list = sorted(_periods, key=lambda k: _periods[k])
+        sensor_types = (
+            session.query(SensorType)
+            .filter(SensorType.active.is_(True))
+            .order_by(SensorType.name)
+            .all()
+        )
         graphs = []
         for node_id, house, room in (
             session.query(Node.id, House.address, Room.name)
@@ -308,6 +314,7 @@ def all_graphs():
             period=period,
             periods=period_list,
             mins=mins,
+            sensor_types=sensor_types,
         )
 
 
