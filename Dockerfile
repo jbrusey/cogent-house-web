@@ -24,6 +24,7 @@ RUN pip install --no-cache-dir -e .
 
 # Default database connection
 ENV CH_DBURL mysql://chuser:chpass@db/ch?connect_timeout=1
+ENV LOGFROMFLAT_DIR=/data/silicon
 
-EXPOSE 5000
-CMD ["python", "-m", "flaskapp.app"]
+EXPOSE 8000
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "flaskapp:app"]
