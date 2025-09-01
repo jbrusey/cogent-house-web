@@ -12,7 +12,7 @@ runs a MySQL server alongside it via Docker Compose.
    docker compose up --build
    ```
 
-   The Flask application will be available on [http://localhost:5000](http://localhost:5000).
+   The Flask application will be available on [http://localhost:8000](http://localhost:8000).
 
 2. The database credentials are defined in `docker-compose.yml` and the
    Flask container uses the `CH_DBURL` environment variable to connect.
@@ -25,3 +25,19 @@ runs a MySQL server alongside it via Docker Compose.
 
 The MySQL data is stored in a named Docker volume `dbdata` so that data is
 preserved between restarts.
+
+## Apache reverse proxy (optional)
+
+If you prefer to serve the Flask application through Apache, a sample site
+configuration is provided in `flaskapp.conf`. Copy this file to
+`/etc/apache2/sites-available/flaskapp.conf` and enable the required proxy
+modules:
+
+```bash
+sudo a2enmod proxy proxy_http
+sudo a2ensite flaskapp
+sudo systemctl reload apache2
+```
+
+The configuration forwards requests to the app running locally on
+`http://127.0.0.1:8000/` using `ProxyPass` and `ProxyPassReverse`.
