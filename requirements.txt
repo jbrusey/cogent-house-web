@@ -14,3 +14,4 @@ gviz_api
 pytest
 mypy
 types-python-dateutil
+gunicorn

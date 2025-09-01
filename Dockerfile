@@ -27,4 +27,4 @@ ENV CH_DBURL mysql://chuser:chpass@db/ch?connect_timeout=1
 ENV LOGFROMFLAT_DIR=/data/silicon
 
 EXPOSE 8000
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "flaskapp:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "flaskapp.app:app"]
