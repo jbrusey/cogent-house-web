@@ -1,7 +1,9 @@
 import os
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask
 from sqlalchemy import create_engine
+import logging
 
 from cogent.base.model import init_model
 
@@ -13,6 +15,8 @@ from .views.tree import tree_bp
 
 def create_app():
     app = Flask(__name__)
+    app.logger.setLevel(logging.INFO)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1, x_proto=1, x_host=1)
     db_url = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
     engine = create_engine(db_url, echo=False, pool_recycle=60)
     init_model(engine)
