@@ -31,7 +31,7 @@ LOGGER = logging.getLogger("ch.base")
 
 DB_URL = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
 
-PROCESSED_FILES = "processed_files.txt"
+PROCESSED_FILES = os.environ.get("CH_PROCFILE", "processed-flaskapp.txt")
 
 
 def duplicate_packet(session, receipt_time, node_id, localtime):
@@ -114,7 +114,9 @@ class LogFromFlat(object):
 
                 if duplicate_packet(
                     session=session,
-                    receipt_time=datetime.fromtimestamp(msg["server_time"], tz=timezone.utc),
+                    receipt_time=datetime.fromtimestamp(
+                        msg["server_time"], tz=timezone.utc
+                    ),
                     node_id=node_id,
                     localtime=msg["localtime"],
                 ):
@@ -190,9 +192,7 @@ class LogFromFlat(object):
             with open(str(pf), "r") as processed_files:
                 processed_set = {row.rstrip() for row in processed_files}
 
-        logfile_names = {
-            f.name for f in datadir.glob("*.log") if not f.is_dir()
-        }
+        logfile_names = {f.name for f in datadir.glob("*.log") if not f.is_dir()}
         for name in logfile_names - processed_set:
             logfile = datadir / name
             self.log.info("Processing {}".format(logfile))
