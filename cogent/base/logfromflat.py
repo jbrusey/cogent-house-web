@@ -242,8 +242,8 @@ if __name__ == "__main__":  # pragma: no cover
     parser.add_argument(
         "-f",
         "--log-file",
-        help="Log file to use (Default /var/log/ch/LogFromFlat.log",
-        default="/var/log/ch/LogFromFlat.log",
+        help="Log file to use (omit to log only to the terminal)",
+        default=None,
     )
 
     parser.add_argument(
@@ -269,16 +269,16 @@ if __name__ == "__main__":  # pragma: no cover
 
     logfile = args.log_file
 
-    logging.basicConfig(
-        filename=logfile,
-        filemode="a",
-        format="%(asctime)s %(levelname)s %(message)s",
-        level=lvlmap[args.log_level],
-    )
+    logging_args = {
+        "format": "%(asctime)s %(levelname)s %(message)s",
+        "level": lvlmap[args.log_level],
+    }
+    if logfile:
+        logging_args.update({"filename": logfile, "filemode": "a"})
+    logging.basicConfig(**logging_args)
 
     # And if we want to echo the output on the terminal
-    logterm = args.log_terminal
-    if logterm:
+    if logfile and args.log_terminal:
         console = logging.StreamHandler()
         console.setLevel(lvlmap[args.log_level])
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
