@@ -16,8 +16,12 @@ services:
       - db
     ports:
       - "8000:8000"
+    volumes:
+      - /home/pi/silicon:/data/silicon
     environment:
       CH_DBURL: mysql://chuser:chpass@db/ch?connect_timeout=1
+      LOGFROMFLAT_DIR: /data/silicon
+    restart: always
 
 volumes:
   dbdata:

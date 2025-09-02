@@ -30,6 +30,7 @@ from cogent.base.model import Node, NodeState, Reading, SensorType
 LOGGER = logging.getLogger("ch.base")
 
 DB_URL = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
+LOGFROMFLAT_DIR = os.environ.get("LOGFROMFLAT_DIR", "/data/logfromflat")
 
 PROCESSED_FILES = os.environ.get("CH_PROCFILE", "processed-flaskapp.txt")
 
@@ -223,6 +224,7 @@ if __name__ == "__main__":  # pragma: no cover
     parser.add_argument(
         "-d",
         "--dir",
+        default=LOGFROMFLAT_DIR,
         help="directory containing json files containing sensor readings",
         required=True,
     )
