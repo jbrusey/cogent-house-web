@@ -2,3 +2,7 @@
 line-length = 88
 lint.extend-select = ["I"]  # enable isort-style import sorting
 lint.ignore = ["E203", "E501"]  # black-compatible
+
+[tool.isort]
+profile = "black"
+
