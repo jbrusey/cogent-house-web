@@ -8,9 +8,7 @@
 # Modification history:
 #
 
-"""LogFromFlat - convert json to mysql
-
-"""
+"""LogFromFlat - convert json to mysql"""
 
 import argparse
 import json
@@ -269,13 +267,12 @@ if __name__ == "__main__":  # pragma: no cover
 
     logfile = args.log_file
 
-    logging_args = {
-        "format": "%(asctime)s %(levelname)s %(message)s",
-        "level": lvlmap[args.log_level],
-    }
-    if logfile:
-        logging_args.update({"filename": logfile, "filemode": "a"})
-    logging.basicConfig(**logging_args)
+    logging.basicConfig(
+        format="%(asctime)s %(levelname)s %(message)s",
+        level=lvlmap[args.log_level],
+        filename=logfile,
+        filemode="a",
+    )
 
     # And if we want to echo the output on the terminal
     if logfile and args.log_terminal:
