@@ -1,9 +1,9 @@
+import logging
 import os
 
-from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask
 from sqlalchemy import create_engine
-import logging
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from cogent.base.model import init_model
 

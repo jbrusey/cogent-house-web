@@ -1,4 +1,4 @@
-""" test LogFromFlat
+"""test LogFromFlat
 
 author: J. Brusey, November 2019
 
@@ -11,7 +11,7 @@ from unittest.mock import mock_open, patch
 
 from sqlalchemy import and_
 
-from cogent.base.logfromflat import LogFromFlat
+from cogent.base.logfromflat import PROCESSED_FILES, LogFromFlat
 from cogent.base.model import (
     Bitset,
     Deployment,
@@ -56,7 +56,10 @@ def dummy_deployment(session):
     """set up the basics for a the database"""
 
     dep = Deployment(
-        name="TestDep", description="", startDate=datetime.now(timezone.utc), endDate=None
+        name="TestDep",
+        description="",
+        startDate=datetime.now(timezone.utc),
+        endDate=None,
     )
     session.add(dep)
     session.commit()
@@ -241,7 +244,7 @@ def test_process_dir(process_file):
         process_file.assert_any_call(temppath / "a.log")
         process_file.assert_any_call(temppath / "b.log")
 
-        with open(str(temppath / "processed_files.txt")) as processed_files:
+        with open(str(temppath / PROCESSED_FILES)) as processed_files:
             fileset = []
             for row in processed_files:
                 fileset.append(row.rstrip())
@@ -250,10 +253,10 @@ def test_process_dir(process_file):
             assert "a.log" in fileset
             assert "b.log" in fileset
 
-    # check what happens if we don't have write access to processed_files.txt
+    # check what happens if we don't have write access to processed file list
     with tempfile.TemporaryDirectory() as tempdir:
         temppath = Path(tempdir)
-        pf = temppath / "processed_files.txt"
+        pf = temppath / PROCESSED_FILES
         with open(str(pf), "w") as pfhandle:
             pfhandle.write("b.log")
 
