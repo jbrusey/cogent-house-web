@@ -10,8 +10,11 @@ requests
 transaction
 alembic
 ruff
+black
+isort
 gviz_api
 pytest
+pre-commit
 mypy
 types-python-dateutil
 gunicorn
