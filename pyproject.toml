@@ -6,3 +6,9 @@ lint.ignore = ["E203", "E501"]  # black-compatible
 [tool.isort]
 profile = "black"
 
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = "graphviz.*"
+ignore_missing_imports = true
+
