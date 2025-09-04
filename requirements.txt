@@ -13,6 +13,7 @@ ruff
 black
 isort
 gviz_api
+graphviz
 pytest
 pre-commit
 mypy

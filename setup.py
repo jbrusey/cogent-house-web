@@ -27,6 +27,7 @@ REQUIRES = [
     "requests",
     "transaction",
     "alembic",
+    "graphviz",
 ]
 
 setup(
