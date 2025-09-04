@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 from datetime import datetime, timedelta, timezone
 
 import matplotlib
@@ -26,8 +27,6 @@ from cogent.base.model import (
     Session,
 )
 from cogent.sip.sipsim import PartSplineReconstruct, SipPhenom
-
-from .graph import _to_gviz_json
 
 matplotlib.use("Agg")
 
@@ -69,6 +68,36 @@ def _int(s: str, default: int = 0) -> int:
         return int(s)
     except (TypeError, ValueError):
         return default
+
+
+def _to_gviz_json(description, data):
+    cols = []
+    for desc in description:
+        col = {"label": desc[0], "type": desc[1]}
+        for extra in desc[2:]:
+            if isinstance(extra, dict):
+                col.update(extra)
+        cols.append(col)
+
+    def _conv(value, typ):
+        if typ == "datetime" and isinstance(value, datetime):
+            return "Date(%d,%d,%d,%d,%d,%d)" % (
+                value.year,
+                value.month - 1,
+                value.day,
+                value.hour,
+                value.minute,
+                value.second,
+            )
+        return value
+
+    rows = []
+    for row in data:
+        cells = []
+        for val, desc in zip(row, description):
+            cells.append({"v": _conv(val, desc[1])})
+        rows.append({"c": cells})
+    return json.dumps({"cols": cols, "rows": rows})
 
 
 def _get_y_label(reading_type: int, session: sqlalchemy.orm.Session) -> str:
@@ -440,7 +469,8 @@ def node_graph():
                 )
                 data = [pt for pt in data if pt.dt >= startts and pt.dt < endts]
                 data = [
-                    (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None) for pt in data
+                    (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None)
+                    for pt in data
                 ]
             if len(data) > 1000:
                 subs = max(len(data) // 1000, 1)

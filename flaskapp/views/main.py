@@ -4,15 +4,7 @@ from flask import Blueprint, render_template, request
 from sqlalchemy import and_, distinct, func
 from sqlalchemy.orm import aliased
 
-from cogent.base.model import (
-    House,
-    Location,
-    Node,
-    NodeState,
-    Reading,
-    Room,
-    Session,
-)
+from cogent.base.model import House, Location, Node, NodeState, Reading, Room, Session
 from cogent.sip.calc_yield import calc_yield
 
 main_bp = Blueprint("main", __name__)
@@ -21,13 +13,6 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 def index():
     return render_template("index.html", title="Home page")
-
-
-@main_bp.route("/nodes")
-def nodes():
-    with Session() as session:
-        records = session.query(Node.id).all()
-    return render_template("nodes.html", title="Nodes", nodes=records)
 
 
 @main_bp.route("/missing")
@@ -267,8 +252,7 @@ def lowbat():
             .order_by(House.address, Room.name)
         )
         rows = [
-            {"node": n, "value": v, "house": h, "room": r}
-            for n, v, h, r in qry.all()
+            {"node": n, "value": v, "house": h, "room": r} for n, v, h, r in qry.all()
         ]
 
     return render_template(
