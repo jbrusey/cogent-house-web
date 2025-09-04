@@ -23,14 +23,14 @@
     {% if k == period %}
         {{ k }}
     {% else %}
-        <a href="{{ url_for('legacy_graph.node_graph', node=node_id, typ=typ, period=k) }}" title="change period to {{ k }}">{{ k }}</a>
+        <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=k) }}" title="change period to {{ k }}">{{ k }}</a>
     {% endif %}
 {% endfor %}
 </p>
 <p>
-<a href="{{ url_for('legacy_graph.node_graph', node=node_id, typ=typ, period=period, ago=ago + 1) }}">&lt;&lt;</a>
+<a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago + 1) }}">&lt;&lt;</a>
 {% if ago > 0 %}
-    &mdash; <a href="{{ url_for('legacy_graph.node_graph', node=node_id, typ=typ, period=period, ago=ago - 1) }}">&gt;&gt;</a>
+    &mdash; <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago - 1) }}">&gt;&gt;</a>
 {% endif %}
 </p>
 <div id="grphtitle">{{ heading }}</div>

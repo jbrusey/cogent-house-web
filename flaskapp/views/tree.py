@@ -6,7 +6,8 @@ from sqlalchemy import and_, func
 
 from cogent.base.model import Location, Node, NodeState, Room, Session
 
-from .legacy_graph import _mins, _periods
+from .graph.constants import _periods
+from .graph.utils import _mins
 
 _CONTENT_SVG = "image/svg+xml"
 _CONTENT_TEXT = "text/plain"
@@ -29,7 +30,9 @@ def tree():
     t = datetime.now(UTC) - timedelta(minutes=mins)
 
     with Session() as session:
-        p = Popen(cmd, shell=True, bufsize=4096, stdin=PIPE, stdout=PIPE, close_fds=True)
+        p = Popen(
+            cmd, shell=True, bufsize=4096, stdin=PIPE, stdout=PIPE, close_fds=True
+        )
         try:
             with p.stdin as dotfile:
                 dotfile.write(b'digraph { rankdir="LR";')

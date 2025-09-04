@@ -27,7 +27,7 @@
   <tbody>
     {% for r in rows %}
     <tr>
-      <td><a href="{{ url_for('legacy_graph.node_graph', node=r.node, typ=6, period='day') }}">{{ r.node }}</a></td>
+      <td><a href="{{ url_for('graph.node_graph', node=r.node, typ=6, period='day') }}">{{ r.node }}</a></td>
       <td>{{ r.house }}</td>
       <td>{{ r.room }}</td>
       <td>{{ r.value }}</td>

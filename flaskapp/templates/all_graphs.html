@@ -14,13 +14,13 @@
     {% if k == period %}
         {{ k }}
     {% else %}
-        <a href="{{ url_for('legacy_graph.all_graphs', typ=typ, period=k) }}" title="change period to {{ k }}">{{ k }}</a>
+        <a href="{{ url_for('graph.all_graphs', typ=typ, period=k) }}" title="change period to {{ k }}">{{ k }}</a>
     {% endif %}
 {% endfor %}
 </p>
 {% if graphs %}
     {% for g in graphs %}
-        <p><a href="{{ url_for('legacy_graph.node_graph', node=g.node_id, typ=typ, period=period) }}"><div id="grphtitle">{{ g.house }}: {{ g.room }} ({{ g.node_id }})</div><img src="{{ url_for('legacy_graph.graph_image', node=g.node_id, typ=typ, minsago=mins, duration=mins) }}" alt="graph for node {{ g.node_id }}" width="700" height="400"></a></p>
+        <p><a href="{{ url_for('graph.node_graph', node=g.node_id, typ=typ, period=period) }}"><div id="grphtitle">{{ g.house }}: {{ g.room }} ({{ g.node_id }})</div><img src="{{ url_for('graph.graph_image', node=g.node_id, typ=typ, minsago=mins, duration=mins) }}" alt="graph for node {{ g.node_id }}" width="700" height="400"></a></p>
     {% endfor %}
 {% else %}
 <p>No nodes have reported yet.</p>

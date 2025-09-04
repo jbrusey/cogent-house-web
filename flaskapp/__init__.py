@@ -7,7 +7,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from cogent.base.model import init_model
 
-from .views.legacy_graph import legacy_graph_bp
+from .views.graph import graph_bp
 from .views.main import main_bp
 from .views.tree import tree_bp
 
@@ -20,6 +20,6 @@ def create_app():
     engine = create_engine(db_url, echo=False, pool_recycle=60)
     init_model(engine)
     app.register_blueprint(main_bp)
-    app.register_blueprint(legacy_graph_bp)
+    app.register_blueprint(graph_bp)
     app.register_blueprint(tree_bp)
     return app
