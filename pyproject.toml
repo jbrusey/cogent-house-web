@@ -1,6 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "ch-web"
+name = "cogent-house-web"
 version = "1.2"
+authors = [
+  { name = "James Brusey", email = "james.brusey@gmail.com" },
+  { name = "Ross Wilkins" },
+  { name = "Dan Goldsmith" },
+]
 dependencies = [
     "Flask",
     "SQLAlchemy",
@@ -17,6 +26,12 @@ dependencies = [
     "graphviz",
     "gunicorn",
 ]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["cogent*"]
 
 [tool.uv]
 dev-dependencies = [
