@@ -23,23 +23,24 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v1
 
     - name: Install MySQL client dependencies (Ubuntu)
       run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev
 
+    - name: Set up virtual environment
+      run: uv venv
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install ruff pytest mypy
+        uv pip install ruff pytest mypy
         git submodule update --init --recursive
-        pip install -e .
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        uv pip install -e .
+        if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
     - name: Lint with ruff
-      run: |
-        ruff check .
+      run: uv run ruff check .
     - name: Type check with mypy
-      run: |
-        mypy . --exclude www
+      run: uv run mypy . --exclude www
     - name: Test with pytest
-      run: |
-        pytest
+      run: uv run pytest

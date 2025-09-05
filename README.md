@@ -4,6 +4,18 @@ This repository includes a small example Flask application in `flaskapp/`.
 The provided Docker configuration launches the app using **Python 3** and
 runs a MySQL server alongside it via Docker Compose.
 
+## Development
+
+This project uses [uv](https://github.com/astral-sh/uv) for Python dependency
+management. After installing `uv`, create a virtual environment and install the
+dependencies with:
+
+```bash
+uv venv
+uv pip install -r requirements.txt
+uv pip install -e .
+```
+
 ## Usage
 
 1. Build and start the services:
