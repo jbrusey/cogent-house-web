@@ -62,7 +62,6 @@ def missing():
                         "house": house,
                         "room": room,
                         "last": maxtime,
-                        "unregister_url": f"/unregisterNode?node={node_id}",
                     }
                 )
 

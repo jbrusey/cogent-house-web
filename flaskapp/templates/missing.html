@@ -17,14 +17,13 @@
 {% else %}
 <h3>Registered nodes not reporting in last eight hours</h3>
 <table class="missing-table table table-bordered">
-    <tr><th>Node</th><th>House</th><th>Room</th><th>Last Heard</th><th></th></tr>
+    <tr><th>Node</th><th>House</th><th>Room</th><th>Last Heard</th></tr>
     {% for node in missing %}
     <tr>
         <td>{{ node.node }}</td>
         <td>{{ node.house }}</td>
         <td>{{ node.room }}</td>
         <td>{{ node.last }}</td>
-        <td><a href="{{ node.unregister_url }}">(unregister)</a></td>
     </tr>
     {% endfor %}
 </table>
