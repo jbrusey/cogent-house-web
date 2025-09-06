@@ -1,5 +1,5 @@
-from flaskapp.views.graph.constants import _periods
-from flaskapp.views.graph.utils import _mins
+from cogent.views.graph.constants import _periods
+from cogent.views.graph.utils import _mins
 
 
 def test_mins():

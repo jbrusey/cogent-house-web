@@ -1,6 +1,6 @@
 # Cogent House Docker Setup
 
-This repository includes a small example Flask application in `flaskapp/`.
+This repository includes a small example Flask application in the `cogent/` package.
 The provided Docker configuration launches the app using **Python 3** and
 runs a MySQL server alongside it via Docker Compose.
 
@@ -41,13 +41,13 @@ preserved between restarts.
 ## Apache reverse proxy (optional)
 
 If you prefer to serve the Flask application through Apache, a sample site
-configuration is provided in `flaskapp.conf`. Copy this file to
-`/etc/apache2/sites-available/flaskapp.conf` and enable the required proxy
+configuration is provided in `cogent.conf`. Copy this file to
+`/etc/apache2/sites-available/cogent.conf` and enable the required proxy
 modules:
 
 ```bash
 sudo a2enmod proxy proxy_http
-sudo a2ensite flaskapp
+sudo a2ensite cogent
 sudo systemctl reload apache2
 ```
 
