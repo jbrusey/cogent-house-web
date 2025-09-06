@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import create_engine
 
+from cogent import create_app
 from cogent.base.model import (
     Base,
     House,
@@ -13,7 +14,6 @@ from cogent.base.model import (
     init_data,
     init_model,
 )
-from flaskapp import create_app
 
 
 def test_lowbat(monkeypatch, tmp_path):

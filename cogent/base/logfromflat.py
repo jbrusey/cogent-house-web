@@ -30,7 +30,7 @@ LOGGER = logging.getLogger("ch.base")
 DB_URL = os.environ.get("CH_DBURL", "mysql://chuser@localhost/ch?connect_timeout=1")
 LOGFROMFLAT_DIR = os.environ.get("LOGFROMFLAT_DIR", "/data/logfromflat")
 
-PROCESSED_FILES = os.environ.get("CH_PROCFILE", "processed-flaskapp.txt")
+PROCESSED_FILES = os.environ.get("CH_PROCFILE", "processed-cogent.txt")
 
 
 def duplicate_packet(session, receipt_time, node_id, localtime):

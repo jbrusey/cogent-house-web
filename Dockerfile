@@ -36,4 +36,4 @@ CMD ["gunicorn", \
      "--access-logfile=-", \
      "--error-logfile=-", \
      "--worker-tmp-dir", "/dev/shm", \
-     "flaskapp.app:app"]
+     "cogent.app:app"]
