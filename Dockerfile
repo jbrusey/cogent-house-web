@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.11-slim
+FROM python:3.11-slim
 WORKDIR /app
 
 # Install build tools and MySQL client libraries
@@ -8,8 +8,15 @@ RUN apt-get update \
         default-libmysqlclient-dev \
         pkg-config \
         graphviz \
+	curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add uv to PATH
+ENV PATH="/root/.local/bin:${PATH}"
 
 # Copy application code
 COPY . /app
