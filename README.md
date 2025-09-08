@@ -8,11 +8,11 @@ runs a MySQL server alongside it via Docker Compose.
 
 This project uses [uv](https://github.com/astral-sh/uv) for Python dependency
 management. After installing `uv`, create a virtual environment and install the
-dependencies with:
+dependencies from the lock file to reproduce a consistent development environment:
 
 ```bash
 uv venv
-uv pip install -r requirements.txt
+uv pip install -r uv.lock  # or: uv sync --dev
 uv pip install -e .
 ```
 
