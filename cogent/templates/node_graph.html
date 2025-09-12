@@ -18,6 +18,17 @@
     </script>
 {% endblock %}
 {% block content %}
+<form method="get" class="mb-3">
+  <label for="typ" class="form-label">Sensor type</label>
+  <input type="hidden" name="node" value="{{ node_id }}">
+  <input type="hidden" name="period" value="{{ period }}">
+  <input type="hidden" name="ago" value="{{ ago }}">
+  <select name="typ" id="typ" class="form-select" onchange="this.form.submit()">
+    {% for st in sensor_types %}
+      <option value="{{ st.id }}"{% if st.id == typ %} selected{% endif %}>{{ st.name }}</option>
+    {% endfor %}
+  </select>
+</form>
 <p>
 {% for k in periods %}
     {% if k == period %}

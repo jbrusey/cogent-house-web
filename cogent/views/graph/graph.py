@@ -136,7 +136,7 @@ def node_graph():
     node = request.args.get("node")
     if node is None:
         abort(404)
-    typ = request.args.get("typ", "0")
+    typ = int(request.args.get("typ", "0"))
     period = request.args.get("period", "day")
     ago = _int(request.args.get("ago", "0"))
     debug = request.args.get("debug", "n") != "n"
@@ -223,6 +223,12 @@ def node_graph():
             ]
             json_data = _to_gviz_json(description, data)
             period_list = sorted(_periods, key=lambda k: _periods[k])
+            sensor_types = (
+                session.query(SensorType)
+                .filter(SensorType.active.is_(True))
+                .order_by(SensorType.name)
+                .all()
+            )
             return render_template(
                 "node_graph.html",
                 title="Time series graph",
@@ -234,6 +240,7 @@ def node_graph():
                 typ=typ,
                 node_id=node,
                 ago=ago,
+                sensor_types=sensor_types,
             )
         except NoResultFound:
             abort(404)
