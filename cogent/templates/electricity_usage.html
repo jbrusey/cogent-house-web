@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-auto">
+        <label for="period" class="form-label">Reporting period</label>
+        <select id="period" name="period" class="form-select" onchange="this.form.submit()">
+            {% for value, label, _ in period_definitions %}
+                <option value="{{ value }}"{% if value == period %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<p class="text-muted">Showing {{ sensor_name }} usage from {{ start_date.strftime('%Y-%m-%d') }} to {{ end_date.strftime('%Y-%m-%d') }} ({{ period_label }}).</p>
+<p class="lead">Total usage: <strong>{{ total_usage }}</strong> {{ sensor_units }}</p>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <canvas id="usageChart" height="160" aria-label="Bar chart of electricity usage" role="img"></canvas>
+    </div>
+</div>
+
+{% if not has_data %}
+    <p class="mt-3 text-muted">No usage data was recorded for the selected period.</p>
+{% endif %}
+
+<script>
+    const usageCtx = document.getElementById('usageChart').getContext('2d');
+    const chartLabels = {{ chart_labels|tojson }};
+    const chartValues = {{ chart_values|tojson }};
+    const usageUnits = {{ sensor_units|tojson }};
+
+    new Chart(usageCtx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: `${usageUnits} per day`,
+                data: chartValues,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: usageUnits
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 45,
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw ?? 0;
+                            return `${value.toFixed(2)} ${usageUnits}`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
