@@ -31,3 +31,4 @@ pylint.out
 # Allow HTML templates in flaskapp
 !flaskapp/templates/*.html
 /processed-flaskapp.txt
+/processed-cogent.txt
