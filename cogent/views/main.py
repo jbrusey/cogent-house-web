@@ -248,41 +248,55 @@ def electricity_usage():
             .filter(SensorType.id == _ELECTRICITY_SENSOR_TYPE)
             .one_or_none()
         )
-        reading_day = func.date(Reading.time).label("reading_day")
         rows = (
-            session.query(
-                reading_day,
-                Reading.nodeId,
-                func.min(Reading.value),
-                func.max(Reading.value),
-            )
+            session.query(Reading.time, Reading.nodeId, Reading.value)
             .filter(
                 Reading.typeId == _ELECTRICITY_SENSOR_TYPE,
                 Reading.time >= start_dt,
                 Reading.time <= end_dt,
             )
-            .group_by(reading_day, Reading.nodeId)
+            .order_by(Reading.nodeId, Reading.time)
             .all()
         )
 
     date_list = [start_date + timedelta(days=i) for i in range(total_days)]
     usage_by_day = {date: 0.0 for date in date_list}
-    for day, _node_id, min_value, max_value in rows:
-        if day is None or min_value is None or max_value is None:
+    last_value_by_node = {}
+    for reading_time, node_id, value in rows:
+        if reading_time is None or value is None:
             continue
-        if isinstance(day, str):
+        if isinstance(reading_time, str):
             try:
-                day_key = datetime.strptime(day, "%Y-%m-%d").date()
+                reading_dt = datetime.fromisoformat(reading_time)
             except ValueError:
                 continue
-        elif isinstance(day, datetime):
-            day_key = day.date()
+        elif hasattr(reading_time, "date"):
+            reading_dt = reading_time
         else:
-            day_key = day
-        usage = max_value - min_value
-        if usage < 0:
             continue
+
+        day_key = reading_dt.date()
+        if day_key not in usage_by_day:
+            usage_by_day[day_key] = 0.0
+
+        try:
+            current_value = float(value)
+        except (TypeError, ValueError):
+            continue
+
+        previous_value = last_value_by_node.get(node_id)
+        if previous_value is None:
+            last_value_by_node[node_id] = current_value
+            continue
+
+        delta = current_value - previous_value
+        if delta < 0:
+            usage = current_value if current_value >= 0 else 0.0
+        else:
+            usage = delta
+
         usage_by_day[day_key] = usage_by_day.get(day_key, 0.0) + usage
+        last_value_by_node[node_id] = current_value
 
     chart_labels = [d.strftime("%Y-%m-%d") for d in date_list]
     chart_values = [round(usage_by_day.get(d, 0.0), 3) for d in date_list]
