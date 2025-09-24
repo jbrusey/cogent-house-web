@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 from datetime import datetime, timedelta
+from typing import Iterable, Sequence
 
 import matplotlib
 
@@ -30,6 +31,54 @@ def _int(s: str, default: int = 0) -> int:
         return int(s)
     except (TypeError, ValueError):
         return default
+
+
+def _evenly_sample_indices(indices: Sequence[int], target: int) -> list[int]:
+    if target <= 0:
+        return []
+    if len(indices) <= target:
+        return list(indices)
+    step = len(indices) / target
+    result: list[int] = []
+    pos = 0.0
+    for _ in range(target):
+        idx = int(pos)
+        if idx >= len(indices):
+            idx = len(indices) - 1
+        result.append(indices[idx])
+        pos += step
+    if result:
+        result[-1] = indices[-1]
+    seen: set[int] = set()
+    unique: list[int] = []
+    for idx in result:
+        if idx not in seen:
+            unique.append(idx)
+            seen.add(idx)
+    return unique
+
+
+def _select_downsample_indices(
+    length: int, max_points: int, priority_indices: Iterable[int] | None = None
+) -> list[int]:
+    if max_points <= 0 or length <= max_points:
+        return list(range(length))
+    selected: set[int] = set()
+    if priority_indices is not None:
+        selected.update(i for i in priority_indices if 0 <= i < length)
+    selected.add(0)
+    selected.add(length - 1)
+    if len(selected) >= max_points:
+        return _evenly_sample_indices(sorted(selected), max_points)
+    remaining = max_points - len(selected)
+    remaining_candidates = [i for i in range(length) if i not in selected]
+    sampled_remaining = _evenly_sample_indices(
+        remaining_candidates, min(remaining, len(remaining_candidates))
+    )
+    selected.update(sampled_remaining)
+    if len(selected) > max_points:
+        return _evenly_sample_indices(sorted(selected), max_points)
+    return sorted(selected)
 
 
 def _to_gviz_json(description, data):

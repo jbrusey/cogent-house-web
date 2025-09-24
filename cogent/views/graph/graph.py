@@ -23,10 +23,13 @@ from .utils import (
     _plot,
     _plot_splines,
     _predict,
+    _select_downsample_indices,
     _to_gviz_json,
 )
 
 graph_bp = Blueprint("graph", __name__)
+
+MAX_CHART_POINTS = 100
 
 
 @graph_bp.route("/allGraphs")
@@ -191,9 +194,12 @@ def node_graph():
                     (pt.dt, pt.sp, not pt.dashed, pt.sp if pt.ev else None)
                     for pt in data
                 ]
-            if len(data) > 1000:
-                subs = max(len(data) // 1000, 1)
-                data = [x for i, x in enumerate(data) if i % subs == 0]
+            if len(data) > MAX_CHART_POINTS:
+                priority = [i for i, (_, _, _, ev) in enumerate(data) if ev is not None]
+                indices = _select_downsample_indices(
+                    len(data), MAX_CHART_POINTS, priority
+                )
+                data = [data[i] for i in indices]
             if debug:
                 return Response(f"data={data!r}", mimetype=_CONTENT_TEXT)
             options = {
@@ -210,7 +216,7 @@ def node_graph():
                 "legend": {"position": "none"},
             }
             ev_count = sum(1 for (_, _, _, ev) in data if ev is not None)
-            if ev_count < 100:
+            if ev_count < MAX_CHART_POINTS:
                 options["series"] = {
                     0: {"pointSize": 0},
                     1: {"pointSize": 5, "color": "blue"},
@@ -281,6 +287,10 @@ def graph_image():
                 t.append(matplotlib.dates.date2num(qt))
                 v.append(qv)
             v = _calibrate(session, v, int(node), int(typ))
+            if len(t) > MAX_CHART_POINTS:
+                indices = _select_downsample_indices(len(t), MAX_CHART_POINTS)
+                t = [t[i] for i in indices]
+                v = [v[i] for i in indices]
             res = _plot(
                 typ,
                 t,
