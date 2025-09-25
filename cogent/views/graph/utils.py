@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import io
 import json
+from bisect import bisect_left
 from datetime import datetime, timedelta
+from typing import Iterable, Sequence
 
 import matplotlib
 
@@ -30,6 +32,143 @@ def _int(s: str, default: int = 0) -> int:
         return int(s)
     except (TypeError, ValueError):
         return default
+
+
+def _evenly_sample_indices(indices: Sequence[int], target: int) -> list[int]:
+    if target <= 0:
+        return []
+    if len(indices) <= target:
+        return list(indices)
+    step = len(indices) / target
+    result: list[int] = []
+    pos = 0.0
+    for _ in range(target):
+        idx = int(pos)
+        if idx >= len(indices):
+            idx = len(indices) - 1
+        result.append(indices[idx])
+        pos += step
+    if result:
+        result[-1] = indices[-1]
+    seen: set[int] = set()
+    unique: list[int] = []
+    for idx in result:
+        if idx not in seen:
+            unique.append(idx)
+            seen.add(idx)
+    return unique
+
+
+def _select_downsample_indices(
+    timestamps: Sequence[datetime | float],
+    max_points: int,
+    priority_indices: Iterable[int] | None = None,
+) -> list[int]:
+    length = len(timestamps)
+    if max_points <= 0 or length == 0:
+        return []
+    if length <= max_points:
+        return list(range(length))
+
+    time_values: list[float] = []
+    for ts in timestamps:
+        if isinstance(ts, datetime):
+            time_values.append(matplotlib.dates.date2num(ts))
+        else:
+            time_values.append(float(ts))
+
+    priority_set: set[int] = set()
+    if priority_indices is not None:
+        priority_set.update(i for i in priority_indices if 0 <= i < length)
+    priority_set.add(0)
+    priority_set.add(length - 1)
+
+    forced = sorted(priority_set)
+    if len(forced) > max_points:
+        forced_times = [time_values[i] for i in forced]
+        forced_selection = _sample_indices_by_time(forced_times, max_points)
+        return [forced[i] for i in forced_selection]
+
+    result: list[int] = []
+    seen: set[int] = set()
+    for idx in forced:
+        if idx not in seen:
+            result.append(idx)
+            seen.add(idx)
+
+    time_based = _sample_indices_by_time(time_values, max_points)
+    for idx in time_based:
+        if idx not in seen:
+            result.append(idx)
+            seen.add(idx)
+        if len(result) == max_points:
+            break
+
+    if len(result) < max_points:
+        for idx in range(length):
+            if idx not in seen:
+                result.append(idx)
+                seen.add(idx)
+            if len(result) == max_points:
+                break
+
+    result.sort()
+    return result
+
+
+def _sample_indices_by_time(time_values: Sequence[float], target: int) -> list[int]:
+    length = len(time_values)
+    if target <= 0 or length == 0:
+        return []
+    if length <= target:
+        return list(range(length))
+    if target == 1:
+        return [0]
+    start = time_values[0]
+    end = time_values[-1]
+    if end <= start:
+        return _evenly_sample_indices(range(length), target)
+
+    step = (end - start) / (target - 1)
+    desired_times = [start + i * step for i in range(target)]
+    indices: list[int] = []
+    idx = 0
+    for desired in desired_times:
+        idx = bisect_left(time_values, desired, idx)
+        if idx >= length:
+            idx = length - 1
+        prev_idx = idx - 1 if idx > 0 else idx
+        if prev_idx != idx:
+            prev_delta = abs(time_values[prev_idx] - desired)
+            curr_delta = abs(time_values[idx] - desired)
+            if prev_delta <= curr_delta:
+                idx = prev_idx
+        indices.append(idx)
+
+    seen: set[int] = set()
+    ordered: list[int] = []
+    for idx in indices:
+        if idx not in seen:
+            ordered.append(idx)
+            seen.add(idx)
+
+    if 0 not in seen:
+        ordered.append(0)
+        seen.add(0)
+    if (length - 1) not in seen:
+        ordered.append(length - 1)
+        seen.add(length - 1)
+
+    if len(ordered) < target:
+        for idx in range(length):
+            if idx not in seen:
+                ordered.append(idx)
+                seen.add(idx)
+            if len(ordered) == target:
+                break
+
+    ordered.sort()
+    return ordered[:target]
 
 
 def _to_gviz_json(description, data):
