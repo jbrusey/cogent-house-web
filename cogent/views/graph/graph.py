@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-import matplotlib
 import matplotlib.dates as mdates
 from flask import Blueprint, Response, abort, render_template, request
 from sqlalchemy import and_, func
