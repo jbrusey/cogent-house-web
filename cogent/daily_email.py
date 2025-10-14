@@ -14,6 +14,7 @@
 # ------------------------------------------------------------
 
 
+import os
 import pickle
 import platform
 import smtplib
@@ -25,8 +26,6 @@ from cogent.base.model import Base, Session, init_model
 from cogent.report import reports
 
 TIMEOUT = 2 * 60  # 2 minutes
-
-DBURL = "mysql://{user}@localhost/{database}?connect_timeout=1"
 
 AUTH = "/home/chuser/auth2.pickle"
 
@@ -126,6 +125,22 @@ def run_reports(
 #            s = smtplib.SMTP('localhost')
 #            s.sendmail(me, you, message)
 
+def _database_url_from_options(options):
+    if options.dburl:
+        return options.dburl
+
+    env_url = os.environ.get("CH_DBURL")
+    if env_url:
+        return env_url
+
+    credentials = options.user
+    if options.password:
+        credentials = f"{options.user}:{options.password}"
+
+    host = options.host or "localhost"
+    return f"mysql://{credentials}@{host}/{options.database}?connect_timeout=1"
+
+
 if __name__ == "__main__":
     from optparse import OptionParser
 
@@ -148,15 +163,27 @@ if __name__ == "__main__":
     parser.add_option(
         "-u", "--user", default="chuser", help="mysql user to login to database with"
     )
+    parser.add_option("-H", "--host", default="localhost", help="mysql host to connect to")
+    parser.add_option(
+        "-p",
+        "--password",
+        default="",
+        help="mysql password for the specified user (default: empty)",
+    )
+    parser.add_option(
+        "--dburl",
+        default=None,
+        help="full SQLAlchemy database URL; overrides user/host/database options",
+    )
     parser.add_option(
         "-m", "--mailto", default="chuser@localhost", help="Address to send emails to"
     )
 
     (options, args) = parser.parse_args()
 
-    engine = create_engine(
-        DBURL.format(user=options.user, database=options.database), echo=False
-    )
+    database_url = _database_url_from_options(options)
+
+    engine = create_engine(database_url, echo=False)
     Base.metadata.create_all(engine)
     init_model(engine)
 
