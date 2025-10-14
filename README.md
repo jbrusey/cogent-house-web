@@ -51,6 +51,17 @@ uv pip install -e .
 The MySQL data is stored in a named Docker volume `dbdata` so that data is
 preserved between restarts.
 
+## Daily email Gmail credentials
+
+The `cogent/daily_email.py` script authenticates with Gmail using a pickle
+file that contains the account credentials. By default the script continues to
+look for `/home/chuser/auth2.pickle`, but the location can now be overridden
+either by setting the `COGENT_GMAIL_AUTH_PATH` environment variable or by
+passing the `--auth-file` CLI flag when invoking the script. The script checks
+that the resolved file exists during startup and exits with a clear message if
+it cannot be found, allowing deployments to mount the credential file wherever
+is most convenient.
+
 ## Apache reverse proxy (optional)
 
 If you prefer to serve the Flask application through Apache, a sample site
