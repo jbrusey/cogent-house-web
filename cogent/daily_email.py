@@ -14,10 +14,12 @@
 # ------------------------------------------------------------
 
 
+import os
 import pickle
 import platform
 import smtplib
 import time
+from pathlib import Path
 
 from sqlalchemy import create_engine
 
@@ -28,7 +30,9 @@ TIMEOUT = 2 * 60  # 2 minutes
 
 DBURL = "mysql://{user}@localhost/{database}?connect_timeout=1"
 
-AUTH = "/home/chuser/auth2.pickle"
+DEFAULT_AUTH_PATH = "/home/chuser/auth2.pickle"
+AUTH_ENV_VAR = "COGENT_GMAIL_AUTH_PATH"
+AUTH_PATH = os.environ.get(AUTH_ENV_VAR, DEFAULT_AUTH_PATH)
 
 
 def mail(
@@ -58,7 +62,8 @@ def mail(
 
 
 def mail_string_list_to_gmail(to, error_list):
-    auth = pickle.load(open(AUTH, "rb"))
+    with open(AUTH_PATH, "rb") as auth_file:
+        auth = pickle.load(auth_file)
     if len(error_list) > 0:
         # text = '\n\n'.join(error_list)
         mail(
@@ -152,7 +157,36 @@ if __name__ == "__main__":
         "-m", "--mailto", default="chuser@localhost", help="Address to send emails to"
     )
 
+    parser.add_option(
+        "-a",
+        "--auth-file",
+        dest="auth_file",
+        help=(
+            "Path to the Gmail credential pickle file. Overrides the"
+            f" ${AUTH_ENV_VAR} environment variable."
+        ),
+    )
+
     (options, args) = parser.parse_args()
+
+    resolved_auth_path = (
+        options.auth_file
+        or os.environ.get(AUTH_ENV_VAR)
+        or DEFAULT_AUTH_PATH
+    )
+
+    auth_path = Path(resolved_auth_path)
+
+    if not auth_path.is_file():
+        parser.exit(
+            status=1,
+            msg=(
+                f"Gmail credential file not found at '{auth_path}'. "
+                f"Provide --auth-file or set ${AUTH_ENV_VAR}.\n"
+            ),
+        )
+
+    AUTH_PATH = str(auth_path)
 
     engine = create_engine(
         DBURL.format(user=options.user, database=options.database), echo=False
