@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-import matplotlib
+import matplotlib.dates as mdates
 from flask import Blueprint, Response, abort, render_template, request
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -283,7 +283,7 @@ def graph_image():
             t = []
             v = []
             for qt, qv in qry:
-                t.append(matplotlib.dates.date2num(qt))
+                t.append(mdates.date2num(qt))
                 v.append(qv)
             v = _calibrate(session, v, int(node), int(typ))
             if len(t) > MAX_CHART_POINTS:
