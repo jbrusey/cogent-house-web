@@ -131,6 +131,22 @@ def run_reports(
 #            s = smtplib.SMTP('localhost')
 #            s.sendmail(me, you, message)
 
+def _database_url_from_options(options):
+    if options.dburl:
+        return options.dburl
+
+    env_url = os.environ.get("CH_DBURL")
+    if env_url:
+        return env_url
+
+    credentials = options.user
+    if options.password:
+        credentials = f"{options.user}:{options.password}"
+
+    host = options.host or "localhost"
+    return f"mysql://{credentials}@{host}/{options.database}?connect_timeout=1"
+
+
 if __name__ == "__main__":
     from optparse import OptionParser
 
@@ -152,6 +168,18 @@ if __name__ == "__main__":
     parser.add_option("-d", "--database", default="ch", help="mysql database to use")
     parser.add_option(
         "-u", "--user", default="chuser", help="mysql user to login to database with"
+    )
+    parser.add_option("-H", "--host", default="localhost", help="mysql host to connect to")
+    parser.add_option(
+        "-p",
+        "--password",
+        default="",
+        help="mysql password for the specified user (default: empty)",
+    )
+    parser.add_option(
+        "--dburl",
+        default=None,
+        help="full SQLAlchemy database URL; overrides user/host/database options",
     )
     parser.add_option(
         "-m", "--mailto", default="chuser@localhost", help="Address to send emails to"

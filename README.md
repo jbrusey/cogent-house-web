@@ -29,6 +29,19 @@ uv pip install -e .
 2. The database credentials are defined in `docker-compose.yml` and the
    Flask container uses the `CH_DBURL` environment variable to connect.
 
+   The `cogent/daily_email.py` helper script can use the same DSN. Either
+   export `CH_DBURL` before running the script or pass a custom connection
+   string with `--dburl`. For example, to point at the MySQL service started by
+   Docker Compose:
+
+   ```bash
+   CH_DBURL="mysql://chuser:chpass@db/ch?connect_timeout=1" \
+     python cogent/daily_email.py --dry-run
+   # or
+   python cogent/daily_email.py --dry-run \
+     --dburl mysql://chuser:chpass@db/ch?connect_timeout=1
+   ```
+
 3. To stop the containers:
 
    ```bash
