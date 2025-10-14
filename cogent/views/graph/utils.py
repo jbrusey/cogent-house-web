@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from typing import Iterable, Sequence
 
 import matplotlib
+import matplotlib.dates as mdates
 
 matplotlib.use("Agg")
 import matplotlib.patches as patches
@@ -73,7 +74,7 @@ def _select_downsample_indices(
     time_values: list[float] = []
     for ts in timestamps:
         if isinstance(ts, datetime):
-            time_values.append(matplotlib.dates.date2num(ts))
+            time_values.append(mdates.date2num(ts))
         else:
             time_values.append(float(ts))
 
@@ -319,7 +320,7 @@ def _plot(typ, t, v, startts, endts, debug, fmt, type_label=None):
         ax = fig.add_subplot(111)
         ax.set_autoscalex_on(False)
         ax.set_xlim(
-            (matplotlib.dates.date2num(startts), matplotlib.dates.date2num(endts))
+            (mdates.date2num(startts), mdates.date2num(endts))
         )
         if len(t) == 0:
             return _no_data_plot()
@@ -352,7 +353,7 @@ def _plot_splines(
             )
         ),
     ):
-        dt = matplotlib.dates.date2num(pt.dt)
+        dt = mdates.date2num(pt.dt)
         if first:
             coords = [(dt, pt.sp)]
             codes = [Path.MOVETO]
@@ -375,17 +376,17 @@ def _plot_splines(
     ax = fig.add_subplot(111)
     ax.set_autoscalex_on(False)
     ax.set_xlim(
-        (matplotlib.dates.date2num(start_time), matplotlib.dates.date2num(end_time))
+        (mdates.date2num(start_time), mdates.date2num(end_time))
     )
     patch = patches.PathPatch(path, facecolor="none", lw=2)
     ax.add_patch(patch)
     if last_dt < end_time:
         delta_t = (end_time - last_dt).seconds
         ly = last_s + last_t * delta_t / 300.0
-        lx = matplotlib.dates.date2num(end_time)
+        lx = mdates.date2num(end_time)
         ax.plot_date([lx], [ly], "ro")
         path = Path(
-            [(matplotlib.dates.date2num(last_dt), last_s), (lx, ly)],
+            [(mdates.date2num(last_dt), last_s), (lx, ly)],
             [Path.MOVETO, Path.LINETO],
         )
         patch = patches.PathPatch(path, linestyle="dashed", facecolor="none", lw=2)
