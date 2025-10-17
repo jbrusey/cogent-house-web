@@ -29,9 +29,7 @@ from cogent.report import reports
 
 TIMEOUT = 2 * 60  # 2 minutes
 
-DBURL = "mysql://{user}@{host}/{database}?connect_timeout=1"
-
-DEFAULT_AUTH_PATH = "/home/chuser/auth2.pickle"
+DEFAULT_AUTH_PATH = "/data/auth2.pickle"
 AUTH_ENV_VAR = "COGENT_GMAIL_AUTH_PATH"
 AUTH_PATH = os.environ.get(AUTH_ENV_VAR, DEFAULT_AUTH_PATH)
 
@@ -44,7 +42,7 @@ def mail(
     login="",
     passwd="",
     debug=False,
-    port=587,
+    port=465,
 ):
     """
     Usage:
@@ -52,8 +50,7 @@ def mail(
     """
     #    headers = "From: {}\r\nTo: {}\r\nSubject: {}\r\n\r\n".format(sender, to, subject)
     #    message = headers + text
-    mailServer = smtplib.SMTP(serverURL, port=port, timeout=TIMEOUT)
-    mailServer.starttls()
+    mailServer = smtplib.SMTP_SSL(serverURL, port=port, timeout=TIMEOUT)
     if debug:
         mailServer.set_debuglevel(True)
     if login != "":
@@ -221,9 +218,7 @@ if __name__ == "__main__":
     if options.dburl:
         dburl = options.dburl
     else:
-        dburl = DBURL.format(
-            user=options.user, database=options.database, host=options.host
-        )
+        dburl = _database_url_from_options(options)
     engine = create_engine(dburl, echo=False)
     try:
         Base.metadata.create_all(engine)
