@@ -17,7 +17,9 @@ def table_with_nodes(session, html, node_set):
     for values in (
         session.query(Node.id, House.address, Room.name)
         .filter(Node.id.in_(node_set))
-        .join(Location, House, Room)
+        .join(Node.location)
+        .join(Location.house)
+        .join(Location.room)
         .all()
     ):
         html.append("<tr>")
@@ -117,7 +119,9 @@ def packetYield(
         .join(minseq_q, minseq_q.c.nodeId == maxseq_q.c.nodeId)
         .join(seqcnt_q, maxseq_q.c.nodeId == seqcnt_q.c.nodeId)
         .join(Node, Node.id == maxseq_q.c.nodeId)
-        .join(Location, House, Room)
+        .join(Node.location)
+        .join(Location.house)
+        .join(Location.room)
         .filter(or_(House.endDate is None, House.endDate >= start_t))
         .order_by(House.address, Room.name)
     )
@@ -148,7 +152,7 @@ def packetYield(
     all_set = set(
         [
             int(x)
-            for (x,) in session.query(Node.id).filter(Node.locationId is not None).all()
+            for (x,) in session.query(Node.id).filter(Node.locationId.isnot(None)).all()
         ]
     )
 
@@ -194,7 +198,9 @@ def packetYield(
         recovered_list = (
             session.query(Node.id, House.address, Room.name)
             .filter(Node.id.in_(recovered_nodes))
-            .join(Location, House, Room)
+            .join(Node.location)
+            .join(Location.house)
+            .join(Location.room)
             .all()
         )
         if len(recovered_list) > 0:

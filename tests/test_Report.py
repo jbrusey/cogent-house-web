@@ -2,11 +2,12 @@ import datetime
 import unittest
 
 # from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, func, text
 
 from cogent.base.model import (
     Base,
     House,
+    LastReport,
     Location,
     Node,
     NodeState,
@@ -16,7 +17,7 @@ from cogent.base.model import (
     Session,
     init_model,
 )
-from cogent.report import lowBat
+from cogent.report import ccYield, lowBat, packetYield
 
 from . import base
 
@@ -68,6 +69,32 @@ class TestReport(base.BaseTestCase):
         finally:
             s.close()
 
+    def test_packet_yield_reports_lost_nodes(self):
+        expected_nodes = {22, 23, 24, 4098, 4099}
+        try:
+            s = Session()
+            html_first = packetYield(s)
+            html_second = packetYield(s)
+
+            html_first_str = "\n".join(html_first)
+            html_second_str = "\n".join(html_second)
+
+            self.assertIn("<h3>Nodes recently lost</h3>", html_first_str)
+            self.assertIn("<h3>These nodes are still lost</h3>", html_second_str)
+            self.assertNotIn("<h3>Nodes recently lost</h3>", html_second_str)
+
+            for node_id in expected_nodes:
+                node_cell = f"<td>{node_id}</td>"
+                self.assertIn(node_cell, html_first_str)
+                self.assertIn(node_cell, html_second_str)
+
+            last_report = (
+                s.query(LastReport).filter(LastReport.name == "lost-nodes").one()
+            )
+            self.assertEqual(eval(last_report.value), expected_nodes)
+        finally:
+            s.close()
+
     # def test_packetyield(self):
     #     try:
     #         s = Session()
@@ -79,16 +106,38 @@ class TestReport(base.BaseTestCase):
     #     finally:
     #         s.close()
 
-    # def test_ccyield(self):
-    #     try:
-    #         s = Session()
-    #         x = ccYield(s)
-    #         # print x
-    #         y = ccYield(s)
-    #         # print y
-    #         # self.assertTrue(len(y) == 0)
-    #     finally:
-    #         s.close()
+    def test_ccyield(self):
+        try:
+            s = Session()
+            s.execute(text("DELETE FROM LastReport"))
+            s.commit()
+
+            start_time = s.query(func.min(Reading.time)).scalar()
+            self.assertIsNotNone(start_time)
+            # Keep the reporting window within a day so the existing
+            # expected yield calculation remains non-zero in tests.
+            end_time = start_time + datetime.timedelta(minutes=287 * 5, seconds=299)
+
+            first_report = ccYield(s, start_t=start_time, end_t=end_time)
+            first_html = "".join(first_report)
+
+            self.assertIn("Low yield current-cost nodes", first_html)
+            self.assertIn("<td>4099</td>", first_html)
+            self.assertNotIn("<td>4098</td>", first_html)
+
+            last_report = (
+                s.query(LastReport).filter(LastReport.name == "lost-cc-nodes").one()
+            )
+            self.assertEqual(last_report.value, "set()")
+
+            second_report = ccYield(s, start_t=start_time, end_t=end_time)
+            second_html = "".join(second_report)
+            self.assertIn("<td>4099</td>", second_html)
+
+        finally:
+            s.execute(text("DELETE FROM LastReport"))
+            s.commit()
+            s.close()
 
 
 def initDb():

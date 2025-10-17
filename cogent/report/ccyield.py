@@ -30,6 +30,10 @@ def ccYield(
             House.address,
             Room.name,
         )
+        .join(Reading.node)
+        .join(Node.location)
+        .join(Location.house)
+        .join(Location.room)
         .filter(
             and_(
                 Reading.time >= start_t,
@@ -39,7 +43,6 @@ def ccYield(
             )
         )
         .group_by(Reading.nodeId)
-        .join(Node, Location, House, Room)
         .order_by(House.address, Room.name)
         .all()
     )
@@ -64,7 +67,8 @@ def ccYield(
         [
             int(x)
             for (x,) in session.query(Node.id)
-            .filter(and_(Node.locationId is not None, Node.nodeTypeId == 1))
+            .join(Node.location)
+            .filter(and_(Node.locationId.is_not(None), Node.nodeTypeId == 1))
             .all()
         ]
     )
@@ -107,8 +111,10 @@ def ccYield(
         fmt = ["%d", "%s", "%s"]
         for values in (
             session.query(Node.id, House.address, Room.name)
+            .join(Node.location)
+            .join(Location.house)
+            .join(Location.room)
             .filter(Node.id.in_(just_lost_nodes))
-            .join(Location, House, Room)
             .all()
         ):
             html.append("<tr>")
@@ -119,8 +125,10 @@ def ccYield(
     if len(recovered_nodes) > 0:
         recovered_list = (
             session.query(Node.id, House.address, Room.name)
+            .join(Node.location)
+            .join(Location.house)
+            .join(Location.room)
             .filter(Node.id.in_(recovered_nodes))
-            .join(Location, House, Room)
             .all()
         )
         if len(recovered_list) > 0:

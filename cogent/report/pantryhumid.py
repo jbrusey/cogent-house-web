@@ -21,7 +21,9 @@ def pantry_humid(
 
     pantry_humidity = (
         session.query(Reading.time, Reading.value)
-        .join(Location, Node, Room)
+        .join(Reading.node)
+        .join(Node.location)
+        .join(Location.room)
         .filter(
             and_(
                 Reading.time >= start_t,

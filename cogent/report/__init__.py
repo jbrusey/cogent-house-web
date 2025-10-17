@@ -3,6 +3,7 @@
 from cogent.report.ccyield import ccYield
 from cogent.report.fridgeopen import fridge_open
 from cogent.report.lowbat import lowBat
+from cogent.report.packetyield import packetYield
 
 # from cogent.report.packetyield import packetYield
 from cogent.report.pantryhumid import pantry_humid
@@ -15,4 +16,13 @@ reports = [
     ("Fridge open", fridge_open),
     #            ('Packet yield', packetYield),
     ("Current cost yield", ccYield),
+]
+
+__all__ = [
+    "lowBat",
+    "server_down",
+    "pantry_humid",
+    "fridge_open",
+    "packetYield",
+    "ccYield",
 ]
