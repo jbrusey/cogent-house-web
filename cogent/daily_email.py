@@ -22,13 +22,14 @@ import time
 from pathlib import Path
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 
 from cogent.base.model import Base, Session, init_model
 from cogent.report import reports
 
 TIMEOUT = 2 * 60  # 2 minutes
 
-DBURL = "mysql://{user}@localhost/{database}?connect_timeout=1"
+DBURL = "mysql://{user}@{host}/{database}?connect_timeout=1"
 
 DEFAULT_AUTH_PATH = "/home/chuser/auth2.pickle"
 AUTH_ENV_VAR = "COGENT_GMAIL_AUTH_PATH"
@@ -131,6 +132,7 @@ def run_reports(
 #            s = smtplib.SMTP('localhost')
 #            s.sendmail(me, you, message)
 
+
 def _database_url_from_options(options):
     if options.dburl:
         return options.dburl
@@ -169,7 +171,9 @@ if __name__ == "__main__":
     parser.add_option(
         "-u", "--user", default="chuser", help="mysql user to login to database with"
     )
-    parser.add_option("-H", "--host", default="localhost", help="mysql host to connect to")
+    parser.add_option(
+        "-H", "--host", default="localhost", help="mysql host to connect to"
+    )
     parser.add_option(
         "-p",
         "--password",
@@ -198,9 +202,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
 
     resolved_auth_path = (
-        options.auth_file
-        or os.environ.get(AUTH_ENV_VAR)
-        or DEFAULT_AUTH_PATH
+        options.auth_file or os.environ.get(AUTH_ENV_VAR) or DEFAULT_AUTH_PATH
     )
 
     auth_path = Path(resolved_auth_path)
@@ -216,10 +218,21 @@ if __name__ == "__main__":
 
     AUTH_PATH = str(auth_path)
 
-    engine = create_engine(
-        DBURL.format(user=options.user, database=options.database), echo=False
-    )
-    Base.metadata.create_all(engine)
+    if options.dburl:
+        dburl = options.dburl
+    else:
+        dburl = DBURL.format(
+            user=options.user, database=options.database, host=options.host
+        )
+    engine = create_engine(dburl, echo=False)
+    try:
+        Base.metadata.create_all(engine)
+    except OperationalError as e:
+        parser.exit(
+            status=1,
+            msg=f"Error connecting to the database: {e} with dburl: {dburl}\n",
+        )
+
     init_model(engine)
 
     run_reports(
