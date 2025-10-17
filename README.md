@@ -42,6 +42,18 @@ uv pip install -e .
      --dburl mysql://chuser:chpass@db/ch?connect_timeout=1
    ```
 
+   The daily email identifies the host that generated the report in both the
+   `From:` header and subject line. Override these defaults with either command
+   line flags or environment variables when running inside Docker:
+
+   * `--from-address` / `COGENT_EMAIL_FROM` &ndash; sender email address to place
+     in the `From:` header.
+   * `--hostname` / `COGENT_EMAIL_HOSTNAME` &ndash; hostname label used in the
+     subject and angle-bracket identifier.
+
+   When neither option is provided the script falls back to
+   `platform.node()` to describe the host, mirroring the previous behaviour.
+
 3. To stop the containers:
 
    ```bash

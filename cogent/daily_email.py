@@ -33,6 +33,9 @@ DEFAULT_AUTH_PATH = "/data/auth2.pickle"
 AUTH_ENV_VAR = "COGENT_GMAIL_AUTH_PATH"
 AUTH_PATH = os.environ.get(AUTH_ENV_VAR, DEFAULT_AUTH_PATH)
 
+EMAIL_FROM_ENV_VAR = "COGENT_EMAIL_FROM"
+EMAIL_HOST_ENV_VAR = "COGENT_EMAIL_HOSTNAME"
+
 
 def mail(
     serverURL=None,
@@ -88,9 +91,11 @@ def run_reports(
     dry_run=False,
     time_queries=False,
     you="nobody@localhost",
-    me="yield@" + platform.node(),
-    host=platform.node(),
+    me=None,
+    host=None,
 ):
+    resolved_host = host or platform.node()
+    resolved_me = me or f"yield@{resolved_host}"
     try:
         session = Session()
 
@@ -112,7 +117,9 @@ def run_reports(
     finally:
         session.close()
 
-    message = header(you=you, me=me, host=host) + "".join(html) + footer()
+    message = (
+        header(you=you, me=resolved_me, host=resolved_host) + "".join(html) + footer()
+    )
 
     if dry_run:
         if len(html) == 0:
@@ -196,6 +203,23 @@ if __name__ == "__main__":
         ),
     )
 
+    parser.add_option(
+        "--from-address",
+        dest="from_address",
+        help=(
+            "Sender address to use for the daily report email. Overrides the"
+            f" ${EMAIL_FROM_ENV_VAR} environment variable."
+        ),
+    )
+    parser.add_option(
+        "--hostname",
+        dest="email_hostname",
+        help=(
+            "Hostname label for the email header/subject. Overrides the"
+            f" ${EMAIL_HOST_ENV_VAR} environment variable."
+        ),
+    )
+
     (options, args) = parser.parse_args()
 
     resolved_auth_path = (
@@ -230,6 +254,19 @@ if __name__ == "__main__":
 
     init_model(engine)
 
+    resolved_host = (
+        options.email_hostname or os.environ.get(EMAIL_HOST_ENV_VAR) or platform.node()
+    )
+    resolved_sender = (
+        options.from_address
+        or os.environ.get(EMAIL_FROM_ENV_VAR)
+        or f"yield@{resolved_host}"
+    )
+
     run_reports(
-        dry_run=options.dry_run, time_queries=options.time_queries, you=options.mailto
+        dry_run=options.dry_run,
+        time_queries=options.time_queries,
+        you=options.mailto,
+        me=resolved_sender,
+        host=resolved_host,
     )
