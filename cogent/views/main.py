@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, time, timedelta
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for
 from sqlalchemy import and_, distinct, func
 from sqlalchemy.orm import aliased
 
@@ -220,7 +220,9 @@ def yield24():
                     "maxseq": maxseq,
                     "last": last_heard,
                     "yield": calc_yield(seqcnt, minseq, maxseq),
-                    "node_url": f"/nodeGraph?node={node_id}&typ=6&period=day",
+                    "node_url": url_for(
+                        "graph.node_graph", node=node_id, typ=6, period="day"
+                    ),
                 }
             )
 
