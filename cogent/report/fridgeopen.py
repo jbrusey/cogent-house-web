@@ -7,11 +7,14 @@ from sqlalchemy import and_
 from cogent.base.model import Location, Node, Reading, Room
 
 THRESHOLD = 10
+DEFAULT_LOOKBACK_HOURS = 6
 
 
-def fridge_open(
-    session, end_t=datetime.now(UTC), start_t=(datetime.now(UTC) - timedelta(hours=4))
-):
+def fridge_open(session, end_t=None, start_t=None):
+    if end_t is None:
+        end_t = datetime.now(UTC)
+    if start_t is None:
+        start_t = end_t - timedelta(hours=DEFAULT_LOOKBACK_HOURS)
     html = []
 
     fridge_temperature = (
