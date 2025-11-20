@@ -63,6 +63,44 @@ uv pip install -e .
 The MySQL data is stored in a named Docker volume `dbdata` so that data is
 preserved between restarts.
 
+## Automated container publishing and Watchtower updates
+
+Pushes to the `main` branch automatically build the web service image in this
+repository and publish it to GitHub Container Registry via a GitHub Actions
+workflow. Images are tagged for branches, Git tags, and the committing SHA, so
+the `ghcr.io/<OWNER>/<REPO>:main` tag will stay up to date with the latest
+mainline changes.
+
+Because this project normally runs under Docker Compose (with a MySQL sidecar),
+use the published image from GHCR by setting the `WEB_IMAGE` environment
+variable for the Compose project:
+
+```bash
+WEB_IMAGE=ghcr.io/<OWNER>/<REPO>:main docker compose pull web
+WEB_IMAGE=ghcr.io/<OWNER>/<REPO>:main docker compose up -d
+```
+
+This keeps the `db` container on the official `mysql:5.7` image while the `web`
+service tracks the GHCR build.
+
+You can use [Watchtower](https://containrrr.dev/watchtower/) to monitor the
+Compose-managed web container and restart it when a new tag is pushed. After
+authenticating to GHCR with `docker login ghcr.io`, run Watchtower and scope it
+to the Compose-managed container name (for a project directory named
+`cogent-house-web`, that container is `cogent-house-web-web-1`):
+
+```bash
+docker run -d --name watchtower \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  containrrr/watchtower cogent-house-web-web-1 \
+  --interval 30 --cleanup --registry-auth
+```
+
+Watchtower will poll GHCR for updates to the web image and recreate the
+container when a new build is published. To watch a differently named Compose
+project, swap in that project's web container name (you can check it with
+`docker compose ps`).
+
 ## Daily email Gmail credentials
 
 The `cogent/daily_email.py` script authenticates with Gmail using a pickle

@@ -11,6 +11,7 @@ services:
       - dbdata:/var/lib/mysql
 
   web:
+    image: ${WEB_IMAGE:-cogent-house-web:local}
     build: .
     command:
       - uv
