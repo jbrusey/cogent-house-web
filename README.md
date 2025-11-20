@@ -68,7 +68,7 @@ preserved between restarts.
 Pushes to the `main` branch automatically build the web service image in this
 repository and publish it to GitHub Container Registry via a GitHub Actions
 workflow. Images are tagged for branches, Git tags, and the committing SHA, so
-the `ghcr.io/<OWNER>/<REPO>:main` tag will stay up to date with the latest
+the `ghcr.io/jbrusey/cogent-house-web:main` tag will stay up to date with the latest
 mainline changes.
 
 Because this project normally runs under Docker Compose (with a MySQL sidecar),
@@ -76,8 +76,8 @@ use the published image from GHCR by setting the `WEB_IMAGE` environment
 variable for the Compose project:
 
 ```bash
-WEB_IMAGE=ghcr.io/<OWNER>/<REPO>:main docker compose pull web
-WEB_IMAGE=ghcr.io/<OWNER>/<REPO>:main docker compose up -d
+WEB_IMAGE=ghcr.io/jbrusey/cogent-house-web:main docker compose pull web
+WEB_IMAGE=ghcr.io/jbrusey/cogent-house-web:main docker compose up -d
 ```
 
 This keeps the `db` container on the official `mysql:5.7` image while the `web`
