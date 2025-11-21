@@ -2,5 +2,14 @@
 {% block content %}
 <p>Welcome to the CogentHouse Maintenance Portal</p>
 <p>This portal can be used to monitor your deployed CogentHouse sensors and to view graphs of all recorded data.</p>
-<p><a href="{{ url_for('tree.tree_page') }}">Network tree diagram</a></p>
+<p>Use the links below to quickly jump to the main sections of the portal:</p>
+<ul>
+    <li><a href="{{ url_for('main.missing') }}">Missing</a></li>
+    <li><a href="{{ url_for('main.yield24') }}">Yield 24h</a></li>
+    <li><a href="{{ url_for('main.lowbat') }}">Low batteries</a></li>
+    <li><a href="{{ url_for('main.electricity_usage') }}">Electricity usage</a></li>
+    <li><a href="{{ url_for('graph.current_values') }}">Current values</a></li>
+    <li><a href="{{ url_for('graph.all_graphs') }}">All graphs</a></li>
+    <li><a href="{{ url_for('tree.tree_page') }}">Network tree diagram</a></li>
+</ul>
 {% endblock %}
