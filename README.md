@@ -92,8 +92,9 @@ to the Compose-managed container name (for a project directory named
 ```bash
 docker run -d --name watchtower \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  containrrr/watchtower cogent-house-web-web-1 \
-  --interval 30 --cleanup --registry-auth
+  containrrr/watchtower  \
+  --interval 30 --cleanup \
+  cogent-house-web-web-1
 ```
 
 Watchtower will poll GHCR for updates to the web image and recreate the
