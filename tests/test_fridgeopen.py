@@ -47,3 +47,19 @@ class TestFridgeOpenReport(base.BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("Fridge temperature is 12.0", result[0])
         self.assertIn(latest.strftime("%Y-%m-%d %H:%M:%S"), result[0])
+
+    def test_missing_fridge_reading_includes_graph_link(self):
+        now = datetime.now(UTC).replace(microsecond=0)
+
+        house = House(address="Test house")
+        fridge_room = Room(name="fridge")
+        fridge_location = Location(house=house, room=fridge_room)
+        fridge_node = Node(id=300, location=fridge_location)
+
+        self.session.add_all([house, fridge_room, fridge_location, fridge_node])
+
+        result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("Missing fridge temperature reading", result[0])
+        self.assertIn("nodeGraph?node=300&typ=0&period=day", result[0])

@@ -34,10 +34,26 @@ def fridge_open(session, end_t=None, start_t=None):
         .first()
     )
 
+    fridge_node_id = (
+        session.query(Node.id)
+        .join(Node.location)
+        .join(Location.room)
+        .filter(Room.name == "fridge")
+        .order_by(Node.id)
+        .scalar()
+    )
+
     if fridge_temperature is not None:
         (qt, qv) = fridge_temperature
         if qv > THRESHOLD:
             html.append("<p><b>Fridge temperature is {} at {}</b></p>".format(qv, qt))
     else:
-        html.append("<p><b>Missing fridge temperature reading </b></p>")
+        if fridge_node_id is not None:
+            graph_link = f"/nodeGraph?node={fridge_node_id}&typ=0&period=day"
+            html.append(
+                "<p><b>Missing fridge temperature reading</b> "
+                f'<a href="{graph_link}">View fridge temperature graph</a></p>'
+            )
+        else:
+            html.append("<p><b>Missing fridge temperature reading </b></p>")
     return html
