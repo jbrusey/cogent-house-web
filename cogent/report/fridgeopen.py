@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import and_
 
 from cogent.base.model import Location, Node, Reading, Room
+from cogent.config import GRAPH_HOST
 
 THRESHOLD = 10
 DEFAULT_LOOKBACK_HOURS = 6
@@ -49,7 +50,9 @@ def fridge_open(session, end_t=None, start_t=None):
             html.append("<p><b>Fridge temperature is {} at {}</b></p>".format(qv, qt))
     else:
         if fridge_node_id is not None:
-            graph_link = f"/nodeGraph?node={fridge_node_id}&typ=0&period=day"
+            graph_link = (
+                f"{GRAPH_HOST}/nodeGraph?node={fridge_node_id}&typ=0&period=day"
+            )
             html.append(
                 "<p><b>Missing fridge temperature reading</b> "
                 f'<a href="{graph_link}">View fridge temperature graph</a></p>'
