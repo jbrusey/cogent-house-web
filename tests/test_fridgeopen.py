@@ -62,4 +62,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
 
         self.assertEqual(len(result), 1)
         self.assertIn("Missing fridge temperature reading", result[0])
-        self.assertIn("nodeGraph?node=300&typ=0&period=day", result[0])
+        self.assertIn(
+            "https://cogentee.coventry.ac.uk/silicon/nodeGraph?node=300&typ=0&period=day",
+            result[0],
+        )
