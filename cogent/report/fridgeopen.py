@@ -16,34 +16,33 @@ def fridge_open(session, end_t=None, start_t=None):
         end_t = datetime.now(UTC)
     html = []
 
-    fridge_node_id = (
+    fridge_nodes = (
         session.query(Node.id)
         .join(Node.location)
         .join(Location.room)
         .filter(Room.name == "fridge")
-        .order_by(Node.id)
-        .scalar()
     )
 
-    if fridge_node_id is None:
+    first_fridge_node = fridge_nodes.order_by(Node.id).first()
+
+    if first_fridge_node is None:
         html.append("<p><b>Missing fridge temperature reading </b></p>")
         return html
 
+    (first_fridge_node_id,) = first_fridge_node
+
     fridge_temperature = (
-        session.query(Reading.time, Reading.value)
-        .filter(
-            and_(
-                Reading.nodeId == fridge_node_id,
-                Reading.typeId == 0,
-                Reading.time <= end_t,
-            )
-        )
+        session.query(Reading.nodeId, Reading.time, Reading.value)
+        .join(Reading.node)
+        .join(Node.location)
+        .join(Location.room)
+        .filter(and_(Room.name == "fridge", Reading.typeId == 0, Reading.time <= end_t))
         .order_by(Reading.time.desc())
         .first()
     )
 
     if fridge_temperature is not None:
-        (qt, qv) = fridge_temperature
+        fridge_node_id, qt, qv = fridge_temperature
         qt = qt.replace(tzinfo=UTC)
         rate_of_change = (
             session.query(Reading.time, Reading.value)
@@ -70,7 +69,9 @@ def fridge_open(session, end_t=None, start_t=None):
                 )
             )
     else:
-        graph_link = f"{GRAPH_HOST}/nodeGraph?node={fridge_node_id}&typ=0&period=day"
+        graph_link = (
+            f"{GRAPH_HOST}/nodeGraph?node={first_fridge_node_id}&typ=0&period=day"
+        )
         html.append(
             "<p><b>Missing fridge temperature reading</b> "
             f'<a href="{graph_link}">View fridge temperature graph</a></p>'

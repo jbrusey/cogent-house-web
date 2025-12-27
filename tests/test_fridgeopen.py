@@ -60,9 +60,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
 
         self.session.add_all([house, fridge_room, fridge_location, fridge_node])
 
-        self.session.add(
-            Reading(node=fridge_node, typeId=0, time=latest, value=12.0)
-        )
+        self.session.add(Reading(node=fridge_node, typeId=0, time=latest, value=12.0))
 
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
@@ -88,3 +86,28 @@ class TestFridgeOpenReport(base.BaseTestCase):
             "https://cogentee.coventry.ac.uk/silicon/nodeGraph?node=300&typ=0&period=day",
             result[0],
         )
+
+    def test_uses_fridge_with_latest_temperature_reading(self):
+        now = datetime.now(UTC).replace(microsecond=0)
+        latest = now - timedelta(minutes=10)
+
+        house = House(address="Test house")
+        fridge_room = Room(name="fridge")
+        location = Location(house=house, room=fridge_room)
+
+        offline_fridge_node = Node(id=100, location=location)
+        active_fridge_node = Node(id=200, location=location)
+
+        self.session.add_all(
+            [house, fridge_room, location, offline_fridge_node, active_fridge_node]
+        )
+
+        self.session.add(
+            Reading(node=active_fridge_node, typeId=0, time=latest, value=11.0)
+        )
+
+        result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("Fridge temperature is 11.0", result[0])
+        self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
