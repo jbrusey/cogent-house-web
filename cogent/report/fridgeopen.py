@@ -26,17 +26,20 @@ def fridge_open(session, end_t=None, start_t=None):
     first_fridge_node = fridge_nodes.order_by(Node.id).first()
 
     if first_fridge_node is None:
-        html.append("<p><b>Missing fridge temperature reading </b></p>")
+        html.append("<p><b>No 'fridge' nodes found</b></p>")
         return html
 
     (first_fridge_node_id,) = first_fridge_node
 
     fridge_temperature = (
         session.query(Reading.nodeId, Reading.time, Reading.value)
-        .join(Reading.node)
-        .join(Node.location)
-        .join(Location.room)
-        .filter(and_(Room.name == "fridge", Reading.typeId == 0, Reading.time <= end_t))
+        .filter(
+            and_(
+                Reading.nodeId == first_fridge_node_id,
+                Reading.typeId == 0,
+                Reading.time <= end_t,
+            )
+        )
         .order_by(Reading.time.desc())
         .first()
     )
@@ -64,7 +67,7 @@ def fridge_open(session, end_t=None, start_t=None):
 
         if extrapolated_temperature > THRESHOLD:
             html.append(
-                "<p><b>Fridge temperature is {} at {}</b></p>".format(
+                "<p><b>Extrapolated fridge temperature is {} at {}</b></p>".format(
                     extrapolated_temperature, end_t.replace(microsecond=0)
                 )
             )
@@ -73,7 +76,7 @@ def fridge_open(session, end_t=None, start_t=None):
             f"{GRAPH_HOST}/nodeGraph?node={first_fridge_node_id}&typ=0&period=day"
         )
         html.append(
-            "<p><b>Missing fridge temperature reading</b> "
-            f'<a href="{graph_link}">View fridge temperature graph</a></p>'
+            "<p><b>Attempt to find last fridge temperature failed</b></p>"
+            f'<p><a href="{graph_link}">View fridge temperature graph</a></p>'
         )
     return html

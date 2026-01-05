@@ -46,7 +46,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
         self.assertEqual(len(result), 1)
-        self.assertIn("Fridge temperature is 22.4", result[0])
+        self.assertIn("Extrapolated fridge temperature is 22.4", result[0])
         self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
 
     def test_uses_temperature_without_rate_reading(self):
@@ -65,7 +65,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
         self.assertEqual(len(result), 1)
-        self.assertIn("Fridge temperature is 12.0", result[0])
+        self.assertIn("Extrapolated fridge temperature is 12.0", result[0])
         self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
 
     def test_missing_fridge_reading_includes_graph_link(self):
@@ -81,7 +81,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
         self.assertEqual(len(result), 1)
-        self.assertIn("Missing fridge temperature reading", result[0])
+        self.assertIn("Attempt to find last fridge temperature failed", result[0])
         self.assertIn(
             "https://cogentee.coventry.ac.uk/silicon/nodeGraph?node=300&typ=0&period=day",
             result[0],
@@ -109,5 +109,8 @@ class TestFridgeOpenReport(base.BaseTestCase):
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
         self.assertEqual(len(result), 1)
-        self.assertIn("Fridge temperature is 11.0", result[0])
-        self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
+        self.assertIn("Attempt to find last fridge temperature failed", result[0])
+        self.assertIn(
+            "https://cogentee.coventry.ac.uk/silicon/nodeGraph?node=100&typ=0&period=day",
+            result[0],
+        )
