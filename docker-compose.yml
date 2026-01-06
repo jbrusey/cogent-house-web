@@ -11,8 +11,15 @@ services:
       - dbdata:/var/lib/mysql
 
   web:
-    image: ${WEB_IMAGE:-cogent-house-web:local}
-    build: .
+    # In production set WEB_IMAGE to your GHCR tag, e.g.
+    # WEB_IMAGE=ghcr.io/jbrusey/cogent-house-web:main
+    image: ${WEB_IMAGE:-ghcr.io/jbrusey/cogent-house-web:main}
+
+    # IMPORTANT:
+    # If you keep build enabled, you'll often be running a local image and
+    # watchtower won't help. Consider moving build into a dev override file.
+    # build: .
+
     command:
       - uv
       - run
@@ -39,6 +46,24 @@ services:
       CH_DBURL: mysql://chuser:chpass@db/ch?connect_timeout=1
       LOGFROMFLAT_DIR: /data/silicon
     restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Make sure this path matches the user on the host who ran `docker login ghcr.io`
+      - /home/jamesb/.docker/config.json:/config.json:ro
+    environment:
+      - DOCKER_CONFIG=/
+    command:
+      - --interval=30
+      - --cleanup
+      - --label-enable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
 
 volumes:
   dbdata:
