@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import and_
 
-from cogent.base.model import Location, Node, Reading, Room
+from cogent.base.model import LastReport, Location, Node, Reading, Room
 from cogent.config import GRAPH_HOST
 from cogent.report.util import predict
 
@@ -15,6 +15,14 @@ def fridge_open(session, end_t=None, start_t=None):
     if end_t is None:
         end_t = datetime.now(UTC)
     html = []
+    overtemp_report = (
+        session.query(LastReport)
+        .filter(LastReport.name == "FridgeOverTemp")
+        .first()
+    )
+    overtemp_active = (
+        overtemp_report is not None and overtemp_report.value == "True"
+    )
 
     fridge_nodes = (
         session.query(Node.id)
@@ -70,17 +78,30 @@ def fridge_open(session, end_t=None, start_t=None):
         )
 
         if extrapolated_temperature > THRESHOLD:
-            html.append(
-                (
-                    '<p><b><a href="{link}">'
-                    "Extrapolated fridge temperature is {:.1f} at {}"
-                    "</a></b></p>"
-                ).format(
-                    extrapolated_temperature,
-                    end_t.replace(microsecond=0),
-                    link=graph_link,
+            if not overtemp_active:
+                if overtemp_report is None:
+                    overtemp_report = LastReport(
+                        name="FridgeOverTemp", value="True"
+                    )
+                    session.add(overtemp_report)
+                else:
+                    overtemp_report.value = "True"
+                session.commit()
+                html.append(
+                    (
+                        '<p><b><a href="{link}">'
+                        "Extrapolated fridge temperature is {:.1f} at {}"
+                        "</a></b></p>"
+                    ).format(
+                        extrapolated_temperature,
+                        end_t.replace(microsecond=0),
+                        link=graph_link,
+                    )
                 )
-            )
+        elif overtemp_active:
+            html.append("<p><b>Fridge temperature has recovered</b></p>")
+            overtemp_report.value = "False"
+            session.commit()
     else:
         html.append(
             "<p><b>Attempt to find last fridge temperature failed</b></p>"

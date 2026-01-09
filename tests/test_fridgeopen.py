@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from cogent.base.model import House, Location, Node, Reading, Room
+from cogent.base.model import House, LastReport, Location, Node, Reading, Room
 from cogent.report.fridgeopen import fridge_open
 
 from . import base
@@ -67,6 +67,66 @@ class TestFridgeOpenReport(base.BaseTestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("Extrapolated fridge temperature is 12.0", result[0])
         self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
+
+    def test_overtemp_report_updates_lastreport_once(self):
+        now = datetime.now(UTC).replace(microsecond=0)
+        latest = now - timedelta(hours=8)
+        earlier = now - timedelta(hours=12)
+
+        house = House(address="Test house")
+        fridge_room = Room(name="fridge")
+        fridge_location = Location(house=house, room=fridge_room)
+        fridge_node = Node(id=100, location=fridge_location)
+
+        self.session.add_all([house, fridge_room, fridge_location, fridge_node])
+
+        self.session.add_all(
+            [
+                Reading(node=fridge_node, typeId=0, time=latest, value=8.0),
+                Reading(node=fridge_node, typeId=1, time=latest, value=0.0005),
+                Reading(node=fridge_node, typeId=0, time=earlier, value=5.0),
+            ]
+        )
+
+        result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
+
+        self.assertEqual(len(result), 1)
+        last_report = (
+            self.session.query(LastReport)
+            .filter(LastReport.name == "FridgeOverTemp")
+            .one()
+        )
+        self.assertEqual(last_report.value, "True")
+
+        result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
+
+        self.assertEqual(result, [])
+
+    def test_reports_recovery_after_overtemp(self):
+        now = datetime.now(UTC).replace(microsecond=0)
+        latest = now - timedelta(minutes=5)
+
+        house = House(address="Test house")
+        fridge_room = Room(name="fridge")
+        fridge_location = Location(house=house, room=fridge_room)
+        fridge_node = Node(id=400, location=fridge_location)
+
+        self.session.add_all([house, fridge_room, fridge_location, fridge_node])
+        self.session.add(
+            LastReport(name="FridgeOverTemp", value="True")
+        )
+        self.session.add(Reading(node=fridge_node, typeId=0, time=latest, value=8.0))
+
+        result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("Fridge temperature has recovered", result[0])
+        last_report = (
+            self.session.query(LastReport)
+            .filter(LastReport.name == "FridgeOverTemp")
+            .one()
+        )
+        self.assertEqual(last_report.value, "False")
 
     def test_missing_fridge_reading_includes_graph_link(self):
         now = datetime.now(UTC).replace(microsecond=0)
