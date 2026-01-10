@@ -1,6 +1,14 @@
 import datetime
 
-from cogent.base.model import House, Location, Node, Reading, Room, RoomType
+from cogent.base.model import (
+    House,
+    LastReport,
+    Location,
+    Node,
+    Reading,
+    Room,
+    RoomType,
+)
 from cogent.report.pantryhumid import THRESHOLD, pantry_humid
 
 from . import base
@@ -70,3 +78,92 @@ class TestPantryHumidityReport(base.BaseTestCase):
         )
 
         self.assertEqual(result, [])
+
+    def test_high_humidity_updates_last_report_once(self):
+        base_time = datetime.datetime.now(datetime.UTC).replace(microsecond=0)
+
+        house = House(address="Pantry House")
+        room_type = RoomType(name="Pantry Type")
+        pantry_room = Room(name="pantry", roomType=room_type)
+        pantry_location = Location(house=house, room=pantry_room)
+        pantry_node = Node(id=1001, location=pantry_location)
+
+        pantry_reading = Reading(
+            time=base_time,
+            typeId=2,
+            value=THRESHOLD + 5,
+            node=pantry_node,
+            location=pantry_location,
+        )
+
+        self.session.add_all(
+            [house, room_type, pantry_room, pantry_location, pantry_node, pantry_reading]
+        )
+        self.session.flush()
+
+        result = pantry_humid(
+            self.session,
+            start_t=base_time - datetime.timedelta(hours=2),
+            end_t=base_time + datetime.timedelta(minutes=1),
+        )
+
+        self.assertEqual(len(result), 1)
+        last_report = (
+            self.session.query(LastReport)
+            .filter(LastReport.name == "PantryHumidityHigh")
+            .one()
+        )
+        self.assertEqual(last_report.value, "True")
+
+        result = pantry_humid(
+            self.session,
+            start_t=base_time - datetime.timedelta(hours=2),
+            end_t=base_time + datetime.timedelta(minutes=1),
+        )
+
+        self.assertEqual(result, [])
+
+    def test_reports_recovery_after_high_humidity(self):
+        base_time = datetime.datetime.now(datetime.UTC).replace(microsecond=0)
+
+        house = House(address="Pantry House")
+        room_type = RoomType(name="Pantry Type")
+        pantry_room = Room(name="pantry", roomType=room_type)
+        pantry_location = Location(house=house, room=pantry_room)
+        pantry_node = Node(id=1001, location=pantry_location)
+
+        pantry_reading = Reading(
+            time=base_time,
+            typeId=2,
+            value=THRESHOLD - 5,
+            node=pantry_node,
+            location=pantry_location,
+        )
+
+        self.session.add_all(
+            [
+                house,
+                room_type,
+                pantry_room,
+                pantry_location,
+                pantry_node,
+                pantry_reading,
+                LastReport(name="PantryHumidityHigh", value="True"),
+            ]
+        )
+        self.session.flush()
+
+        result = pantry_humid(
+            self.session,
+            start_t=base_time - datetime.timedelta(hours=2),
+            end_t=base_time + datetime.timedelta(minutes=1),
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertIn("Pantry humidity has recovered", result[0])
+        last_report = (
+            self.session.query(LastReport)
+            .filter(LastReport.name == "PantryHumidityHigh")
+            .one()
+        )
+        self.assertEqual(last_report.value, "False")
