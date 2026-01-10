@@ -10,7 +10,6 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import and_
 
 from cogent.base.model import Location, Node, Reading, Room
-
 from cogent.report.lastreport import (
     LastReportName,
     get_last_report_flag,
