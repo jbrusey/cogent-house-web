@@ -1,6 +1,8 @@
+import csv
+import io
 from datetime import UTC, datetime, time, timedelta
 
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, Response, render_template, request, url_for
 from sqlalchemy import and_, distinct, func
 from sqlalchemy.orm import aliased
 
@@ -27,6 +29,15 @@ _PERIOD_DEFINITIONS = [
     ("2-years", "Last 24 months", 730),
 ]
 _PERIOD_LOOKUP = {key: days for key, _, days in _PERIOD_DEFINITIONS}
+
+
+def _parse_date(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
 
 
 @main_bp.route("/")
@@ -323,6 +334,98 @@ def electricity_usage():
         has_data=has_data,
         start_date=start_date,
         end_date=end_date,
+    )
+
+
+@main_bp.route("/export")
+def export_page():
+    start_date_raw = request.args.get("start_date")
+    end_date_raw = request.args.get("end_date")
+    selected_sensor_type_ids = {
+        int(value)
+        for value in request.args.getlist("sensor_type")
+        if value.isdigit()
+    }
+    selected_room_ids = {
+        int(value) for value in request.args.getlist("room") if value.isdigit()
+    }
+
+    with Session() as session:
+        sensor_types = (
+            session.query(SensorType.id, SensorType.name)
+            .order_by(SensorType.name)
+            .all()
+        )
+        rooms = session.query(Room.id, Room.name).order_by(Room.name).all()
+
+    return render_template(
+        "export.html",
+        title="Export data",
+        sensor_types=sensor_types,
+        rooms=rooms,
+        selected_sensor_type_ids=selected_sensor_type_ids,
+        selected_room_ids=selected_room_ids,
+        start_date=start_date_raw,
+        end_date=end_date_raw,
+    )
+
+
+@main_bp.route("/export/download")
+def export_download():
+    start_date = _parse_date(request.args.get("start_date"))
+    end_date = _parse_date(request.args.get("end_date"))
+
+    sensor_type_ids = [
+        int(value) for value in request.args.getlist("sensor_type") if value.isdigit()
+    ]
+    room_ids = [int(value) for value in request.args.getlist("room") if value.isdigit()]
+
+    query_filters = []
+    if sensor_type_ids:
+        query_filters.append(Reading.typeId.in_(sensor_type_ids))
+    if room_ids:
+        query_filters.append(Room.id.in_(room_ids))
+    if start_date:
+        query_filters.append(Reading.time >= datetime.combine(start_date, time.min))
+    if end_date:
+        query_filters.append(Reading.time <= datetime.combine(end_date, time.max))
+
+    with Session() as session:
+        query = (
+            session.query(
+                Reading.time,
+                Reading.nodeId,
+                Reading.typeId,
+                Reading.locationId,
+                Reading.value,
+            )
+            .join(Location, Reading.locationId == Location.id)
+            .join(Room, Location.roomId == Room.id)
+        )
+        if query_filters:
+            query = query.filter(*query_filters)
+        rows = query.order_by(Reading.time, Reading.nodeId, Reading.typeId).all()
+
+    csv_io = io.StringIO()
+    writer = csv.writer(csv_io)
+    writer.writerow(["time", "nodeId", "typeId", "locationId", "value"])
+    for row in rows:
+        writer.writerow(
+            [
+                row.time.isoformat() if row.time else "",
+                row.nodeId,
+                row.typeId,
+                row.locationId,
+                row.value,
+            ]
+        )
+
+    timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
+    filename = f"sensor_export_{timestamp}.csv"
+    return Response(
+        csv_io.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

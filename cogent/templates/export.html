@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p class="text-muted">
+    Download raw sensor readings in CSV format. Leave filters empty to export all available readings.
+</p>
+
+<form method="get" action="{{ url_for('main.export_download') }}" class="row g-3">
+    <div class="col-md-6">
+        <label for="sensor-types" class="form-label">Sensor types</label>
+        <select id="sensor-types" name="sensor_type" multiple class="form-select" size="10">
+            {% for sensor_type in sensor_types %}
+            <option value="{{ sensor_type.id }}" {% if sensor_type.id in selected_sensor_type_ids %}selected{% endif %}>
+                {{ sensor_type.name }} (ID {{ sensor_type.id }})
+            </option>
+            {% endfor %}
+        </select>
+        <div class="form-text">Hold Ctrl (Windows/Linux) or Command (macOS) to select multiple values.</div>
+    </div>
+
+    <div class="col-md-6">
+        <label for="rooms" class="form-label">Rooms</label>
+        <select id="rooms" name="room" multiple class="form-select" size="10">
+            {% for room in rooms %}
+            <option value="{{ room.id }}" {% if room.id in selected_room_ids %}selected{% endif %}>
+                {{ room.name }} (ID {{ room.id }})
+            </option>
+            {% endfor %}
+        </select>
+        <div class="form-text">You can select multiple rooms.</div>
+    </div>
+
+    <div class="col-md-3">
+        <label for="start-date" class="form-label">Start date</label>
+        <input id="start-date" type="date" name="start_date" class="form-control" value="{{ start_date }}">
+    </div>
+
+    <div class="col-md-3">
+        <label for="end-date" class="form-label">End date</label>
+        <input id="end-date" type="date" name="end_date" class="form-control" value="{{ end_date }}">
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Download CSV</button>
+    </div>
+</form>
+{% endblock %}
