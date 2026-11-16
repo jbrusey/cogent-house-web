@@ -60,12 +60,23 @@ class TestFridgeOpenReport(base.BaseTestCase):
 
         self.session.add_all([house, fridge_room, fridge_location, fridge_node])
 
-        self.session.add(Reading(node=fridge_node, typeId=0, time=latest, value=12.0))
+        reading = Reading(node=fridge_node, typeId=0, time=latest, value=11.0)
+        self.session.add(reading)
+
+        for temperature in (11.0, 12.0):
+            with self.subTest(temperature=temperature):
+                reading.value = temperature
+                result = fridge_open(
+                    self.session, start_t=now - timedelta(hours=1), end_t=now
+                )
+                self.assertEqual(result, [])
+
+        reading.value = 12.1
 
         result = fridge_open(self.session, start_t=now - timedelta(hours=1), end_t=now)
 
         self.assertEqual(len(result), 1)
-        self.assertIn("Extrapolated fridge temperature is 12.0", result[0])
+        self.assertIn("Extrapolated fridge temperature is 12.1", result[0])
         self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
 
     def test_overtemp_report_updates_lastreport_once(self):

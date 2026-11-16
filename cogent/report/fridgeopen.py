@@ -1,4 +1,4 @@
-"""Fridge should be less than 10 degrees"""
+"""Warn when the extrapolated fridge temperature exceeds 12 degrees Celsius."""
 
 from datetime import UTC, datetime, timedelta
 
@@ -13,7 +13,7 @@ from cogent.report.lastreport import (
 )
 from cogent.report.util import predict
 
-THRESHOLD = 10
+THRESHOLD = 12
 
 
 def fridge_open(session, end_t=None, start_t=None):
