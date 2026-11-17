@@ -1,6 +1,7 @@
 """Warn when the extrapolated fridge temperature exceeds 12 degrees Celsius."""
 
 from datetime import UTC, datetime, timedelta
+from urllib.parse import urlencode
 
 from sqlalchemy import and_
 
@@ -41,6 +42,7 @@ def fridge_open(session, end_t=None, start_t=None):
 
     graph_link = (
         f"{GRAPH_HOST}/nodeGraph?node={first_fridge_node_id}&typ=0&period=day"
+        f"&{urlencode({'at': end_t.isoformat()})}"
     )
 
     fridge_temperature = (

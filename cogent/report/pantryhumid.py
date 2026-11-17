@@ -6,6 +6,7 @@ Modifications
 """
 
 from datetime import UTC, datetime, timedelta
+from urllib.parse import urlencode
 
 from sqlalchemy import and_
 
@@ -63,6 +64,7 @@ def pantry_humid(
 
     if pantry_humidity is not None:
         (qt, qv) = pantry_humidity
+        graph_link += "&" + urlencode({"at": qt.replace(tzinfo=UTC).isoformat()})
         if qv > THRESHOLD:
             if not humid_active:
                 humid_report = set_last_report_flag(
@@ -91,6 +93,7 @@ def pantry_humid(
                 report=humid_report,
             )
     else:
+        graph_link += "&" + urlencode({"at": end_t.isoformat()})
         html.append(
             "<p><b>Pantry reading not found</b></p>"
             f'<p><a href="{graph_link}">View pantry humidity graph</a></p>'

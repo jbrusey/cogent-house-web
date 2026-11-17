@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from urllib.parse import urlencode
 
 from cogent.base.model import House, LastReport, Location, Node, Reading, Room
 from cogent.report.fridgeopen import fridge_open
@@ -47,6 +48,7 @@ class TestFridgeOpenReport(base.BaseTestCase):
 
         self.assertEqual(len(result), 1)
         self.assertIn("Extrapolated fridge temperature is 22.4", result[0])
+        self.assertIn(urlencode({"at": now.isoformat()}), result[0])
         self.assertIn(now.strftime("%Y-%m-%d %H:%M:%S"), result[0])
 
     def test_uses_temperature_without_rate_reading(self):

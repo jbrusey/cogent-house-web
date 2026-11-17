@@ -128,3 +128,20 @@ sudo systemctl reload apache2
 
 The configuration forwards requests to the app running locally on
 `http://127.0.0.1:8000/` using `ProxyPass` and `ProxyPassReverse`.
+
+## Graph permalinks
+
+Add `at` to a node graph URL to centre the selected period on a fixed ISO 8601
+date/time, for example:
+
+```text
+/nodeGraph?node=100&typ=0&period=day&at=2026-11-17T12:00:00Z
+```
+
+This shows the 24 hours from midnight on 17 November to midnight on 18 November
+UTC. Timezone offsets are supported (URL-encode `+` as `%2B`); timestamps without
+an offset use UTC. Changing the period or sensor preserves the timestamp, and
+the navigation arrows move by one period. Without `at`, graphs retain their
+rolling time window. The `/plot` image endpoint also accepts `at`, centring its
+`duration` (in minutes) on that timestamp. Invalid timestamps return HTTP 400.
+Fridge and pantry warning emails include these fixed timestamps automatically.

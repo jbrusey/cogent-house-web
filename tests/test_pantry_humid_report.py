@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import urlencode
 
 from cogent.base.model import (
     House,
@@ -114,6 +115,7 @@ class TestPantryHumidityReport(base.BaseTestCase):
             .one()
         )
         self.assertEqual(last_report.value, "True")
+        self.assertIn(urlencode({"at": base_time.isoformat()}), result[0])
 
         result = pantry_humid(
             self.session,

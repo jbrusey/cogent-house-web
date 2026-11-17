@@ -32,6 +32,25 @@ graph_bp = Blueprint("graph", __name__)
 MAX_CHART_POINTS = 100
 
 
+def _graph_window(minutes, ago=0):
+    """Return UTC query bounds, optionally centred on an ISO timestamp."""
+    at = request.args.get("at")
+    duration = timedelta(minutes=minutes)
+    try:
+        if at is not None:
+            centre = datetime.fromisoformat(at)
+            if centre.tzinfo is None:
+                centre = centre.replace(tzinfo=timezone.utc)
+            centre = centre.astimezone(timezone.utc)
+            end = centre + duration / 2 - ago * duration
+        else:
+            end = datetime.now(timezone.utc) - ago * duration
+        start = end - duration
+    except (ValueError, OverflowError):
+        abort(400, description="at must be an ISO date/time within the supported range")
+    return start.replace(tzinfo=None), end.replace(tzinfo=None)
+
+
 @graph_bp.route("/allGraphs")
 def all_graphs():
     typ = int(request.args.get("typ", "0"))
@@ -154,9 +173,7 @@ def node_graph():
                 .filter(Node.id == int(node))
                 .one()
             )
-            startts = datetime.now(timezone.utc) - timedelta(minutes=(ago + 1) * mins)
-            startts = startts.replace(tzinfo=None)
-            endts = startts + timedelta(minutes=mins)
+            startts, endts = _graph_window(mins, ago)
             type_id = int(typ)
             node_id = int(node)
             y_label = _get_y_label(type_id, session)
@@ -206,8 +223,8 @@ def node_graph():
                 "hAxis": {
                     "title": "Time",
                     "viewWindow": {
-                        "min": int(startts.timestamp() * 1000),
-                        "max": int(endts.timestamp() * 1000),
+                        "min": int(startts.replace(tzinfo=timezone.utc).timestamp() * 1000),
+                        "max": int(endts.replace(tzinfo=timezone.utc).timestamp() * 1000),
                     },
                     "viewWindowMode": "explicit",
                 },
@@ -245,6 +262,7 @@ def node_graph():
                 typ=typ,
                 node_id=node,
                 ago=ago,
+                at=request.args.get("at"),
                 sensor_types=sensor_types,
             )
         except NoResultFound:
@@ -263,9 +281,12 @@ def graph_image():
         minsago_i = _int(minsago, 60)
         duration_i = _int(duration, 60)
         debug_f = debug is not None
-        startts = datetime.now(timezone.utc) - timedelta(minutes=minsago_i)
-        startts = startts.replace(tzinfo=None)
-        endts = startts + timedelta(minutes=duration_i)
+        if request.args.get("at") is not None:
+            startts, endts = _graph_window(duration_i)
+        else:
+            startts = datetime.now(timezone.utc) - timedelta(minutes=minsago_i)
+            startts = startts.replace(tzinfo=None)
+            endts = startts + timedelta(minutes=duration_i)
         type_id = int(typ)
         if type_id not in type_delta:
             qry = (

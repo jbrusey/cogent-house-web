@@ -22,6 +22,7 @@
   <label for="typ" class="form-label">Sensor type</label>
   <input type="hidden" name="node" value="{{ node_id }}">
   <input type="hidden" name="period" value="{{ period }}">
+  {% if at %}<input type="hidden" name="at" value="{{ at }}">{% endif %}
   <input type="hidden" name="ago" value="{{ ago }}">
   <select name="typ" id="typ" class="form-select" onchange="this.form.submit()">
     {% for st in sensor_types %}
@@ -34,14 +35,14 @@
     {% if k == period %}
         {{ k }}
     {% else %}
-        <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=k) }}" title="change period to {{ k }}">{{ k }}</a>
+        <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=k, at=at, ago=ago if at else none) }}" title="change period to {{ k }}">{{ k }}</a>
     {% endif %}
 {% endfor %}
 </p>
 <p>
-<a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago + 1) }}">&lt;&lt;</a>
-{% if ago > 0 %}
-    &mdash; <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago - 1) }}">&gt;&gt;</a>
+<a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago + 1, at=at) }}">&lt;&lt;</a>
+{% if at or ago > 0 %}
+    &mdash; <a href="{{ url_for('graph.node_graph', node=node_id, typ=typ, period=period, ago=ago - 1, at=at) }}">&gt;&gt;</a>
 {% endif %}
 </p>
 <div id="grphtitle">{{ heading }}</div>
